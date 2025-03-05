@@ -1,0 +1,18 @@
+import 'package:get/get.dart';
+import 'package:k3_mobile/src/home/view/home_binding.dart';
+import 'package:k3_mobile/src/home/view/home_view.dart';
+
+part 'app_route.dart';
+
+class AppPage {
+  AppPage._();
+  static const INITIAL = AppRoute.HOME;
+
+  static final Routes = [
+    GetPage(
+      name: _Path.HOME,
+      page: () => HomeView(title: 'a'),
+      binding: HomeBinding(),
+    )
+  ];
+}
