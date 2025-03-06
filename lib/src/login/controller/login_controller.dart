@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:k3_mobile/const/app_page.dart';
 
 class LoginController extends GetxController {
   final TextEditingController nameC = TextEditingController(),
@@ -25,10 +26,11 @@ class LoginController extends GetxController {
     if (!loading.value) {
       loading(true);
       update();
-      await Future.delayed(Duration(seconds: 10), () {});
+      await Future.delayed(Duration(seconds: 3), () {});
       log("LOGIN 2");
       loading(false);
       update();
+      Get.toNamed(AppRoute.MAIN_HOME);
     }
   }
 

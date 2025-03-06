@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_page.dart';
 import 'package:k3_mobile/src/home/view/home_view.dart';
+import 'package:k3_mobile/src/main_home/view/main_home_view.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
@@ -44,7 +45,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: AppPage.INITIAL,
       getPages: AppPage.Routes,
-      home: HomeView(title: 'Flutter K3 Home Page'),
+      home: MainHomeView(),
       builder: (context, child) {
         child = EasyLoading.init()(context, child);
         // log(MediaQuery.of(context).size.toString());
