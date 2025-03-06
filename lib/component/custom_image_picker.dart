@@ -2,8 +2,11 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
-import 'custom_container.dart';
+import 'package:k3_mobile/component/compress_image.dart';
+import 'package:k3_mobile/const/app_color.dart';
+import 'package:k3_mobile/const/app_sheet.dart';
+import 'package:k3_mobile/const/app_text_style.dart';
+import 'package:k3_mobile/generated/assets.dart';
 
 class CustomImagePicker {
   static Future<XFile?> takeSelfie() async {
@@ -37,33 +40,63 @@ class CustomImagePicker {
 
   static Future<File?> cameraOrGallery(BuildContext context) async {
     File? f;
-    await CustomContainer.showModalBottomDraggable(
+    await AppSheet.showModalBottomDraggable(
       initialChildSize: 0.3,
       context: context,
-      child: Column(
-        children: [
-          Text(
-            "Pilihan",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 24),
-          // CustomButton.mainButton("Ambil Dari Kamera", () async {
-          //   final image = await takeSelfie();
-          //   if (image == null) return;
-          //   f = await compressImage(File(image.path));
-          //   log("FILE COMPRESS : ${f?.path}");
-          //   Navigator.pop(context);
-          // }),
-          SizedBox(height: 8),
-          // CustomButton.mainButton("Ambil Dari Galeri", () async {
-          //   final image = await selectImageFromGallery();
-          //   if (image == null) return;
-          //   f = File(image.path);
-          //   Navigator.pop(context);
-          // }),
-          SizedBox(height: 24),
-        ],
+      child: Padding(
+        padding: EdgeInsets.all(24),
+        child: Column(
+          children: [
+            InkWell(
+              onTap: () async {
+                final image = await takeSelfie();
+                if (image == null) return;
+                f = await compressImage(File(image.path));
+                log("FILE COMPRESS : ${f?.path}");
+                Navigator.pop(context);
+              },
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+                child: Row(
+                  children: [
+                    Image.asset(Assets.iconsIcCamera, width: 32, height: 32),
+                    SizedBox(width: 16),
+                    Text(
+                      'Ambil gambar',
+                      style: AppTextStyle.bodyM
+                          .copyWith(color: AppColor.neutralDarkMedium),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 8),
+            InkWell(
+              onTap: () async {
+                final image = await selectImageFromGallery();
+                if (image == null) return;
+                f = File(image.path);
+                Navigator.pop(context);
+              },
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+                child: Row(
+                  children: [
+                    Image.asset(Assets.iconsIcCamera, width: 32, height: 32),
+                    SizedBox(width: 16),
+                    Text(
+                      'Pilih dari galeri',
+                      style: AppTextStyle.bodyM
+                          .copyWith(color: AppColor.neutralDarkMedium),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
     return f;

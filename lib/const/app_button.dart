@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:k3_mobile/const/app_color.dart';
 
 class AppButton {
   static Widget basicButton({
@@ -13,6 +14,7 @@ class AppButton {
     double? width,
     double? height,
     Widget? child,
+    bool enable = false,
   }) {
     return InkWell(
       onTap: onTap,
@@ -23,7 +25,7 @@ class AppButton {
         decoration: BoxDecoration(
           border: border,
           borderRadius: BorderRadius.circular(radius),
-          color: color,
+          color: enable ? color : AppColor.neutralDarkLight,
         ),
         child: child,
       ),

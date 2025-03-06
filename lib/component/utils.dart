@@ -172,7 +172,7 @@ class Utils {
               height: 100,
             ),
           ),
-          Text("Sukses",
+          Text("Berhasil",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           Visibility(
             visible: msg != "",

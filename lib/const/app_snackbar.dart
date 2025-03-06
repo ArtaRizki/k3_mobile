@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:k3_mobile/const/app_color.dart';
 
-class CustomAlert {
+class AppSnackbar {
   /// Show Snackbar [Global Function]
   static void showSnackBar(
     BuildContext context,

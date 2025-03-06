@@ -2,28 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
 
-class AppTextField extends StatelessWidget {
-  final TextEditingController controller;
-  final String label;
-  final VoidCallback? onTap;
-  final bool readOnly;
-  final bool filled;
-  final String hintText;
-  final Widget? prefix;
-
-  const AppTextField({
-    Key? key,
-    required this.controller,
-    required this.label,
-    this.onTap,
-    this.readOnly = false,
-    this.filled = false,
-    this.hintText = '',
-    this.prefix,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
+class AppTextField {
+  static Widget mainTextField({
+    required TextEditingController controller,
+    required String label,
+    VoidCallback? onTap,
+    bool readOnly = false,
+    String hintText = '',
+    Widget? prefixIcon,
+    BoxConstraints? prefixIconConstraints,
+    Function(String)? onChanged,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -37,10 +26,13 @@ class AppTextField extends StatelessWidget {
           controller: controller,
           readOnly: readOnly,
           onTap: onTap,
+          style: AppTextStyle.bodyM.copyWith(color: AppColor.neutralDarkMedium),
+          onChanged: onChanged,
           decoration: InputDecoration(
-            filled: filled,
-            fillColor: filled ? Colors.white : AppColor.neutralLightLight,
-            prefix: prefix,
+            filled: true,
+            fillColor: readOnly ? AppColor.neutralLightLight : Colors.white,
+            prefixIconConstraints: prefixIconConstraints,
+            prefix: prefixIcon,
             hintText: hintText,
             hintStyle: AppTextStyle.bodyM
                 .copyWith(color: AppColor.neutralLightDarkest),
@@ -69,6 +61,57 @@ class AppTextField extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  static Widget loginTextField({
+    required TextEditingController controller,
+    VoidCallback? onTap,
+    bool readOnly = false,
+    bool isPassword = false,
+    String hintText = '',
+    Widget? suffixIcon,
+    BoxConstraints? suffixIconConstraints,
+    Function(String)? onChanged,
+  }) {
+    return TextFormField(
+      controller: controller,
+      readOnly: readOnly,
+      onTap: onTap,
+      style: AppTextStyle.bodyM.copyWith(color: AppColor.neutralDarkMedium),
+      obscureText: isPassword,
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: readOnly ? AppColor.neutralLightLight : Colors.white,
+        suffixIconConstraints: suffixIconConstraints,
+        suffixIcon: suffixIcon,
+        hintText: hintText,
+        hintStyle:
+            AppTextStyle.bodyM.copyWith(color: AppColor.neutralLightDarkest),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: BorderSide(color: AppColor.neutralLightDarkest),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: BorderSide(color: AppColor.neutralLightDarkest),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: BorderSide(color: AppColor.highlightDarkest),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: BorderSide(color: AppColor.errorDark),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: BorderSide(color: AppColor.errorDark),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+      ),
     );
   }
 }
