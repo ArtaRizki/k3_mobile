@@ -11,17 +11,20 @@ class AppTextField {
     String hintText = '',
     Widget? prefixIcon,
     BoxConstraints? prefixIconConstraints,
+    Widget? suffixIcon,
+    BoxConstraints? suffixIconConstraints,
     Function(String)? onChanged,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style:
-              AppTextStyle.actionL.copyWith(color: AppColor.neutralDarkDarkest),
-        ),
-        const SizedBox(height: 8),
+        if (label != '')
+          Text(
+            label,
+            style: AppTextStyle.actionL
+                .copyWith(color: AppColor.neutralDarkDarkest),
+          ),
+        if (label != '') const SizedBox(height: 8),
         TextFormField(
           controller: controller,
           readOnly: readOnly,
@@ -33,6 +36,8 @@ class AppTextField {
             fillColor: readOnly ? AppColor.neutralLightLight : Colors.white,
             prefixIconConstraints: prefixIconConstraints,
             prefix: prefixIcon,
+            suffixIconConstraints: suffixIconConstraints,
+            suffix: suffixIcon,
             hintText: hintText,
             hintStyle: AppTextStyle.bodyM
                 .copyWith(color: AppColor.neutralLightDarkest),
@@ -57,7 +62,7 @@ class AppTextField {
               borderSide: BorderSide(color: AppColor.errorDark),
             ),
             contentPadding:
-                const EdgeInsets.symmetric(vertical: 30, horizontal: 12),
+                const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
           ),
         ),
       ],

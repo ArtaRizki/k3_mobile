@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: AppPage.INITIAL,
       getPages: AppPage.Routes,
-      home: MainHomeView(),
+      // home: MainHomeView(),
       builder: (context, child) {
         child = EasyLoading.init()(context, child);
         // log(MediaQuery.of(context).size.toString());

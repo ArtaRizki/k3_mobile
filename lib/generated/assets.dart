@@ -12,13 +12,17 @@ class Assets {
   static const String fontsInterSemiBold = 'assets/fonts/Inter-SemiBold.ttf';
   static const String fontsInterThin = 'assets/fonts/Inter-Thin.ttf';
   static const String iconsIcApd = 'assets/icons/ic-apd.png';
+  static const String iconsIcArrowBack = 'assets/icons/ic-arrow-back.png';
   static const String iconsIcAvatar = 'assets/icons/ic-avatar.png';
   static const String iconsIcCamera = 'assets/icons/ic-camera.png';
+  static const String iconsIcDownloadGuide = 'assets/icons/ic-download-guide.png';
   static const String iconsIcGallery = 'assets/icons/ic-gallery.png';
   static const String iconsIcGuide = 'assets/icons/ic-guide.png';
   static const String iconsIcHome = 'assets/icons/ic-home.png';
   static const String iconsIcInspection = 'assets/icons/ic-inspection.png';
   static const String iconsIcListDashboard = 'assets/icons/ic-list-dashboard.png';
+  static const String iconsIcListDashboardGray = 'assets/icons/ic-list-dashboard-gray.png';
+  static const String iconsIcListGuide = 'assets/icons/ic-list-guide.png';
   static const String iconsIcLogout = 'assets/icons/ic-logout.png';
   static const String iconsIcNotification = 'assets/icons/ic_notification.png';
   static const String iconsIcOftenInspection = 'assets/icons/ic-often-inspection.png';
@@ -26,6 +30,7 @@ class Assets {
   static const String iconsIcPassVisible = 'assets/icons/ic-pass-visible.png';
   static const String iconsIcProfile = 'assets/icons/ic-profile.png';
   static const String iconsIcProjectInspection = 'assets/icons/ic-project-inspection.png';
+  static const String iconsIcSearch = 'assets/icons/ic-search.png';
   static const String imagesImgLogin = 'assets/images/img-login.jpg';
   static const String imagesImgMkp = 'assets/images/img-mkp.png';
   static const String imagesImgOftenInspection = 'assets/images/img-often-inspection.png';

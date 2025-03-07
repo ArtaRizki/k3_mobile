@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:k3_mobile/const/app_card.dart';
 import 'package:k3_mobile/const/app_color.dart';
+import 'package:k3_mobile/const/app_page.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/generated/assets.dart';
 import 'package:k3_mobile/src/home/controller/home_controller.dart';
+import 'package:k3_mobile/src/session/controller/session_controller.dart';
 
 class HomeView extends GetView<HomeController> {
   HomeView({super.key});
@@ -99,7 +101,9 @@ class HomeView extends GetView<HomeController> {
           ),
         ),
         InkWell(
-          onTap: () async {},
+          onTap: () async {
+            Get.toNamed(AppRoute.NOTIFICATION);
+          },
           child: Image.asset(
             Assets.iconsIcNotification,
             width: 24,
@@ -108,9 +112,12 @@ class HomeView extends GetView<HomeController> {
         ),
         SizedBox(width: 24),
         InkWell(
-          onTap: () async {},
+          onTap: () async {
+            await Get.find<SessionController>().logout();
+            Get.offAllNamed(AppRoute.LOGIN);
+          },
           child: Image.asset(
-            Assets.iconsIcLogout,
+          Assets.iconsIcLogout,
             width: 24,
             height: 24,
           ),

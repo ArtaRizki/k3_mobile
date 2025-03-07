@@ -3,8 +3,10 @@ import 'package:get/get.dart';
 import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/generated/assets.dart';
+import 'package:k3_mobile/src/guide/view/guide_view.dart';
 import 'package:k3_mobile/src/home/view/home_view.dart';
 import 'package:k3_mobile/src/main_home/controller/main_home_controller.dart';
+import 'package:k3_mobile/src/profile/view/profile_view.dart';
 
 class MainHomeView extends GetView<MainHomeController> {
   MainHomeView({super.key});
@@ -14,8 +16,8 @@ class MainHomeView extends GetView<MainHomeController> {
     HomeView(),
     Center(child: Text('Inspeksi')),
     Center(child: Text('APD')),
-    Center(child: Text('Pedoman')),
-    Center(child: Text('Profil')),
+    GuideView(),
+    ProfileView(),
   ];
 
   @override
