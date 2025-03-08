@@ -5,6 +5,7 @@ import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/generated/assets.dart';
 import 'package:k3_mobile/src/guide/view/guide_view.dart';
 import 'package:k3_mobile/src/home/view/home_view.dart';
+import 'package:k3_mobile/src/inspection/view/inspection_view.dart';
 import 'package:k3_mobile/src/main_home/controller/main_home_controller.dart';
 import 'package:k3_mobile/src/profile/view/profile_view.dart';
 
@@ -14,7 +15,7 @@ class MainHomeView extends GetView<MainHomeController> {
   // Daftar widget untuk setiap halaman
   final List<Widget> _pages = [
     HomeView(),
-    Center(child: Text('Inspeksi')),
+    InspectionView(),
     Center(child: Text('APD')),
     GuideView(),
     ProfileView(),

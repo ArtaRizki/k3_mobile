@@ -41,10 +41,10 @@ class CustomImagePicker {
   static Future<File?> cameraOrGallery(BuildContext context) async {
     File? f;
     await AppSheet.showModalBottomDraggable(
-      initialChildSize: 0.3,
+      initialChildSize: 0.275,
       context: context,
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           children: [
             InkWell(
@@ -60,7 +60,8 @@ class CustomImagePicker {
                     const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
                 child: Row(
                   children: [
-                    Image.asset(Assets.iconsIcCamera, width: 32, height: 32),
+                    Image.asset(Assets.iconsIcTakePicture,
+                        width: 32, height: 32),
                     SizedBox(width: 16),
                     Text(
                       'Ambil gambar',
@@ -84,7 +85,7 @@ class CustomImagePicker {
                     const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
                 child: Row(
                   children: [
-                    Image.asset(Assets.iconsIcCamera, width: 32, height: 32),
+                    Image.asset(Assets.iconsIcGallery, width: 32, height: 32),
                     SizedBox(width: 16),
                     Text(
                       'Pilih dari galeri',

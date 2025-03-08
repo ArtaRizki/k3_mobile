@@ -22,7 +22,7 @@ class ProfileView extends GetView<ProfileController> {
         leadingWidth: 72,
         leading: InkWell(
           onTap: () async {
-            Get.find<MainHomeController>().selectedIndex.value = 0;
+            Get.back();
           },
           child: SizedBox(
             width: 24,

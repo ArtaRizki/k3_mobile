@@ -4,6 +4,12 @@ import 'package:k3_mobile/src/guide/view/guide_preview_view.dart';
 import 'package:k3_mobile/src/guide/view/guide_view.dart';
 import 'package:k3_mobile/src/home/binding/home_binding.dart';
 import 'package:k3_mobile/src/home/view/home_view.dart';
+import 'package:k3_mobile/src/inspection/inspection_project/binding/inspection_project_binding.dart';
+import 'package:k3_mobile/src/inspection/inspection_project/view/inspection_project_view.dart';
+import 'package:k3_mobile/src/inspection/inspection_routine/binding/inspection_routine_binding.dart';
+import 'package:k3_mobile/src/inspection/inspection_routine/binding/inspection_routine_create_binding.dart';
+import 'package:k3_mobile/src/inspection/inspection_routine/view/inspection_routine_create_view.dart';
+import 'package:k3_mobile/src/inspection/inspection_routine/view/inspection_routine_view.dart';
 import 'package:k3_mobile/src/main_home/binding/main_home_binding.dart';
 import 'package:k3_mobile/src/main_home/view/main_home_view.dart';
 import 'package:k3_mobile/src/login/binding/login_binding.dart';
@@ -54,6 +60,21 @@ class AppPage {
       name: _Path.GUIDE_PREVIEW,
       page: () => GuidePreviewView(),
       binding: GuideBinding(),
+    ),
+    GetPage(
+      name: _Path.INSPECTION_ROUTINE,
+      page: () => InspectionRoutineView(),
+      binding: InspectionRoutineBinding(),
+    ),
+    GetPage(
+      name: _Path.INSPECTION_ROUTINE_CREATE,
+      page: () => InspectionRoutineCreateView(),
+      binding: InspectionRoutineCreateBinding(),
+    ),
+    GetPage(
+      name: _Path.INSPECTION_PROJECT,
+      page: () => InspectionProjectView(),
+      binding: InspectionProjectBinding(),
     ),
   ];
 }

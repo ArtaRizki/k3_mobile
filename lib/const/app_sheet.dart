@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:k3_mobile/const/app_color.dart';
 
 class AppSheet {
   static showModalBottomDraggable({
@@ -6,6 +8,7 @@ class AppSheet {
     required Widget child,
     double? initialChildSize,
     DraggableScrollableController? controller,
+    bool showTineLine = false,
   }) async {
     return await showModalBottomSheet(
       context: context,
@@ -15,7 +18,7 @@ class AppSheet {
         return DraggableScrollableSheet(
           controller: controller ?? DraggableScrollableController(),
           initialChildSize: initialChildSize ?? 0.9,
-          minChildSize: 0.1,
+          minChildSize: 0.075,
           maxChildSize: 0.96,
           expand: false,
           snap: true,
@@ -25,22 +28,38 @@ class AppSheet {
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(22),
-                  topRight: Radius.circular(22),
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
                 ),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: 55,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      color: Colors.grey,
-                      borderRadius: BorderRadius.circular(22),
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: InkWell(
+                      onTap: () {
+                        Get.back();
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 12, 24, 0),
+                        child: Icon(
+                          Icons.close,
+                          color: AppColor.neutralDarkLight,
+                        ),
+                      ),
                     ),
                   ),
-                  SizedBox(height: 18),
+                  if (showTineLine)
+                    Container(
+                      width: 55,
+                      height: 3,
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(22),
+                      ),
+                    ),
+                  if (showTineLine) SizedBox(height: 18),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [child],

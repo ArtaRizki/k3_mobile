@@ -17,7 +17,7 @@ class NotificationView extends GetView<NotificationController> {
         backgroundColor: AppColor.neutralLightLightest,
         leadingWidth: 72,
         leading: InkWell(
-          onTap: () async {
+        onTap: () async {
             Get.back();
           },
           child: SizedBox(

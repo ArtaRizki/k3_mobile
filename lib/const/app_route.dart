@@ -9,6 +9,10 @@ abstract class AppRoute {
   static const PROFILE = _Path.PROFILE;
   static const GUIDE = _Path.GUIDE;
   static const GUIDE_PREVIEW = _Path.GUIDE_PREVIEW;
+  static const INSPECTION_ROUTINE = _Path.INSPECTION_ROUTINE;
+  static const INSPECTION_ROUTINE_CREATE = _Path.INSPECTION_ROUTINE_CREATE;
+  static const INSPECTION_PROJECT = _Path.INSPECTION_PROJECT;
+  static const INSPECTION_PROJECT_CREATE = _Path.INSPECTION_PROJECT_CREATE;
 }
 
 abstract class _Path {
@@ -20,4 +24,8 @@ abstract class _Path {
   static const PROFILE = '/profile';
   static const GUIDE = '/guide';
   static const GUIDE_PREVIEW = '/guidePreview';
+  static const INSPECTION_ROUTINE = '/inspectionRoutine';
+  static const INSPECTION_ROUTINE_CREATE = '/inspectionRoutineCreate';
+  static const INSPECTION_PROJECT = '/inspectionProject';
+  static const INSPECTION_PROJECT_CREATE = '/inspectionProjectCreate';
 }

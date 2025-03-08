@@ -367,7 +367,7 @@ class Utils {
   /// How to use: Utils.showLoading();
   ///
 
-  static mainTextField(
+  static basicTextField(
       String hint, TextEditingController controller, bool obscureText,
       {TextAlign? align,
       TextInputType? inputType,

@@ -6,12 +6,12 @@ import 'package:k3_mobile/const/app_page.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/const/app_textfield.dart';
 import 'package:k3_mobile/generated/assets.dart';
-import 'package:k3_mobile/src/guide/controller/guide_controller.dart';
+import 'package:k3_mobile/src/inspection/inspection_project/controller/inspection_project_controller.dart';
 import 'package:k3_mobile/src/main_home/controller/main_home_controller.dart';
 import 'package:k3_mobile/src/session/controller/session_controller.dart';
 
-class GuideView extends GetView<GuideController> {
-  GuideView({super.key});
+class InspectionProjectView extends GetView<InspectionProjectController> {
+  InspectionProjectView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ class GuideView extends GetView<GuideController> {
         ),
         centerTitle: true,
         title: Text(
-          'Pedoman K3',
+          'Inspeksi Proyek',
           style: AppTextStyle.h4.copyWith(
             color: AppColor.neutralDarkLight,
           ),
@@ -50,10 +50,7 @@ class GuideView extends GetView<GuideController> {
       body: SafeArea(
         child: Container(
           color: AppColor.neutralLightLightest,
-          padding: const EdgeInsets.symmetric(
-            vertical: 12,
-            horizontal: 24,
-          ),
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -78,14 +75,34 @@ class GuideView extends GetView<GuideController> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 12, bottom: 12),
-                child: Text(
-                  'Daftar pedoman K3',
-                  textAlign: TextAlign.left,
-                  style: AppTextStyle.actionL.copyWith(
-                    color: AppColor.neutralDarkLight,
-                  ),
+                child: Row(
+                  children: [
+                    Text(
+                      'Data Inspeksi Proyek',
+                      textAlign: TextAlign.left,
+                      style: AppTextStyle.actionL.copyWith(
+                        color: AppColor.neutralDarkLight,
+                      ),
+                    ),
+                    Spacer(),
+                    AppCard.basicCard(
+                      color: AppColor.highlightDarkest,
+                      radius: 20,
+                      padding: EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 24,
+                      ),
+                      child: Text(
+                        'Buat baru',
+                        style: AppTextStyle.actionL.copyWith(
+                          color: AppColor.neutralLightLightest,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              SizedBox(height: 6),
               list(),
             ],
           ),
@@ -112,7 +129,7 @@ class GuideView extends GetView<GuideController> {
             child: Row(
               children: [
                 Image.asset(
-                  Assets.iconsIcListGuide,
+                  Assets.iconsIcListInspectionProject,
                   width: 52,
                   height: 52,
                 ),
@@ -126,15 +143,15 @@ class GuideView extends GetView<GuideController> {
                         children: [
                           Expanded(
                             child: Text(
-                              'PD/001/2025/001',
-                              style: AppTextStyle.bodyS.copyWith(
+                              'INS/2025/II/001',
+                              style: AppTextStyle.h4.copyWith(
                                 color: AppColor.neutralDarkDarkest,
                               ),
                             ),
                           ),
                           Text(
                             '12/02/2025',
-                            style: AppTextStyle.bodyS.copyWith(
+                            style: AppTextStyle.bodyM.copyWith(
                               color: AppColor.neutralDarkDarkest,
                             ),
                           ),
@@ -147,40 +164,35 @@ class GuideView extends GetView<GuideController> {
                           children: [
                             Expanded(
                               child: Text(
-                                'Tata cara pelaksanaan K3 di lingkungan proyek',
-                                style: AppTextStyle.h5.copyWith(
+                                'Resiko tinggi',
+                                style: AppTextStyle.bodyS.copyWith(
                                   color: AppColor.neutralDarkDarkest,
-                                  fontSize: 12,
                                 ),
                               ),
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'Aturan',
-                                  style: AppTextStyle.bodyS.copyWith(
-                                    color: AppColor.neutralDarkDarkest,
-                                  ),
-                                ),
-                                Row(
-                                  children: [
-                                    Image.asset(
-                                      Assets.iconsIcDownloadGuide,
-                                      width: 24,
-                                      height: 24,
-                                    ),
-                                    Text(
-                                      ' Unduh',
-                                      style: AppTextStyle.bodyS.copyWith(
-                                        color: AppColor.highlightDarkest,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                            Text(
+                              'Unsafe Action',
+                              style: AppTextStyle.bodyS.copyWith(
+                                color: AppColor.neutralDarkDarkest,
+                              ),
                             ),
                           ],
+                        ),
+                      ),
+                      SizedBox(height: 3),
+                      Text(
+                        'Ruang Meeting Kantor pusat',
+                        style: AppTextStyle.bodyS.copyWith(
+                          color: AppColor.neutralDarkDarkest,
+                          fontSize: 12,
+                        ),
+                      ),
+                      SizedBox(height: 3),
+                      Text(
+                        'Jl A. Yani Surabaya',
+                        style: AppTextStyle.bodyS.copyWith(
+                          color: AppColor.neutralDarkDarkest,
+                          fontSize: 12,
                         ),
                       ),
                     ],

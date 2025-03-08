@@ -3,7 +3,7 @@ import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
 
 class AppTextField {
-  static Widget mainTextField({
+  static Widget basicTextField({
     required TextEditingController controller,
     required String label,
     VoidCallback? onTap,
@@ -14,6 +14,7 @@ class AppTextField {
     Widget? suffixIcon,
     BoxConstraints? suffixIconConstraints,
     Function(String)? onChanged,
+    int? maxLines,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,15 +30,18 @@ class AppTextField {
           controller: controller,
           readOnly: readOnly,
           onTap: onTap,
+          maxLines: maxLines,
           style: AppTextStyle.bodyM.copyWith(color: AppColor.neutralDarkMedium),
           onChanged: onChanged,
           decoration: InputDecoration(
             filled: true,
-            fillColor: readOnly ? AppColor.neutralLightLight : Colors.white,
+            fillColor: readOnly && onChanged == null
+                ? AppColor.neutralLightLight
+                : Colors.white,
             prefixIconConstraints: prefixIconConstraints,
-            prefix: prefixIcon,
+            prefixIcon: prefixIcon,
             suffixIconConstraints: suffixIconConstraints,
-            suffix: suffixIcon,
+            suffixIcon: suffixIcon,
             hintText: hintText,
             hintStyle: AppTextStyle.bodyM
                 .copyWith(color: AppColor.neutralLightDarkest),

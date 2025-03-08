@@ -13,8 +13,12 @@ class Assets {
   static const String fontsInterThin = 'assets/fonts/Inter-Thin.ttf';
   static const String iconsIcApd = 'assets/icons/ic-apd.png';
   static const String iconsIcArrowBack = 'assets/icons/ic-arrow-back.png';
+  static const String iconsIcArrowRight = 'assets/icons/ic-arrow-right.png';
   static const String iconsIcAvatar = 'assets/icons/ic-avatar.png';
   static const String iconsIcCamera = 'assets/icons/ic-camera.png';
+  static const String iconsIcCardProjectInspection = 'assets/icons/ic-card-project-inspection.png';
+  static const String iconsIcCardRoutineInspection = 'assets/icons/ic-card-routine-inspection.png';
+  static const String iconsIcDate = 'assets/icons/ic-date.png';
   static const String iconsIcDownloadGuide = 'assets/icons/ic-download-guide.png';
   static const String iconsIcGallery = 'assets/icons/ic-gallery.png';
   static const String iconsIcGuide = 'assets/icons/ic-guide.png';
@@ -23,6 +27,8 @@ class Assets {
   static const String iconsIcListDashboard = 'assets/icons/ic-list-dashboard.png';
   static const String iconsIcListDashboardGray = 'assets/icons/ic-list-dashboard-gray.png';
   static const String iconsIcListGuide = 'assets/icons/ic-list-guide.png';
+  static const String iconsIcListInspectionProject = 'assets/icons/ic-list-inspection-project.png';
+  static const String iconsIcListInspectionRoutine = 'assets/icons/ic-list-inspection-routine.png';
   static const String iconsIcLogout = 'assets/icons/ic-logout.png';
   static const String iconsIcNotification = 'assets/icons/ic_notification.png';
   static const String iconsIcOftenInspection = 'assets/icons/ic-often-inspection.png';
@@ -30,7 +36,10 @@ class Assets {
   static const String iconsIcPassVisible = 'assets/icons/ic-pass-visible.png';
   static const String iconsIcProfile = 'assets/icons/ic-profile.png';
   static const String iconsIcProjectInspection = 'assets/icons/ic-project-inspection.png';
+  static const String iconsIcRemoveImage = 'assets/icons/ic-remove-image.png';
   static const String iconsIcSearch = 'assets/icons/ic-search.png';
+  static const String iconsIcTakePicture = 'assets/icons/ic-take-picture.png';
+  static const String iconsIcTime = 'assets/icons/ic-time.png';
   static const String imagesImgLogin = 'assets/images/img-login.jpg';
   static const String imagesImgMkp = 'assets/images/img-mkp.png';
   static const String imagesImgOftenInspection = 'assets/images/img-often-inspection.png';
