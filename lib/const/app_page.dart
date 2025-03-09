@@ -1,10 +1,30 @@
 import 'package:get/get.dart';
+import 'package:k3_mobile/src/apd/apd_reception/binding/apd_reception_binding.dart';
+import 'package:k3_mobile/src/apd/apd_reception/binding/apd_reception_create_binding.dart';
+import 'package:k3_mobile/src/apd/apd_reception/binding/apd_reception_view_binding.dart';
+import 'package:k3_mobile/src/apd/apd_reception/view/apd_recepion_view_view.dart';
+import 'package:k3_mobile/src/apd/apd_reception/view/apd_reception_create_view.dart';
+import 'package:k3_mobile/src/apd/apd_reception/view/apd_reception_view.dart';
+import 'package:k3_mobile/src/apd/apd_request/binding/apd_request_binding.dart';
+import 'package:k3_mobile/src/apd/apd_request/binding/apd_request_create_binding.dart';
+import 'package:k3_mobile/src/apd/apd_request/binding/apd_request_view_binding.dart';
+import 'package:k3_mobile/src/apd/apd_request/view/apd_request_create_view.dart';
+import 'package:k3_mobile/src/apd/apd_request/view/apd_request_view.dart';
+import 'package:k3_mobile/src/apd/apd_request/view/apd_request_view_view.dart';
+import 'package:k3_mobile/src/apd/apd_return/binding/apd_return_binding.dart';
+import 'package:k3_mobile/src/apd/apd_return/binding/apd_return_create_binding.dart';
+import 'package:k3_mobile/src/apd/apd_return/binding/apd_return_view_binding.dart';
+import 'package:k3_mobile/src/apd/apd_return/view/apd_return_create_view.dart';
+import 'package:k3_mobile/src/apd/apd_return/view/apd_return_view.dart';
+import 'package:k3_mobile/src/apd/apd_return/view/apd_return_view_view.dart';
 import 'package:k3_mobile/src/guide/binding/guide_binding.dart';
 import 'package:k3_mobile/src/guide/view/guide_preview_view.dart';
 import 'package:k3_mobile/src/guide/view/guide_view.dart';
 import 'package:k3_mobile/src/home/binding/home_binding.dart';
 import 'package:k3_mobile/src/home/view/home_view.dart';
 import 'package:k3_mobile/src/inspection/inspection_project/binding/inspection_project_binding.dart';
+import 'package:k3_mobile/src/inspection/inspection_project/binding/inspection_project_create_binding.dart';
+import 'package:k3_mobile/src/inspection/inspection_project/view/inspection_project_create_view.dart';
 import 'package:k3_mobile/src/inspection/inspection_project/view/inspection_project_view.dart';
 import 'package:k3_mobile/src/inspection/inspection_routine/binding/inspection_routine_binding.dart';
 import 'package:k3_mobile/src/inspection/inspection_routine/binding/inspection_routine_create_binding.dart';
@@ -75,6 +95,56 @@ class AppPage {
       name: _Path.INSPECTION_PROJECT,
       page: () => InspectionProjectView(),
       binding: InspectionProjectBinding(),
+    ),
+    GetPage(
+      name: _Path.INSPECTION_PROJECT_CREATE,
+      page: () => InspectionProjectCreateView(),
+      binding: InspectionProjectCreateBinding(),
+    ),
+    GetPage(
+      name: _Path.APD_REQUEST,
+      page: () => ApdRequestView(),
+      binding: ApdRequestBinding(),
+    ),
+    GetPage(
+      name: _Path.APD_REQUEST_CREATE,
+      page: () => ApdRequestCreateView(),
+      binding: ApdRequestCreateBinding(),
+    ),
+    GetPage(
+      name: _Path.APD_REQUEST_VIEW,
+      page: () => ApdRequestViewView(),
+      binding: ApdRequestViewBinding(),
+    ),
+    GetPage(
+      name: _Path.APD_RECEPTION,
+      page: () => ApdReceptionView(),
+      binding: ApdReceptionBinding(),
+    ),
+    GetPage(
+      name: _Path.APD_RECEPTION_CREATE,
+      page: () => ApdReceptionCreateView(),
+      binding: ApdReceptionCreateBinding(),
+    ),
+    GetPage(
+      name: _Path.APD_RECEPTION_VIEW,
+      page: () => ApdReceptionViewView(),
+      binding: ApdReceptionViewBinding(),
+    ),
+    GetPage(
+      name: _Path.APD_RETURN,
+      page: () => ApdReturnView(),
+      binding: ApdReturnBinding(),
+    ),
+    GetPage(
+      name: _Path.APD_RETURN_CREATE,
+      page: () => ApdReturnCreateView(),
+      binding: ApdReturnCreateBinding(),
+    ),
+    GetPage(
+      name: _Path.APD_RETURN_VIEW,
+      page: () => ApdReturnViewView(),
+      binding: ApdReturnViewBinding(),
     ),
   ];
 }

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/generated/assets.dart';
+import 'package:k3_mobile/src/apd/view/apd_view.dart';
 import 'package:k3_mobile/src/guide/view/guide_view.dart';
 import 'package:k3_mobile/src/home/view/home_view.dart';
 import 'package:k3_mobile/src/inspection/view/inspection_view.dart';
@@ -16,7 +17,7 @@ class MainHomeView extends GetView<MainHomeController> {
   final List<Widget> _pages = [
     HomeView(),
     InspectionView(),
-    Center(child: Text('APD')),
+    ApdView(),
     GuideView(),
     ProfileView(),
   ];

@@ -6,12 +6,12 @@ import 'package:k3_mobile/const/app_page.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/const/app_textfield.dart';
 import 'package:k3_mobile/generated/assets.dart';
-import 'package:k3_mobile/src/inspection/inspection_project/controller/inspection_project_controller.dart';
+import 'package:k3_mobile/src/apd/apd_reception/controller/apd_reception_controller.dart';
 import 'package:k3_mobile/src/main_home/controller/main_home_controller.dart';
 import 'package:k3_mobile/src/session/controller/session_controller.dart';
 
-class InspectionProjectView extends GetView<InspectionProjectController> {
-  InspectionProjectView({super.key});
+class ApdReceptionView extends GetView<ApdReceptionController> {
+  ApdReceptionView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
         ),
         centerTitle: true,
         title: Text(
-          'Inspeksi Proyek',
+          'Penerimaan APD',
           style: AppTextStyle.h4.copyWith(
             color: AppColor.neutralDarkLight,
           ),
@@ -78,7 +78,7 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
                 child: Row(
                   children: [
                     Text(
-                      'Data Inspeksi Proyek',
+                      'Data Penerimaan APD',
                       textAlign: TextAlign.left,
                       style: AppTextStyle.actionL.copyWith(
                         color: AppColor.neutralDarkLight,
@@ -87,7 +87,7 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
                     Spacer(),
                     AppCard.basicCard(
                       onTap: () async {
-                        Get.toNamed(AppRoute.INSPECTION_PROJECT_CREATE);
+                        Get.toNamed(AppRoute.INSPECTION_ROUTINE_CREATE);
                       },
                       color: AppColor.highlightDarkest,
                       radius: 20,
@@ -124,15 +124,15 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
           return AppCard.listCard(
             onTap: () async {
               FocusManager.instance.primaryFocus?.unfocus();
-              Get.toNamed(AppRoute.GUIDE_PREVIEW,
-                  arguments:
-                      'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf');
+              // Get.toNamed(AppRoute.GUIDE_PREVIEW,
+              //     arguments:
+              //         'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf');
             },
             color: AppColor.neutralLightLightest,
             child: Row(
               children: [
                 Image.asset(
-                  Assets.iconsIcListInspectionProject,
+                  Assets.iconsIcListApdReception,
                   width: 52,
                   height: 52,
                 ),
@@ -146,7 +146,7 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
                         children: [
                           Expanded(
                             child: Text(
-                              'INS/2025/II/001',
+                              'ARC/2025/II/021',
                               style: AppTextStyle.h4.copyWith(
                                 color: AppColor.neutralDarkDarkest,
                               ),
@@ -167,16 +167,16 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
                           children: [
                             Expanded(
                               child: Text(
-                                'Resiko tinggi',
+                                'Unit Kalimantan',
                                 style: AppTextStyle.bodyS.copyWith(
                                   color: AppColor.neutralDarkDarkest,
                                 ),
                               ),
                             ),
                             Text(
-                              'Unsafe Action',
-                              style: AppTextStyle.bodyS.copyWith(
-                                color: AppColor.neutralDarkDarkest,
+                              controller.statusTxt(i),
+                              style: AppTextStyle.actionM.copyWith(
+                                color: controller.statusColor(i),
                               ),
                             ),
                           ],
@@ -184,18 +184,38 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
                       ),
                       SizedBox(height: 3),
                       Text(
-                        'Ruang Meeting Kantor pusat',
+                        'Deskripsi dokumen',
                         style: AppTextStyle.bodyS.copyWith(
                           color: AppColor.neutralDarkDarkest,
                           fontSize: 12,
                         ),
                       ),
                       SizedBox(height: 3),
-                      Text(
-                        'Jl A. Yani Surabaya',
-                        style: AppTextStyle.bodyS.copyWith(
-                          color: AppColor.neutralDarkDarkest,
-                          fontSize: 12,
+                      Flexible(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: 4,
+                              child: Text(
+                                'ARQ/2025/II/001',
+                                textAlign: TextAlign.left,
+                                style: AppTextStyle.bodyS.copyWith(
+                                  color: AppColor.neutralDarkLightest,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 6,
+                              child: Text(
+                                '15/02/2025',
+                                textAlign: TextAlign.left,
+                                style: AppTextStyle.bodyS.copyWith(
+                                  color: AppColor.neutralDarkLightest,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],

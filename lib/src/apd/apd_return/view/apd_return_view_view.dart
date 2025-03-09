@@ -6,12 +6,12 @@ import 'package:k3_mobile/const/app_page.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/const/app_textfield.dart';
 import 'package:k3_mobile/generated/assets.dart';
-import 'package:k3_mobile/src/inspection/inspection_project/controller/inspection_project_controller.dart';
+import 'package:k3_mobile/src/apd/apd_return/controller/apd_return_controller.dart';
 import 'package:k3_mobile/src/main_home/controller/main_home_controller.dart';
 import 'package:k3_mobile/src/session/controller/session_controller.dart';
 
-class InspectionProjectView extends GetView<InspectionProjectController> {
-  InspectionProjectView({super.key});
+class ApdReturnViewView extends GetView<ApdReturnController> {
+  ApdReturnViewView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
         ),
         centerTitle: true,
         title: Text(
-          'Inspeksi Proyek',
+          'Inspeksi Rutin',
           style: AppTextStyle.h4.copyWith(
             color: AppColor.neutralDarkLight,
           ),
@@ -78,7 +78,7 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
                 child: Row(
                   children: [
                     Text(
-                      'Data Inspeksi Proyek',
+                      'Data Inspeksi Rutin',
                       textAlign: TextAlign.left,
                       style: AppTextStyle.actionL.copyWith(
                         color: AppColor.neutralDarkLight,
@@ -87,7 +87,7 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
                     Spacer(),
                     AppCard.basicCard(
                       onTap: () async {
-                        Get.toNamed(AppRoute.INSPECTION_PROJECT_CREATE);
+                        Get.toNamed(AppRoute.INSPECTION_ROUTINE_CREATE);
                       },
                       color: AppColor.highlightDarkest,
                       radius: 20,
@@ -132,7 +132,7 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
             child: Row(
               children: [
                 Image.asset(
-                  Assets.iconsIcListInspectionProject,
+                  Assets.iconsIcListApdReturn,
                   width: 52,
                   height: 52,
                 ),
@@ -167,14 +167,14 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
                           children: [
                             Expanded(
                               child: Text(
-                                'Resiko tinggi',
+                                'Resiko sedang',
                                 style: AppTextStyle.bodyS.copyWith(
                                   color: AppColor.neutralDarkDarkest,
                                 ),
                               ),
                             ),
                             Text(
-                              'Unsafe Action',
+                              'Near Miss',
                               style: AppTextStyle.bodyS.copyWith(
                                 color: AppColor.neutralDarkDarkest,
                               ),
@@ -185,14 +185,6 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
                       SizedBox(height: 3),
                       Text(
                         'Ruang Meeting Kantor pusat',
-                        style: AppTextStyle.bodyS.copyWith(
-                          color: AppColor.neutralDarkDarkest,
-                          fontSize: 12,
-                        ),
-                      ),
-                      SizedBox(height: 3),
-                      Text(
-                        'Jl A. Yani Surabaya',
                         style: AppTextStyle.bodyS.copyWith(
                           color: AppColor.neutralDarkDarkest,
                           fontSize: 12,

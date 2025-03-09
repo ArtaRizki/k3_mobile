@@ -13,6 +13,15 @@ abstract class AppRoute {
   static const INSPECTION_ROUTINE_CREATE = _Path.INSPECTION_ROUTINE_CREATE;
   static const INSPECTION_PROJECT = _Path.INSPECTION_PROJECT;
   static const INSPECTION_PROJECT_CREATE = _Path.INSPECTION_PROJECT_CREATE;
+  static const APD_REQUEST = _Path.APD_REQUEST;
+  static const APD_REQUEST_CREATE = _Path.APD_REQUEST_CREATE;
+  static const APD_REQUEST_VIEW = _Path.APD_REQUEST_VIEW;
+  static const APD_RECEPTION = _Path.APD_RECEPTION;
+  static const APD_RECEPTION_CREATE = _Path.APD_RECEPTION_CREATE;
+  static const APD_RECEPTION_VIEW = _Path.APD_RECEPTION_VIEW;
+  static const APD_RETURN = _Path.APD_RETURN;
+  static const APD_RETURN_CREATE = _Path.APD_RETURN_CREATE;
+  static const APD_RETURN_VIEW = _Path.APD_RETURN_VIEW;
 }
 
 abstract class _Path {
@@ -28,4 +37,13 @@ abstract class _Path {
   static const INSPECTION_ROUTINE_CREATE = '/inspectionRoutineCreate';
   static const INSPECTION_PROJECT = '/inspectionProject';
   static const INSPECTION_PROJECT_CREATE = '/inspectionProjectCreate';
+  static const APD_REQUEST = '/apdRequest';
+  static const APD_REQUEST_CREATE = '/apdRequestCreate';
+  static const APD_REQUEST_VIEW = '/apdRequestView';
+  static const APD_RECEPTION = '/apdReception';
+  static const APD_RECEPTION_CREATE = '/apdReceptionCreate';
+  static const APD_RECEPTION_VIEW = '/apdReceptionView';
+  static const APD_RETURN = '/apdReturn';
+  static const APD_RETURN_CREATE = '/apdReturnCreate';
+  static const APD_RETURN_VIEW = '/apdReturnView';
 }

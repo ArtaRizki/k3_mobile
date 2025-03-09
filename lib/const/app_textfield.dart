@@ -8,6 +8,7 @@ class AppTextField {
     required String label,
     VoidCallback? onTap,
     bool readOnly = false,
+    bool required = false,
     String hintText = '',
     Widget? prefixIcon,
     BoxConstraints? prefixIconConstraints,
@@ -20,10 +21,23 @@ class AppTextField {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (label != '')
-          Text(
-            label,
-            style: AppTextStyle.actionL
-                .copyWith(color: AppColor.neutralDarkDarkest),
+          Row(
+            children: [
+              Text(
+                label,
+                style: AppTextStyle.actionL
+                    .copyWith(color: AppColor.neutralDarkDarkest),
+              ),
+              required
+                  ? Text(
+                      ' *',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.red,
+                      ),
+                    )
+                  : SizedBox(),
+            ],
           ),
         if (label != '') const SizedBox(height: 8),
         TextFormField(
@@ -55,7 +69,10 @@ class AppTextField {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColor.highlightDarkest),
+              borderSide: BorderSide(
+                  color: readOnly
+                      ? AppColor.neutralLightDarkest
+                      : AppColor.highlightDarkest),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
