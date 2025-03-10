@@ -13,11 +13,11 @@ class ApdReceptionController extends GetxController {
     return 'Status';
   }
 
-  Color statusColor(int i) {
-    if (i == 0 || i % 10 == 0) return AppColor.warningMedium;
-    if (i == 1 || i % 10 == 1) return AppColor.highlightMedium;
-    if (i == 2 || i % 10 == 2) return AppColor.errorMedium;
-    if (i == 3 || i % 10 == 3) return AppColor.successMedium;
+  Color statusColor(String v) {
+    if (v == 'Draft') return AppColor.highlightDarkest;
+    if (v == 'Diajukan') return AppColor.warningDark;
+    if (v == 'Disetujui') return AppColor.successMedium;
+    if (v == 'Ditolak') return AppColor.errorDark;
     return AppColor.neutralDarkDarkest;
   }
 

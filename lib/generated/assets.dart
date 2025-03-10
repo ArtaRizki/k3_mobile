@@ -52,6 +52,7 @@ class Assets {
   static const String imagesImgMkp = 'assets/images/img-mkp.png';
   static const String imagesImgOftenInspection = 'assets/images/img-often-inspection.png';
   static const String imagesImgProjectInspection = 'assets/images/img-project-inspection.png';
+  static const String imagesImgSampleSignature = 'assets/images/img-sample-signature.png';
   static const String lottiesDownloading = 'assets/lotties/downloading.json';
   static const String lottiesFailed = 'assets/lotties/failed.json';
   static const String lottiesLive = 'assets/lotties/live.json';

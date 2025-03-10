@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:k3_mobile/src/apd/apd_reception/binding/apd_reception_binding.dart';
 import 'package:k3_mobile/src/apd/apd_reception/binding/apd_reception_create_binding.dart';
 import 'package:k3_mobile/src/apd/apd_reception/binding/apd_reception_view_binding.dart';
-import 'package:k3_mobile/src/apd/apd_reception/view/apd_recepion_view_view.dart';
+import 'package:k3_mobile/src/apd/apd_reception/view/apd_reception_view_view.dart';
 import 'package:k3_mobile/src/apd/apd_reception/view/apd_reception_create_view.dart';
 import 'package:k3_mobile/src/apd/apd_reception/view/apd_reception_view.dart';
 import 'package:k3_mobile/src/apd/apd_request/binding/apd_request_binding.dart';

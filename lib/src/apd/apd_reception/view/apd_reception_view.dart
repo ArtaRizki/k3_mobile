@@ -87,7 +87,7 @@ class ApdReceptionView extends GetView<ApdReceptionController> {
                     Spacer(),
                     AppCard.basicCard(
                       onTap: () async {
-                        Get.toNamed(AppRoute.INSPECTION_ROUTINE_CREATE);
+                        Get.toNamed(AppRoute.APD_RECEPTION_CREATE);
                       },
                       color: AppColor.highlightDarkest,
                       radius: 20,
@@ -124,9 +124,7 @@ class ApdReceptionView extends GetView<ApdReceptionController> {
           return AppCard.listCard(
             onTap: () async {
               FocusManager.instance.primaryFocus?.unfocus();
-              // Get.toNamed(AppRoute.GUIDE_PREVIEW,
-              //     arguments:
-              //         'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf');
+              Get.toNamed(AppRoute.APD_RECEPTION_VIEW);
             },
             color: AppColor.neutralLightLightest,
             child: Row(
@@ -176,7 +174,8 @@ class ApdReceptionView extends GetView<ApdReceptionController> {
                             Text(
                               controller.statusTxt(i),
                               style: AppTextStyle.actionM.copyWith(
-                                color: controller.statusColor(i),
+                                color: controller
+                                    .statusColor(controller.statusTxt(i)),
                               ),
                             ),
                           ],

@@ -1,17 +1,20 @@
+import 'dart:developer';
+
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_signature_pad/flutter_signature_pad.dart';
 import 'package:get/get.dart';
 import 'package:k3_mobile/const/app_button.dart';
 import 'package:k3_mobile/const/app_card.dart';
 import 'package:k3_mobile/const/app_color.dart';
+import 'package:k3_mobile/const/app_dialog.dart';
 import 'package:k3_mobile/const/app_dropdown.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/const/app_textfield.dart';
 import 'package:k3_mobile/generated/assets.dart';
 import 'package:k3_mobile/src/apd/apd_reception/controller/apd_reception_create_controller.dart';
 
-class ApdReceptionCreateView
-    extends GetView<ApdReceptionCreateController> {
+class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
   ApdReceptionCreateView({super.key});
 
   @override
@@ -42,7 +45,7 @@ class ApdReceptionCreateView
         ),
         centerTitle: true,
         title: Text(
-          'Buat Inspeksi Rutin',
+          'Buat Penerimaan APD',
           style: AppTextStyle.h4.copyWith(
             color: AppColor.neutralDarkLight,
           ),
@@ -60,137 +63,118 @@ class ApdReceptionCreateView
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     AppTextField.basicTextField(
-                      controller: controller.unitC.value,
-                      label: 'Unit',
                       readOnly: true,
-                      hintText: 'Unit',
-                      onChanged: (v) {
-                        controller.validateForm();
-                        controller.update();
-                      },
-                    ),
-                    SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 6,
-                          child: AppTextField.basicTextField(
-                            readOnly: true,
-                            controller: controller.dateC.value,
-                            label: 'Tanggal',
-                            hintText: 'dd-mm-yyyy',
-                            onTap: () async {
-                              await controller.pickDate();
-                              FocusManager.instance.primaryFocus?.unfocus();
-                              controller.validateForm();
-                            },
-                            onChanged: (v) {
-                              controller.validateForm();
-                              controller.update();
-                            },
-                            prefixIconConstraints:
-                                BoxConstraints(maxHeight: 18),
-                            prefixIcon: GestureDetector(
-                              onTap: null,
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 16, right: 8),
-                                child: Image.asset(
-                                  Assets.iconsIcDate,
-                                  color: AppColor.neutralLightDarkest,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 12),
-                        Expanded(
-                          flex: 4,
-                          child: AppTextField.basicTextField(
-                            readOnly: true,
-                            controller: controller.timeC.value,
-                            label: 'Jam',
-                            hintText: 'hh:mm',
-                            onTap: () async {
-                              await controller.pickTime();
-                              FocusManager.instance.primaryFocus?.unfocus();
-                              controller.validateForm();
-                            },
-                            onChanged: (v) {
-                              controller.validateForm();
-                              controller.update();
-                            },
-                            prefixIconConstraints:
-                                BoxConstraints(maxHeight: 18),
-                            prefixIcon: GestureDetector(
-                              onTap: () {},
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 16, right: 8),
-                                child: Image.asset(
-                                  Assets.iconsIcTime,
-                                  color: AppColor.neutralLightDarkest,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 12),
-                    AppDropdown.normalDropdown(
-                      label: 'Kategori',
-                      readOnly: false,
-                      hintText: 'Pilih Kategori',
-                      selectedItem: controller.selectedCategory.value,
-                      onChanged: (v) {
-                        controller.selectedCategory.value = v;
-                        controller.validateForm();
+                      required: true,
+                      controller: controller.dateC.value,
+                      label: 'Tanggal',
+                      hintText: 'dd-mm-yyyy',
+                      onTap: () async {
+                        await controller.pickDate();
                         FocusManager.instance.primaryFocus?.unfocus();
+                        controller.validateForm();
+                      },
+                      onChanged: (v) {
+                        controller.validateForm();
                         controller.update();
                       },
-                      list: List.generate(
-                        controller.categoryList.length,
-                        (i) {
-                          final item = controller.categoryList[i];
-                          return DropdownMenuItem(
-                            value: item,
-                            child: Text(
-                              item,
-                              style: AppTextStyle.bodyM.copyWith(
-                                color: AppColor.neutralDarkMedium,
-                              ),
-                            ),
-                          );
-                        },
+                      prefixIconConstraints: BoxConstraints(maxHeight: 18),
+                      prefixIcon: GestureDetector(
+                        onTap: null,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 16, right: 8),
+                          child: Image.asset(
+                            Assets.iconsIcDate,
+                            color: AppColor.neutralLightDarkest,
+                          ),
+                        ),
                       ),
                     ),
                     SizedBox(height: 12),
                     AppTextField.basicTextField(
-                      controller: controller.riskC.value,
-                      label: 'Resiko',
-                      hintText: 'Resiko',
+                      readOnly: true,
+                      required: true,
+                      controller: controller.apdReceptionNumberC.value,
+                      label: 'Permintaan APD No',
+                      hintText: 'Pilih',
+                      onTap: () async {
+                        AppDialog.showBasicDialog(
+                          title: 'Pilih Permintaan APD',
+                          content: selectApdRequestDialog(),
+                        );
+                      },
                       onChanged: (v) {
                         controller.validateForm();
                         controller.update();
                       },
+                      suffixIconConstraints: BoxConstraints(maxHeight: 18),
+                      suffixIcon: GestureDetector(
+                        onTap: null,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 16),
+                          child: Image.asset(
+                            Assets.iconsIcSearch,
+                            color: AppColor.neutralLightDarkest,
+                          ),
+                        ),
+                      ),
                     ),
                     SizedBox(height: 12),
                     AppTextField.basicTextField(
-                      controller: controller.eventLocationC.value,
-                      label: 'Lokasi kejadian',
-                      hintText: 'Lokasi kejadian',
+                      readOnly: true,
+                      required: true,
+                      controller: controller.outcomeNumberC.value,
+                      label: 'Pengeluaran Barang No',
+                      hintText: 'Pilih',
+                      onTap: () async {
+                        AppDialog.showBasicDialog(
+                          title: 'Pilih Pengeluaran Barang',
+                          content: selectOutcomeDialog(),
+                        );
+                      },
                       onChanged: (v) {
                         controller.validateForm();
                         controller.update();
                       },
-                      maxLines: 4,
+                      suffixIconConstraints: BoxConstraints(maxHeight: 18),
+                      suffixIcon: GestureDetector(
+                        onTap: null,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 16),
+                          child: Image.asset(
+                            Assets.iconsIcSearch,
+                            color: AppColor.neutralLightDarkest,
+                          ),
+                        ),
+                      ),
                     ),
                     SizedBox(height: 12),
                     AppTextField.basicTextField(
-                      controller: controller.eventChronologyC.value,
-                      label: 'Kronologi kejadian',
-                      hintText: 'Kronologi kejadian',
+                      readOnly: true,
+                      required: true,
+                      controller: controller.vendorC.value,
+                      label: 'Vendor',
+                      hintText: 'Pilih',
+                      onChanged: (v) {
+                        controller.validateForm();
+                        controller.update();
+                      },
+                      suffixIconConstraints: BoxConstraints(maxHeight: 18),
+                      suffixIcon: GestureDetector(
+                        onTap: null,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 16),
+                          child: Image.asset(
+                            Assets.iconsIcSearch,
+                            color: AppColor.neutralLightDarkest,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    AppTextField.basicTextField(
+                      controller: controller.noteC.value,
+                      label: 'Keterangan',
+                      hintText: 'Keterangan',
                       onChanged: (v) {
                         controller.validateForm();
                         controller.update();
@@ -199,112 +183,12 @@ class ApdReceptionCreateView
                     ),
                     SizedBox(height: 12),
                     Text(
-                      'Dilakukan tindakan?',
+                      'Daftar APD',
                       style: AppTextStyle.actionL
                           .copyWith(color: AppColor.neutralDarkDarkest),
                     ),
-                    SizedBox(height: 6),
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 3, vertical: 15),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 5,
-                            child: Row(
-                              children: [
-                                SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: Checkbox(
-                                    value: controller.actionTakenYes.value,
-                                    onChanged: (value) {
-                                      controller.actionTakenYes.value =
-                                          value ?? false;
-                                      controller.actionTakenNo.value =
-                                          !(value ?? false);
-                                    },
-                                    activeColor: AppColor.highlightDarkest,
-                                  ),
-                                ),
-                                SizedBox(width: 6),
-                                Expanded(
-                                  child: Text(
-                                    'Ya',
-                                    style: AppTextStyle.bodyM.copyWith(
-                                      color: AppColor.neutralDarkDarkest,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            flex: 5,
-                            child: Row(
-                              children: [
-                                SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: Checkbox(
-                                    value: controller.actionTakenNo.value,
-                                    onChanged: (value) {
-                                      controller.actionTakenNo.value =
-                                          value ?? false;
-                                      controller.actionTakenYes.value =
-                                          !(value ?? false);
-                                    },
-                                    activeColor: AppColor.highlightDarkest,
-                                  ),
-                                ),
-                                SizedBox(width: 6),
-                                Expanded(
-                                  child: Text(
-                                    'Tidak',
-                                    style: AppTextStyle.bodyM.copyWith(
-                                      color: AppColor.neutralDarkDarkest,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                     SizedBox(height: 12),
-                    AppTextField.basicTextField(
-                      controller: controller.reasonC.value,
-                      label: 'Alasan',
-                      hintText: 'Alasan',
-                      onChanged: (v) {
-                        controller.validateForm();
-                        controller.update();
-                      },
-                      maxLines: 4,
-                    ),
-                    SizedBox(height: 12),
-                    AppTextField.basicTextField(
-                      controller: controller.actionDetailC.value,
-                      label: 'Rincian tindakan',
-                      hintText: 'Rincian tindakan',
-                      onChanged: (v) {
-                        controller.validateForm();
-                        controller.update();
-                      },
-                      maxLines: 4,
-                    ),
-                    SizedBox(height: 12),
-                    AppTextField.basicTextField(
-                      controller: controller.givenRecommendationC.value,
-                      label: 'Saran diberikan',
-                      hintText: 'Saran diberikan',
-                      onChanged: (v) {
-                        controller.validateForm();
-                        controller.update();
-                      },
-                      maxLines: 4,
-                    ),
+                    list(),
                     SizedBox(height: 12),
                     Text(
                       'Gambar',
@@ -365,6 +249,54 @@ class ApdReceptionCreateView
                               ),
                             ),
                     ),
+                    SizedBox(height: 12),
+                    Text(
+                      'Tanda tangan',
+                      style: AppTextStyle.actionL
+                          .copyWith(color: AppColor.neutralDarkDarkest),
+                    ),
+                    SizedBox(height: 6),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: AppColor.neutralLightDarkest),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      height: 158,
+                      child: Stack(
+                        children: [
+                          Signature(
+                            key: controller.signKey.value,
+                            color: Colors.black,
+                            strokeWidth: 3,
+                            onSign: () {
+                              log("ON SIGN");
+                              controller.showHintSignature.value = false;
+                            },
+                          ),
+                          if (controller.showHintSignature.value)
+                            Center(
+                              child: Text(
+                                'Tanda tangan di sini',
+                                style: AppTextStyle.bodyM.copyWith(
+                                    color: AppColor.neutralLightDarkest),
+                              ),
+                            )
+                          else
+                            Positioned(
+                              top: 125,
+                              left: 0,
+                              right: 0,
+                              child: Text(
+                                'Riowaldy Indrawan',
+                                textAlign: TextAlign.center,
+                                style: AppTextStyle.bodyS
+                                    .copyWith(color: AppColor.neutralDarkLight),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                     Padding(
                       padding: EdgeInsets.only(top: 24, bottom: 24),
                       child: AppButton.basicButton(
@@ -407,6 +339,285 @@ class ApdReceptionCreateView
             },
           ),
         ),
+      ),
+    );
+  }
+
+  Widget list() {
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: 10,
+      physics: NeverScrollableScrollPhysics(),
+      itemBuilder: (c, i) {
+        return AppCard.listCard(
+          onTap: () async {
+            Get.back();
+          },
+          padding: EdgeInsets.all(6),
+          color: i % 2 == 0
+              ? AppColor.neutralLightLightest
+              : AppColor.highlightLightest,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              titleSubtitle(
+                'Kode',
+                'APD00${i + 1}',
+                3,
+              ),
+              SizedBox(width: 6),
+              titleSubtitle(
+                'Kategori',
+                'Sipil',
+                3,
+              ),
+              SizedBox(width: 6),
+              titleSubtitle(
+                'Nama',
+                'Helm Proyek',
+                2,
+              ),
+              SizedBox(width: 6),
+              titleSubtitle(
+                'Jumlah',
+                '${(i + 1) * 10}',
+                2,
+              ),
+              SizedBox(width: 6),
+              titleSubtitle(
+                'Sisa',
+                '${(i + 1) * 10}',
+                1,
+              ),
+              SizedBox(width: 6),
+              receive(() {}),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget receive(GestureTapCallback onTap) {
+    return Expanded(
+      flex: 2,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Diterima',
+            style: AppTextStyle.bodyS.copyWith(
+              color: AppColor.neutralDarkLightest,
+            ),
+          ),
+          SizedBox(height: 6),
+          AppButton.basicButton(
+            enable: true,
+            color: AppColor.neutralLightLightest,
+            radius: 6,
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+            border: Border.all(
+              width: 0.5,
+              color: AppColor.neutralDarkLightest,
+            ),
+            child: Text(
+              'input',
+              style: AppTextStyle.bodyS.copyWith(
+                color: AppColor.neutralLightDarkest,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget selectApdRequestDialog() {
+    return SizedBox(
+      width: Get.size.width * .8,
+      height: Get.size.height * .8,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AppTextField.loginTextField(
+            controller: controller.searchApdRequestC.value,
+            hintText: 'Search',
+            suffixIconConstraints: BoxConstraints(maxHeight: 18),
+            onTap: () async {},
+            onChanged: (v) {
+              controller.update();
+            },
+            suffixIcon: GestureDetector(
+              onTap: null,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: Image.asset(
+                  Assets.iconsIcSearch,
+                  color: AppColor.neutralLightDarkest,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 24),
+          Expanded(
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: 10,
+              itemBuilder: (c, i) {
+                return AppCard.listCard(
+                  onTap: () async {
+                    Get.back();
+                  },
+                  padding: EdgeInsets.all(6),
+                  color: i % 2 == 0
+                      ? AppColor.neutralLightLightest
+                      : AppColor.highlightLightest,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      titleSubtitleSelect(
+                        'Tanggal',
+                        '15/02/2025',
+                        3,
+                      ),
+                      SizedBox(width: 12),
+                      titleSubtitleSelect(
+                        'Permintaan No',
+                        'ARQ/2025/II/00$i',
+                        3,
+                      ),
+                      SizedBox(width: 12),
+                      titleSubtitleSelect(
+                        'Keterangan',
+                        'Minta Sepatu safety',
+                        4,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget selectOutcomeDialog() {
+    return SizedBox(
+      width: Get.size.width * .8,
+      height: Get.size.height * .8,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AppTextField.loginTextField(
+            controller: controller.searchOutcomeC.value,
+            hintText: 'Search',
+            suffixIconConstraints: BoxConstraints(maxHeight: 18),
+            onTap: () async {},
+            onChanged: (v) {
+              controller.update();
+            },
+            suffixIcon: GestureDetector(
+              onTap: null,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: Image.asset(
+                  Assets.iconsIcSearch,
+                  color: AppColor.neutralLightDarkest,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 24),
+          Expanded(
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: 10,
+              itemBuilder: (c, i) {
+                return AppCard.listCard(
+                  onTap: () async {
+                    Get.back();
+                  },
+                  padding: EdgeInsets.all(6),
+                  color: i % 2 == 0
+                      ? AppColor.neutralLightLightest
+                      : AppColor.highlightLightest,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      titleSubtitleSelect(
+                        'Tanggal',
+                        '15/02/2025',
+                        3,
+                      ),
+                      SizedBox(width: 12),
+                      titleSubtitleSelect(
+                        'Pengeluaran barang No',
+                        'GDI/2025/II/00$i',
+                        3,
+                      ),
+                      SizedBox(width: 12),
+                      titleSubtitleSelect(
+                        'Vendor',
+                        'Kantor Pusat',
+                        4,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget titleSubtitle(String title, String subtitle, int flex) {
+    return Expanded(
+      flex: flex,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: AppTextStyle.bodyS.copyWith(
+              color: AppColor.neutralDarkLightest,
+            ),
+          ),
+          SizedBox(height: 6),
+          Text(
+            subtitle,
+            style: AppTextStyle.bodyM.copyWith(
+              color: AppColor.neutralDarkDarkest,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget titleSubtitleSelect(String title, String subtitle, int flex) {
+    return Expanded(
+      flex: flex,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: AppTextStyle.bodyXS.copyWith(
+              color: AppColor.neutralDarkLightest,
+            ),
+          ),
+          SizedBox(height: 6),
+          Text(
+            subtitle,
+            style: AppTextStyle.bodyM.copyWith(
+              color: AppColor.neutralDarkDarkest,
+            ),
+          ),
+        ],
       ),
     );
   }
