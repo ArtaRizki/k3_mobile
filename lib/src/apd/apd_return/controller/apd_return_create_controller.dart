@@ -1,46 +1,39 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_signature_pad/flutter_signature_pad.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:k3_mobile/component/custom_date_picker.dart';
 import 'package:k3_mobile/component/custom_image_picker.dart';
 import 'package:k3_mobile/component/utils.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ApdReturnCreateController extends GetxController {
   var loading = false.obs;
   var isExpanded = false.obs;
   var isValidated = false.obs;
+  var isEdit = false.obs;
 
-  final unitC = TextEditingController(text: 'Kalimantan').obs,
+  var signKey = GlobalKey<SignatureState>().obs;
+  var showHintSignature = true.obs;
+
+  var searchApdRequestC = TextEditingController().obs,
+      searchOutcomeC = TextEditingController().obs,
+      searchVendorC = TextEditingController().obs,
       dateC = TextEditingController().obs,
-      timeC = TextEditingController().obs,
-      categoryC = TextEditingController().obs,
-      riskC = TextEditingController().obs,
-      eventLocationC = TextEditingController().obs,
-      eventChronologyC = TextEditingController().obs,
-      reasonC = TextEditingController().obs,
-      actionDetailC = TextEditingController().obs,
-      givenRecommendationC = TextEditingController().obs;
-  var actionTakenYes = true.obs;
-  var actionTakenNo = false.obs;
+      apdReturnNumberC = TextEditingController().obs,
+      outcomeNumberC = TextEditingController().obs,
+      vendorC = TextEditingController().obs,
+      noteC = TextEditingController().obs;
   var pictureList = <File>[].obs;
   var dateTime = Rx<DateTime?>(null);
 
-  var selectedCategory = Rx<String?>(null);
-
   bool validate() {
-    if (unitC.value.text.isEmpty) return false;
     if (dateC.value.text.isEmpty) return false;
-    if (timeC.value.text.isEmpty) return false;
-    if (selectedCategory.value == null) return false;
-    if (riskC.value.text.isEmpty) return false;
-    if (eventLocationC.value.text.isEmpty) return false;
-    if (eventChronologyC.value.text.isEmpty) return false;
-    if (reasonC.value.text.isEmpty) return false;
-    if (actionDetailC.value.text.isEmpty) return false;
-    if (givenRecommendationC.value.text.isEmpty) return false;
+    if (noteC.value.text.isEmpty) return false;
     if (pictureList.isEmpty) return false;
     return true;
   }
@@ -98,9 +91,6 @@ class ApdReturnCreateController extends GetxController {
       var time = await CustomDatePicker.pickTime(Get.context!);
       if (time != null) {
         dateTime.value?.add(Duration(hours: time.hour, minutes: time.minute));
-        // timeC.value.text = DateFormat('HH:mm').format(dateTime.value!);
-        timeC.value.text =
-            '${time.hour < 10 ? '0${time.hour}' : time.hour} ${time.minute < 10 ? '0${time.minute}' : time.minute}';
       }
     } else {
       Utils.showFailed(msg: 'Harap Pilih Tanggal Terlebih Dahulu');
@@ -110,6 +100,23 @@ class ApdReturnCreateController extends GetxController {
 
   Future<void> sendApdReturn() async {
     loading(true);
+    // get signature
+    final sign = signKey.value.currentState!;
+    final image = await sign.getData();
+    var data = await image.toByteData(format: ImageByteFormat.png);
+    final dir = await getTemporaryDirectory();
+
+    if (data != null) {
+      final file = File('${dir.path}/signature.png');
+      if (file.existsSync()) {
+        file.deleteSync();
+      }
+      file.writeAsBytesSync(data.buffer.asUint8List(), flush: true);
+      sign.clear();
+    } else {
+      sign.clear();
+    }
+
     await Future.delayed((Duration(seconds: 3)));
     loading(false);
     Utils.showSuccess(msg: '');

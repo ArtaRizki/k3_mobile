@@ -87,7 +87,7 @@ class ApdReturnView extends GetView<ApdReturnController> {
                     Spacer(),
                     AppCard.basicCard(
                       onTap: () async {
-                        Get.toNamed(AppRoute.INSPECTION_ROUTINE_CREATE);
+                        Get.toNamed(AppRoute.APD_RETURN_CREATE);
                       },
                       color: AppColor.highlightDarkest,
                       radius: 20,
@@ -124,9 +124,7 @@ class ApdReturnView extends GetView<ApdReturnController> {
           return AppCard.listCard(
             onTap: () async {
               FocusManager.instance.primaryFocus?.unfocus();
-              // Get.toNamed(AppRoute.GUIDE_PREVIEW,
-              //     arguments:
-              //         'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf');
+              Get.toNamed(AppRoute.APD_RETURN_VIEW);
             },
             color: AppColor.neutralLightLightest,
             child: Row(

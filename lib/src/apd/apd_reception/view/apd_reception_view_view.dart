@@ -310,7 +310,7 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
           child: Text(
             value,
             style: AppTextStyle.actionL.copyWith(
-              color: valueColor ?? AppColor.neutralDarkDarkest,
+              color: valueColor ?? const Color.fromARGB(255, 42, 68, 173),
             ),
           ),
         ),
