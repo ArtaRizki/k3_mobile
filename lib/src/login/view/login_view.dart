@@ -87,7 +87,7 @@ class LoginView extends GetView<LoginController> {
               AppTextField.loginTextField(
                 controller: controller.passwordC,
                 hintText: 'Kata sandi',
-                isPassword: pwVisible,
+                isPassword: !pwVisible,
                 suffixIconConstraints: BoxConstraints(maxHeight: 18),
                 onChanged: (v) {
                   controller.checkLoginBtnStatus();
@@ -116,6 +116,7 @@ class LoginView extends GetView<LoginController> {
                 enable: controller.enableLoginBtn.value,
                 onTap: () async {
                   if (!isLoading) {
+                    FocusManager.instance.primaryFocus?.unfocus();
                     await controller.login();
                   }
                 },

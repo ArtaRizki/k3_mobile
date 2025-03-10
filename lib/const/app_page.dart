@@ -1,4 +1,6 @@
 import 'package:get/get.dart';
+import 'package:k3_mobile/component/page/image_preview/binding/image_preview_binding.dart';
+import 'package:k3_mobile/component/page/image_preview/view/image_preview_view.dart';
 import 'package:k3_mobile/src/apd/apd_reception/binding/apd_reception_binding.dart';
 import 'package:k3_mobile/src/apd/apd_reception/binding/apd_reception_create_binding.dart';
 import 'package:k3_mobile/src/apd/apd_reception/binding/apd_reception_view_binding.dart';
@@ -145,6 +147,11 @@ class AppPage {
       name: _Path.APD_RETURN_VIEW,
       page: () => ApdReturnViewView(),
       binding: ApdReturnViewBinding(),
+    ),
+    GetPage(
+      name: _Path.IMAGE_PREVIEW,
+      page: () => ImagePreviewView(),
+      binding: ImagePreviewBinding(),
     ),
   ];
 }

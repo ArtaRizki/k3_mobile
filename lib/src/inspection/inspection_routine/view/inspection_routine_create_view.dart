@@ -5,6 +5,7 @@ import 'package:k3_mobile/const/app_button.dart';
 import 'package:k3_mobile/const/app_card.dart';
 import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_dropdown.dart';
+import 'package:k3_mobile/const/app_page.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/const/app_textfield.dart';
 import 'package:k3_mobile/generated/assets.dart';
@@ -326,39 +327,45 @@ class InspectionRoutineCreateView
                                   if (i == controller.pictureList.length)
                                     return addImageBtn();
                                   final item = controller.pictureList[i];
-                                  return Container(
-                                    width: 68,
-                                    height: 68,
-                                    decoration:
-                                        BoxDecoration(color: Colors.white),
-                                    child: Stack(
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          child: Image.file(
-                                            item!,
-                                            width: 68,
-                                            height: 68,
-                                            fit: BoxFit.cover,
+                                  return InkWell(
+                                    onTap: () async {
+                                      await Get.toNamed(AppRoute.IMAGE_PREVIEW,
+                                          arguments: item.path);
+                                    },
+                                    child: Container(
+                                      width: 68,
+                                      height: 68,
+                                      decoration:
+                                          BoxDecoration(color: Colors.white),
+                                      child: Stack(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            child: Image.file(
+                                              item!,
+                                              width: 68,
+                                              height: 68,
+                                              fit: BoxFit.cover,
+                                            ),
                                           ),
-                                        ),
-                                        Positioned(
-                                          right: -1,
-                                          top: -1,
-                                          child: GestureDetector(
-                                            onTap: () =>
-                                                controller.removePicture(i),
-                                            child: SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              child: Image.asset(
-                                                Assets.iconsIcRemoveImage,
+                                          Positioned(
+                                            right: -1,
+                                            top: -1,
+                                            child: GestureDetector(
+                                              onTap: () =>
+                                                  controller.removePicture(i),
+                                              child: SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child: Image.asset(
+                                                  Assets.iconsIcRemoveImage,
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   );
                                 },

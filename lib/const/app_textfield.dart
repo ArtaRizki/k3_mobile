@@ -9,6 +9,7 @@ class AppTextField {
     VoidCallback? onTap,
     bool readOnly = false,
     bool required = false,
+    bool? isDense,
     String hintText = '',
     Widget? prefixIcon,
     BoxConstraints? prefixIconConstraints,
@@ -16,6 +17,9 @@ class AppTextField {
     BoxConstraints? suffixIconConstraints,
     Function(String)? onChanged,
     int? maxLines,
+    double? radius,
+    EdgeInsetsGeometry? contentPadding,
+    TextInputType? keyboardType,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,7 +51,9 @@ class AppTextField {
           maxLines: maxLines,
           style: AppTextStyle.bodyM.copyWith(color: AppColor.neutralDarkMedium),
           onChanged: onChanged,
+          keyboardType: keyboardType,
           decoration: InputDecoration(
+            isDense: isDense,
             filled: true,
             fillColor: readOnly && onChanged == null
                 ? AppColor.neutralLightLight
@@ -60,30 +66,30 @@ class AppTextField {
             hintStyle: AppTextStyle.bodyM
                 .copyWith(color: AppColor.neutralLightDarkest),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(radius ?? 12),
               borderSide: BorderSide(color: AppColor.neutralLightDarkest),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(radius ?? 12),
               borderSide: BorderSide(color: AppColor.neutralLightDarkest),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(radius ?? 12),
               borderSide: BorderSide(
                   color: readOnly
                       ? AppColor.neutralLightDarkest
                       : AppColor.highlightDarkest),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(radius ?? 12),
               borderSide: BorderSide(color: AppColor.errorDark),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(radius ?? 12),
               borderSide: BorderSide(color: AppColor.errorDark),
             ),
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+            contentPadding: contentPadding ??
+                EdgeInsets.symmetric(vertical: 14, horizontal: 16),
           ),
         ),
       ],

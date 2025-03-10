@@ -338,7 +338,7 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
               );
             },
           ),
-      ),
+        ),
       ),
     );
   }
@@ -411,22 +411,36 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
             ),
           ),
           SizedBox(height: 6),
-          AppButton.basicButton(
-            enable: true,
-            color: AppColor.neutralLightLightest,
+
+          AppTextField.basicTextField(
+            label: '',
             radius: 6,
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-            border: Border.all(
-              width: 0.5,
-              color: AppColor.neutralDarkLightest,
-            ),
-            child: Text(
-              'input',
-              style: AppTextStyle.bodyS.copyWith(
-                color: AppColor.neutralLightDarkest,
-              ),
-            ),
+            isDense: true,
+            keyboardType: TextInputType.number,
+            controller: TextEditingController(),
+            hintText: 'input',
+            contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+            onTap: () async {},
+            onChanged: (v) {
+              controller.update();
+            },
           ),
+          // AppButton.basicButton(
+          //   enable: true,
+          //   color: AppColor.neutralLightLightest,
+          //   radius: 6,
+          //   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+          //   border: Border.all(
+          //     width: 0.5,
+          //     color: AppColor.neutralDarkLightest,
+          //   ),
+          //   child: Text(
+          //     'input',
+          //     style: AppTextStyle.bodyS.copyWith(
+          //       color: AppColor.neutralLightDarkest,
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );
