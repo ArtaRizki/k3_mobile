@@ -8,7 +8,7 @@ import 'package:k3_mobile/const/app_shared_preference_key.dart';
 import 'package:k3_mobile/const/app_url.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class HttpClient {
+class HttpRequestClient {
   SharedPreferences? _preferences;
 
   Future<SharedPreferences?> preferences() async {

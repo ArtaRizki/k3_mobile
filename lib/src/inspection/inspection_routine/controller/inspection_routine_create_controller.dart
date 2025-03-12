@@ -1,19 +1,24 @@
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:k3_mobile/component/custom_date_picker.dart';
 import 'package:k3_mobile/component/custom_image_picker.dart';
+import 'package:k3_mobile/component/http_request_client.dart';
+import 'package:k3_mobile/component/multipart.dart';
 import 'package:k3_mobile/component/utils.dart';
+import 'package:k3_mobile/src/inspection/inspection_routine/controller/inspection_routine_controller.dart';
+import 'package:k3_mobile/src/inspection/inspection_routine/model/inspection_routine_create_param.dart';
 
 class InspectionRoutineCreateController extends GetxController {
+  var req = HttpRequestClient();
   var loading = false.obs;
-  var isExpanded = false.obs;
   var isValidated = false.obs;
+  var isViewMode = false.obs;
 
-  final unitC = TextEditingController(text: 'Kalimantan').obs,
+  final unitC = TextEditingController(text: 'INS/2025/II/002').obs,
       dateC = TextEditingController().obs,
       timeC = TextEditingController().obs,
       categoryC = TextEditingController().obs,
@@ -27,8 +32,59 @@ class InspectionRoutineCreateController extends GetxController {
   var actionTakenNo = false.obs;
   var pictureList = <File>[].obs;
   var dateTime = Rx<DateTime?>(null);
-
   var selectedCategory = Rx<String?>(null);
+
+  var viewData = InspectionRoutineCreateParam(
+    unit: '',
+    date: '',
+    time: '',
+    category: '',
+    risk: '',
+    location: '',
+    eventDescription: '',
+    actionTaken: true,
+    reason: '',
+    actionDetails: '',
+    image: [],
+  ).obs;
+
+  List<String> categoryList = [
+    'Unsafe Action',
+    'Near Miss',
+    'Safety Suggestion',
+    'Positive Action',
+  ];
+
+  @override
+  void onInit() async {
+    init();
+    super.onInit();
+  }
+
+  init() async {
+    if (Get.arguments != null) {
+      isViewMode.value = true;
+      viewData.value = Get.arguments;
+      final data = viewData.value;
+      unitC.value.text = data.unit;
+      dateC.value.text = data.date;
+      dateTime.value = DateFormat('dd/MM/yyyy').parse(data.date);
+      timeC.value.text = data.time;
+      categoryC.value.text = data.category;
+      riskC.value.text = data.risk;
+      eventLocationC.value.text = data.location;
+      eventChronologyC.value.text = data.eventDescription;
+      if (data.actionTaken) {
+        actionTakenYes.value = true;
+        actionTakenNo.value = false;
+      } else {
+        actionTakenNo.value = true;
+        actionTakenYes.value = false;
+      }
+      reasonC.value.text = data.reason;
+      actionDetailC.value.text = data.actionDetails;
+    }
+  }
 
   bool validate() {
     if (unitC.value.text.isEmpty) return false;
@@ -85,9 +141,6 @@ class InspectionRoutineCreateController extends GetxController {
       if (date != null) {
         dateTime.value = date;
         dateC.value.text = DateFormat('dd-MM-yyyy').format(date);
-        // dateC.value.text = '${date.day}-${date.month}-${date.year}';
-        // timeC.value.text = DateFormat('HH:MM').format(date);
-        // timeC.value.text = '${date.hour} ${date.minute}';
       }
     }
     update();
@@ -98,9 +151,8 @@ class InspectionRoutineCreateController extends GetxController {
       var time = await CustomDatePicker.pickTime(Get.context!);
       if (time != null) {
         dateTime.value?.add(Duration(hours: time.hour, minutes: time.minute));
-        // timeC.value.text = DateFormat('HH:mm').format(dateTime.value!);
         timeC.value.text =
-            '${time.hour < 10 ? '0${time.hour}' : time.hour} ${time.minute < 10 ? '0${time.minute}' : time.minute}';
+            '${time.hour < 10 ? '0${time.hour}' : time.hour}:${time.minute < 10 ? '0${time.minute}' : time.minute}';
       }
     } else {
       Utils.showFailed(msg: 'Harap Pilih Tanggal Terlebih Dahulu');
@@ -110,21 +162,59 @@ class InspectionRoutineCreateController extends GetxController {
 
   Future<void> sendInspectionRoutine() async {
     loading(true);
+    var param = InspectionRoutineCreateParam(
+      unit: unitC.value.text,
+      date: dateC.value.text,
+      time: timeC.value.text,
+      category: selectedCategory.value ?? '',
+      risk: riskC.value.text,
+      location: eventLocationC.value.text,
+      eventDescription: eventChronologyC.value.text,
+      actionTaken:
+          actionTakenYes.value ? actionTakenYes.value : actionTakenNo.value,
+      reason: reasonC.value.text,
+      actionDetails: actionDetailC.value.text,
+      image: pictureList.map((e) => e.path).toList(),
+    );
+    var body = param.toJson();
+
+    List<http.MultipartFile> files = [];
+    if (pictureList.isNotEmpty) {
+      for (int i = 0; i < pictureList.length; i++) {
+        final item = pictureList[i];
+        files.add(await getMultipart('upload[$i]', File(item.path)));
+      }
+    }
+    // menunggu api
+    // --------
+    // final response = await req.post(
+    //     // Constant.BASE_API_FULL + '/${isEdit ? 'edit' : 'create'}produkseller',
+    //     'create',
+    //     body: body,
+    //     files: files.isEmpty ? null : files);
+
+    // if (response.statusCode == 201 || response.statusCode == 200) {
+    //   // productDetailSellerModel =
+    //   //     ProdukDetailSellerModel.fromJson(jsonDecode(response.body));
+    //   update();
+    //   loading(false);
+    // } else {
+    //   final message = jsonDecode(response.body)["messages"]["error"];
+    //   loading(false);
+    //   throw Exception(message);
+    // }
+    var listC = Get.find<InspectionRoutineController>();
+    // listC.inspections.add(dataForList);
+    listC.inspectionsCreate.add(param);
+
+    listC.filteredInspections.assignAll(listC.inspectionsCreate);
+    listC.refresh();
+    log("LIST LENGTH : ${listC.inspectionsCreate.length}");
     await Future.delayed((Duration(seconds: 3)));
     loading(false);
+    Get.back();
+    listC.update();
     Utils.showSuccess(msg: '');
-  }
-
-  List<String> categoryList = [
-    'Unsafe Action',
-    'Near Miss',
-    'Safety Suggestion',
-    'Positive Action',
-  ];
-
-  @override
-  void onInit() async {
-    super.onInit();
   }
 
   @override

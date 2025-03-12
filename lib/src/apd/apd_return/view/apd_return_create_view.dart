@@ -221,7 +221,7 @@ class ApdReturnCreateView extends GetView<ApdReturnCreateController> {
                                           borderRadius:
                                               BorderRadius.circular(12),
                                           child: Image.file(
-                                            item!,
+                                            item,
                                             width: 68,
                                             height: 68,
                                             fit: BoxFit.cover,

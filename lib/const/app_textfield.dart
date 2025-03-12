@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
+import 'package:k3_mobile/const/app_textfield_validator.dart';
 
 class AppTextField {
   static Widget basicTextField({
@@ -11,6 +12,7 @@ class AppTextField {
     bool required = false,
     bool? isDense,
     String hintText = '',
+    Widget? prefix,
     Widget? prefixIcon,
     BoxConstraints? prefixIconConstraints,
     Widget? suffixIcon,
@@ -20,6 +22,7 @@ class AppTextField {
     double? radius,
     EdgeInsetsGeometry? contentPadding,
     TextInputType? keyboardType,
+    String? Function(String?)? validator,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,6 +61,7 @@ class AppTextField {
             fillColor: readOnly && onChanged == null
                 ? AppColor.neutralLightLight
                 : Colors.white,
+            prefix: prefixIcon == null ? SizedBox(width: 16) : null,
             prefixIconConstraints: prefixIconConstraints,
             prefixIcon: prefixIcon,
             suffixIconConstraints: suffixIconConstraints,
@@ -88,9 +92,19 @@ class AppTextField {
               borderRadius: BorderRadius.circular(radius ?? 12),
               borderSide: BorderSide(color: AppColor.errorDark),
             ),
-            contentPadding: contentPadding ??
-                EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+            contentPadding:
+                contentPadding ?? EdgeInsets.fromLTRB(0, 14, 16, 14),
           ),
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          validator: (v) {
+            if (validator != null)
+              validator;
+            else {
+              if (required) return AppTextFieldValidator.requiredValidator(v);
+              return null;
+            }
+            return null;
+          },
         ),
       ],
     );
@@ -100,11 +114,13 @@ class AppTextField {
     required TextEditingController controller,
     VoidCallback? onTap,
     bool readOnly = false,
+    bool required = false,
     bool isPassword = false,
     String hintText = '',
     Widget? suffixIcon,
     BoxConstraints? suffixIconConstraints,
     Function(String)? onChanged,
+    String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
@@ -144,6 +160,16 @@ class AppTextField {
         contentPadding:
             const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
       ),
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: (v) {
+        if (validator != null)
+          validator;
+        else {
+          if (required) return AppTextFieldValidator.requiredValidator(v);
+          return null;
+        }
+        return null;
+      },
     );
   }
 }

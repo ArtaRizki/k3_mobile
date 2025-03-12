@@ -6,7 +6,6 @@ import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_page.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/generated/assets.dart';
-import 'package:k3_mobile/src/main_home/controller/main_home_controller.dart';
 import 'package:k3_mobile/src/profile/controller/profile_controller.dart';
 import 'package:k3_mobile/src/session/controller/session_controller.dart';
 

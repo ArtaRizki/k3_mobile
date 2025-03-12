@@ -1,4 +1,3 @@
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:k3_mobile/component/dropdown_search.dart';
 import 'package:k3_mobile/const/app_color.dart';
@@ -25,6 +24,7 @@ class AppDropdown {
           ),
         if (label != '') const SizedBox(height: 8),
         DropdownButtonFormField(
+          dropdownColor: AppColor.neutralLightLightest,
           items: readOnly ? null : list,
           onTap: onTap,
           style: AppTextStyle.bodyM.copyWith(color: AppColor.neutralDarkMedium),

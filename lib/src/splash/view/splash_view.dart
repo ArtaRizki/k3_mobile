@@ -1,10 +1,6 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:k3_mobile/const/app_shared_preference_key.dart';
-import 'package:k3_mobile/generated/assets.dart';
 import 'package:k3_mobile/src/splash/controller/splash_controller.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends GetView<SplashController> {
   const SplashScreen({super.key});

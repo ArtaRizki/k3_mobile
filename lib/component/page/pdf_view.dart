@@ -3,7 +3,6 @@ import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:flutter_signature_pad/flutter_signature_pad.dart';
 import 'package:k3_mobile/component/download.dart';
 import 'package:k3_mobile/const/app_color.dart';
-import 'package:open_file_plus/open_file_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
