@@ -22,200 +22,20 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
       appBar: AppAppbar.basicAppbar(title: 'Buat Permintaan APD'),
       body: SafeArea(
         child: Container(
-          color: AppColor.neutralLightLightest,
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
           child: Obx(
             () {
               return SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    AppTextField.basicTextField(
-                      readOnly: true,
-                      required: true,
-                      controller: controller.dateC.value,
-                      label: 'Tanggal',
-                      hintText: 'dd-mm-yyyy',
-                      onTap: () async {
-                        await controller.pickDate();
-                        FocusManager.instance.primaryFocus?.unfocus();
-                        controller.validateForm();
-                      },
-                      onChanged: (v) {
-                        controller.validateForm();
-                        controller.update();
-                      },
-                      prefixIconConstraints: BoxConstraints(maxHeight: 18),
-                      prefixIcon: GestureDetector(
-                        onTap: null,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 16, right: 8),
-                          child: Image.asset(
-                            Assets.iconsIcDate,
-                            color: AppColor.neutralLightDarkest,
-                          ),
-                        ),
-                      ),
-                    ),
+                    _buildDateField(),
                     SizedBox(height: 12),
-                    AppTextField.basicTextField(
-                      controller: controller.noteC.value,
-                      label: 'Keterangan',
-                      hintText: 'Keterangan',
-                      maxLines: 4,
-                      onChanged: (v) {
-                        controller.validateForm();
-                        controller.update();
-                      },
-                    ),
+                    _buildNoteField(),
                     SizedBox(height: 12),
-                    AppDropdown.normalDropdown(
-                      label: 'Status',
-                      // readOnly: controller.isEditMode.value,
-                      hintText: 'Pilih Kategori',
-                      selectedItem: controller.selectedStatus.value,
-                      onChanged: (v) {
-                        controller.selectedStatus.value = v;
-                        controller.validateForm();
-                        FocusManager.instance.primaryFocus?.unfocus();
-                        controller.update();
-                      },
-                      list: List.generate(
-                        controller.statusList.length,
-                        (i) {
-                          final item = controller.statusList[i];
-                          return DropdownMenuItem(
-                            value: item,
-                            child: Text(
-                              item,
-                              style: AppTextStyle.bodyM.copyWith(
-                                color: AppColor.neutralDarkMedium,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
+                    _buildStatusDropdown(),
                     SizedBox(height: 12),
-                    Container(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 12, bottom: 12),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  'Daftar permintaan',
-                                  textAlign: TextAlign.left,
-                                  style: AppTextStyle.actionL.copyWith(
-                                    color: AppColor.neutralDarkLight,
-                                  ),
-                                ),
-                                Spacer(),
-                                AppCard.basicCard(
-                                  onTap: () async {
-                                    FocusManager.instance.primaryFocus
-                                        ?.unfocus();
-                                    controller.searchC.value.clear();
-                                    controller.apdNameC.value.clear();
-                                    controller.amountC.value.clear();
-                                    controller.searchApdC.value.clear();
-                                    AppDialog.showBasicDialog(
-                                      title: 'Tambah APD',
-                                      content: changeApdDialog(),
-                                      btn: changeApdBtn(),
-                                    );
-                                  },
-                                  color: AppColor.highlightDarkest,
-                                  radius: 20,
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: 6,
-                                    horizontal: 12,
-                                  ),
-                                  child: Text(
-                                    '+ Tambah',
-                                    style: AppTextStyle.actionL.copyWith(
-                                      color: AppColor.neutralLightLightest,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 12),
-                            if (controller.apdReqList.isEmpty) ...[
-                              EmptyList.textEmptyListNoScroll(
-                                minHeight: Get.size.height * .15,
-                                topPadding: 50,
-                                onRefresh: () async {
-                                  controller.update();
-                                },
-                              ),
-                            ] else ...[
-                              ListView.builder(
-                                physics: NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                itemCount: controller.apdReqList.length,
-                                itemBuilder: (c, i) {
-                                  final item = controller.apdReqList[i];
-                                  return AppCard.listCard(
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 12, horizontal: 6),
-                                    color: i % 2 == 0 && i != 0
-                                        ? AppColor.neutralLightLightest
-                                        : AppColor.highlightLightest,
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        titleSubtitle(
-                                          'Kode',
-                                          item.code,
-                                          2,
-                                        ),
-                                        SizedBox(width: 12),
-                                        titleSubtitle(
-                                          'Nama',
-                                          item.name,
-                                          3,
-                                        ),
-                                        SizedBox(width: 12),
-                                        titleSubtitle(
-                                          'Jumlah',
-                                          item.qty,
-                                          1,
-                                        ),
-                                        SizedBox(width: 12),
-                                        editDelete(
-                                          () {
-                                            controller.searchC.value.text =
-                                                item.name;
-                                            controller.apdNameC.value.text =
-                                                item.name;
-                                            controller.amountC.value.text =
-                                                item.qty;
-                                            AppDialog.showBasicDialog(
-                                              title: 'Edit APD',
-                                              content:
-                                                  changeApdDialog(isEdit: true),
-                                              btn: changeApdBtn(
-                                                  isEdit: true, index: i),
-                                            );
-                                          },
-                                          () {
-                                            controller.deleteApdRequest(i);
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ),
+                    _buildRequestListSection(),
                   ],
                 ),
               );
@@ -223,102 +43,275 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
           ),
         ),
       ),
-      bottomNavigationBar: Obx(
-        () {
-          return Padding(
-            padding: EdgeInsets.only(top: 12, bottom: 24, left: 24, right: 24),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Expanded(
-                  child: AppButton.basicButton(
-                    enable: controller.isValidated.value &&
-                        !controller.loadingSendApd.value,
-                    onTap: () async {
-                      if (!controller.loadingSaveDraftApd.value &&
-                          !controller.loadingSendApd.value)
-                        await controller.saveDraftApdRequest();
-                    },
-                    width: double.infinity,
-                    color: AppColor.warningDark,
-                    height: 55,
-                    radius: 12,
-                    padding: EdgeInsets.fromLTRB(16,
-                        controller.loadingSaveDraftApd.value ? 0 : 18, 16, 0),
-                    child: controller.loadingSaveDraftApd.value
-                        ? Transform.scale(
-                            scale: 0.5,
-                            child: SizedBox(
-                              width: 16,
-                              height: 6,
-                              child: FittedBox(
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          )
-                        : Text(
-                            'Simpan draft',
-                            textAlign: TextAlign.center,
-                            style: AppTextStyle.actionL.copyWith(
-                              color: AppColor.neutralLightLightest,
-                            ),
-                          ),
-                  ),
-                ),
-                SizedBox(width: 12),
-                Expanded(
-                  child: AppButton.basicButton(
-                    enable: controller.isValidated.value &&
-                        !controller.loadingSaveDraftApd.value,
-                    onTap: () async {
-                      if (!controller.loadingSendApd.value &&
-                          !controller.loadingSaveDraftApd.value) {
-                        if (controller.isEditMode.value)
-                          await controller
-                              .editSendApdRequest(controller.indexData.value);
-                        else
-                          await controller.sendApdRequest();
-                      }
-                    },
-                    width: double.infinity,
-                    color: AppColor.highlightDarkest,
-                    height: 55,
-                    radius: 12,
-                    padding: EdgeInsets.fromLTRB(
-                        16, controller.loadingSendApd.value ? 0 : 18, 16, 0),
-                    child: controller.loadingSendApd.value
-                        ? Transform.scale(
-                            scale: 0.5,
-                            child: SizedBox(
-                              width: 16,
-                              height: 6,
-                              child: FittedBox(
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          )
-                        : Text(
-                            'Ajukan',
-                            textAlign: TextAlign.center,
-                            style: AppTextStyle.actionL.copyWith(
-                              color: AppColor.neutralLightLightest,
-                            ),
-                          ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+      bottomNavigationBar: _buildBottomNavigationBar(),
+    );
+  }
+
+  Widget _buildDateField() {
+    return AppTextField.basicTextField(
+      readOnly: true,
+      required: true,
+      controller: controller.dateC.value,
+      label: 'Tanggal',
+      hintText: 'dd-mm-yyyy',
+      onTap: () async {
+        await controller.pickDate();
+        FocusManager.instance.primaryFocus?.unfocus();
+        controller.validateForm();
+      },
+      onChanged: (v) {
+        controller.validateForm();
+        controller.update();
+      },
+      prefixIconConstraints: BoxConstraints(maxHeight: 18),
+      prefixIcon: Padding(
+        padding: const EdgeInsets.only(left: 16, right: 8),
+        child: Image.asset(
+          Assets.iconsIcDate,
+          color: AppColor.neutralLightDarkest,
+        ),
       ),
     );
   }
 
-  Widget titleSubtitle(String title, String subtitle, int flex) {
+  Widget _buildNoteField() {
+    return AppTextField.basicTextField(
+      controller: controller.noteC.value,
+      label: 'Keterangan',
+      hintText: 'Keterangan',
+      maxLines: 4,
+      onChanged: (v) {
+        controller.validateForm();
+        controller.update();
+      },
+    );
+  }
+
+  Widget _buildStatusDropdown() {
+    return AppDropdown.normalDropdown(
+      label: 'Status',
+      hintText: 'Pilih Kategori',
+      selectedItem: controller.selectedStatus.value,
+      onChanged: (v) {
+        controller.selectedStatus.value = v;
+        controller.validateForm();
+        FocusManager.instance.primaryFocus?.unfocus();
+        controller.update();
+      },
+      list: controller.statusList.map((item) {
+        return DropdownMenuItem(
+          value: item,
+          child: Text(
+            item,
+            style: AppTextStyle.bodyM.copyWith(
+              color: AppColor.neutralDarkMedium,
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildRequestListSection() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, bottom: 12),
+      child: Column(
+        children: [
+          _buildRequestListHeader(),
+          SizedBox(height: 12),
+          _buildRequestList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRequestListHeader() {
+    return Row(
+      children: [
+        Text(
+          'Daftar permintaan',
+          style: AppTextStyle.actionL.copyWith(
+            color: AppColor.neutralDarkLight,
+          ),
+        ),
+        Spacer(),
+        AppCard.basicCard(
+          onTap: () async {
+            FocusManager.instance.primaryFocus?.unfocus();
+            _showAddApdDialog();
+          },
+          color: AppColor.highlightDarkest,
+          radius: 20,
+          padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+          child: Text(
+            '+ Tambah',
+            style: AppTextStyle.actionL.copyWith(
+              color: AppColor.neutralLightLightest,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showAddApdDialog() {
+    controller.searchC.value.clear();
+    controller.apdNameC.value.clear();
+    controller.amountC.value.clear();
+    controller.searchApdC.value.clear();
+    AppDialog.showBasicDialog(
+      title: 'Tambah APD',
+      content: _changeApdDialog(),
+      btn: _changeApdBtn(),
+    );
+  }
+
+  Widget _buildRequestList() {
+    if (controller.apdReqList.isEmpty) {
+      return EmptyList.textEmptyListNoScroll(
+        minHeight: Get.size.height * .15,
+        topPadding: 50,
+        onRefresh: () async {
+          controller.update();
+        },
+      );
+    }
+
+    return ListView.builder(
+      physics: NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: controller.apdReqList.length,
+      itemBuilder: (c, i) {
+        final item = controller.apdReqList[i];
+        return _buildRequestCard(item, i);
+      },
+    );
+  }
+
+  Widget _buildRequestCard(item, int i) {
+    return AppCard.listCard(
+      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+      color: i % 2 == 0 && i != 0
+          ? AppColor.neutralLightLightest
+          : AppColor.highlightLightest,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _titleSubtitle('Kode', item.code, 2),
+          SizedBox(width: 12),
+          _titleSubtitle('Nama', item.name, 3),
+          SizedBox(width: 12),
+          _titleSubtitle('Jumlah', item.qty, 1),
+          SizedBox(width: 12),
+          _editDeleteIcons(() {
+            _showEditApdDialog(item, i);
+          }, () {
+            controller.deleteApdRequest(i);
+          }),
+        ],
+      ),
+    );
+  }
+
+  void _showEditApdDialog(item, int index) {
+    controller.searchC.value.text = item.name;
+    controller.apdNameC.value.text = item.name;
+    controller.amountC.value.text = item.qty;
+
+    AppDialog.showBasicDialog(
+      title: 'Edit APD',
+      content: _changeApdDialog(isEdit: true),
+      btn: _changeApdBtn(isEdit: true, index: index),
+    );
+  }
+
+  Widget _buildBottomNavigationBar() {
+    return Obx(
+      () {
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+          child: Row(
+            children: [
+              _buildSaveDraftButton(),
+              SizedBox(width: 12),
+              _buildSubmitButton(),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSaveDraftButton() {
+    return Expanded(
+      child: AppButton.basicButton(
+        enable:
+            controller.isValidated.value && !controller.loadingSendApd.value,
+        onTap: () async {
+          if (!controller.loadingSaveDraftApd.value &&
+              !controller.loadingSendApd.value) {
+            await controller.saveDraftApdRequest();
+          }
+        },
+        color: AppColor.warningDark,
+        height: 55,
+        radius: 12,
+        padding: EdgeInsets.fromLTRB(
+            16, controller.loadingSaveDraftApd.value ? 0 : 18, 16, 0),
+        child: controller.loadingSaveDraftApd.value
+            ? _buildLoadingIndicator()
+            : Text(
+                'Simpan draft',
+                textAlign: TextAlign.center,
+                style: AppTextStyle.actionL.copyWith(
+                  color: AppColor.neutralLightLightest,
+                ),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return Expanded(
+      child: AppButton.basicButton(
+        enable: controller.isValidated.value &&
+            !controller.loadingSaveDraftApd.value,
+        onTap: () async {
+          if (!controller.loadingSendApd.value &&
+              !controller.loadingSaveDraftApd.value) {
+            if (controller.isEditMode.value) {
+              await controller.editSendApdRequest(controller.indexData.value);
+            } else {
+              await controller.sendApdRequest();
+            }
+          }
+        },
+        color: AppColor.highlightDarkest,
+        height: 55,
+        radius: 12,
+        padding: EdgeInsets.fromLTRB(
+            16, controller.loadingSendApd.value ? 0 : 18, 16, 0),
+        child: controller.loadingSendApd.value
+            ? _buildLoadingIndicator()
+            : Text(
+                'Ajukan',
+                textAlign: TextAlign.center,
+                style: AppTextStyle.actionL.copyWith(
+                  color: AppColor.neutralLightLightest,
+                ),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildLoadingIndicator() {
+    return Transform.scale(
+      scale: 0.5,
+      child: CircularProgressIndicator(color: Colors.white),
+    );
+  }
+
+  Widget _titleSubtitle(String title, String subtitle, int flex) {
     return Expanded(
       flex: flex,
       child: Column(
@@ -342,12 +335,11 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
     );
   }
 
-  Widget editDelete(GestureTapCallback onEdit, GestureTapCallback onDelete) {
+  Widget _editDeleteIcons(
+      GestureTapCallback onEdit, GestureTapCallback onDelete) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        InkWell(
+        GestureDetector(
           onTap: onEdit,
           child: Image.asset(
             Assets.iconsIcEdit,
@@ -356,7 +348,7 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
           ),
         ),
         SizedBox(width: 6),
-        InkWell(
+        GestureDetector(
           onTap: onDelete,
           child: Image.asset(
             Assets.iconsIcDelete,
@@ -368,14 +360,13 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
     );
   }
 
-  Widget changeApdDialog({bool isEdit = false}) {
+  Widget _changeApdDialog({bool isEdit = false}) {
     return Obx(
       () {
         return SizedBox(
           width: Get.size.width * .8,
           child: SingleChildScrollView(
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               children: [
                 AppTextField.basicTextField(
                   readOnly: true,
@@ -386,21 +377,18 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
                   onTap: () async {
                     AppDialog.showBasicDialog(
                       title: 'Pilih APD',
-                      content: selectApdDialog(),
+                      content: _selectApdDialog(),
                     );
                   },
                   onChanged: (v) {
                     controller.update();
                     controller.validateAddApdForm();
                   },
-                  suffixIcon: GestureDetector(
-                    onTap: null,
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 16),
-                      child: Image.asset(
-                        Assets.iconsIcSearch,
-                        color: AppColor.neutralLightDarkest,
-                      ),
+                  suffixIcon: Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: Image.asset(
+                      Assets.iconsIcSearch,
+                      color: AppColor.neutralLightDarkest,
                     ),
                   ),
                 ),
@@ -423,7 +411,7 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
     );
   }
 
-  Widget changeApdBtn({bool isEdit = false, int? index}) {
+  Widget _changeApdBtn({bool isEdit = false, int? index}) {
     return GetBuilder<ApdRequestCreateController>(
       builder: (controller) {
         return AppButton.basicButton(
@@ -433,35 +421,21 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
             FocusManager.instance.primaryFocus?.unfocus();
             if (!controller.loadingAddApd.value &&
                 controller.isValidatedAddApd.value) {
-              if (isEdit)
+              if (isEdit) {
                 await controller.editApdRequest(index!);
-              else
+              } else {
                 await controller.addApdRequest();
+              }
             }
           },
           width: double.infinity,
           color: AppColor.highlightDarkest,
           height: 50,
           radius: 12,
-          padding: EdgeInsets.fromLTRB(
-            16,
-            controller.loading.value ? 0 : 14,
-            16,
-            0,
-          ),
+          padding:
+              EdgeInsets.fromLTRB(16, controller.loading.value ? 0 : 14, 16, 0),
           child: controller.loading.value
-              ? Transform.scale(
-                  scale: 0.5,
-                  child: SizedBox(
-                    width: 16,
-                    height: 6,
-                    child: FittedBox(
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                )
+              ? _buildLoadingIndicator()
               : Text(
                   isEdit ? 'Edit' : 'Tambah',
                   textAlign: TextAlign.center,
@@ -474,7 +448,7 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
     );
   }
 
-  Widget selectApdDialog() {
+  Widget _selectApdDialog() {
     return GetBuilder<ApdRequestCreateController>(
       builder: (controller) {
         final query = controller.searchApdC.value.text.isNotEmpty;
@@ -482,28 +456,22 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
           width: Get.size.width * .8,
           height: Get.size.height * .8,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
               AppTextField.loginTextField(
                 controller: controller.searchApdC.value,
                 hintText: 'Cari',
                 suffixIconConstraints:
                     BoxConstraints(maxHeight: query ? 23 : 18),
-                onTap: () async {},
                 onChanged: (v) {
                   controller.update();
                 },
                 suffixIcon: InkWell(
                   onTap: query ? controller.clearSearchApdField : null,
                   child: query
-                      ? Container(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Icon(
-                              Icons.close,
-                              color: AppColor.neutralDarkLight,
-                            ),
-                          ),
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Icon(Icons.close,
+                              color: AppColor.neutralDarkLight),
                         )
                       : Padding(
                           padding: const EdgeInsets.only(right: 16),
@@ -534,23 +502,11 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          titleSubtitle(
-                            'Kode',
-                            item.code,
-                            3,
-                          ),
+                          _titleSubtitle('Kode', item.code, 3),
                           SizedBox(width: 12),
-                          titleSubtitle(
-                            'Kategori',
-                            item.category,
-                            3,
-                          ),
+                          _titleSubtitle('Kategori', item.category, 3),
                           SizedBox(width: 12),
-                          titleSubtitle(
-                            'Nama',
-                            item.name,
-                            4,
-                          ),
+                          _titleSubtitle('Nama', item.name, 4),
                         ],
                       ),
                     );

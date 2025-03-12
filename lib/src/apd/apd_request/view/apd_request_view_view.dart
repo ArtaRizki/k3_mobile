@@ -22,7 +22,7 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
         titleStyle: AppTextStyle.h4.copyWith(
           color: AppColor.neutralDarkDarkest,
         ),
-        action: action(),
+        action: _buildActionButtons(),
       ),
       body: SafeArea(
         child: Container(
@@ -31,16 +31,10 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ...header(),
-                    ...list(),
-                    timeline(),
-                  ],
-                ),
+                ..._buildHeader(),
+                ..._buildRequestList(),
+                _buildTimeline(),
               ],
             ),
           ),
@@ -49,125 +43,90 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
     );
   }
 
-  List<Widget> action() {
+  List<Widget> _buildActionButtons() {
     final status = controller.viewData.value.status;
     return [
       if (status == 'Draft')
-        InkWell(
-          onTap: () {
-            Get.back();
-          },
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 6),
-            child: Text(
-              'Ajukan',
-              style: AppTextStyle.bodyM.copyWith(
-                color: AppColor.warningDark,
-              ),
-            ),
-          ),
-        ),
+        _buildActionButton('Ajukan', AppColor.warningDark, () => Get.back()),
       if (status == 'Draft' || status == 'Ditolak')
-        InkWell(
-          onTap: () async {
-            Get.toNamed(
-              AppRoute.APD_REQUEST_CREATE,
-              arguments: [
-                controller.indexData.value,
-                controller.viewData.value
-              ],
-            );
-          },
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 6),
-            child: Text(
-              'Edit',
-              style: AppTextStyle.bodyM.copyWith(
-                color: AppColor.highlightDarkest,
-              ),
-            ),
-          ),
-        ),
+        _buildActionButton('Edit', AppColor.highlightDarkest, () async {
+          Get.toNamed(AppRoute.APD_REQUEST_CREATE, arguments: [
+            controller.indexData.value,
+            controller.viewData.value,
+          ]);
+        }),
       if (status == 'Draft')
-        InkWell(
-          onTap: () async {
-            var c = Get.find<ApdRequestController>();
-            await c.deleteApdRequestParam(
-              controller.indexData.value,
-            );
-            c.update();
-            Get.back();
-          },
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 6),
-            child: Text(
-              'Hapus',
-              style: AppTextStyle.bodyM.copyWith(
-                color: AppColor.errorDark,
-              ),
-            ),
-          ),
-        ),
+        _buildActionButton('Hapus', AppColor.errorDark, () async {
+          var c = Get.find<ApdRequestController>();
+          await c.deleteApdRequestParam(controller.indexData.value);
+          c.update();
+          Get.back();
+        }),
       SizedBox(width: 18),
     ];
   }
 
-  List<Widget> header() {
+  Widget _buildActionButton(String label, Color color, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 6),
+        child: Text(
+          label,
+          style: AppTextStyle.bodyM.copyWith(color: color),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildHeader() {
     final data = controller.viewData.value;
     return [
       SizedBox(height: 12),
-      headerItem(
-        'Tanggal',
-        DateFormat('dd/MM/yyyy')
-            .format(DateFormat('dd-MM-yyyy').parse(data.date)),
-      ),
+      _headerItem(
+          'Tanggal',
+          DateFormat('dd/MM/yyyy')
+              .format(DateFormat('dd-MM-yyyy').parse(data.date))),
       SizedBox(height: 9),
-      headerItem('Unit', data.unit),
+      _headerItem('Unit', data.unit),
       SizedBox(height: 9),
-      headerItem('Keterangan', data.note),
+      _headerItem('Keterangan', data.note),
       SizedBox(height: 9),
-      headerItem(
-        'Status',
-        data.status,
-        valueColor: controller.statusColor(data.status),
-      ),
+      _headerItem('Status', data.status,
+          valueColor: controller.statusColor(data.status)),
       SizedBox(height: 31),
     ];
   }
 
-  Widget headerItem(String title, String value, {Color? valueColor}) {
+  Widget _headerItem(String title, String value, {Color? valueColor}) {
     return Row(
       children: [
         Expanded(
           flex: 4,
           child: Text(
             title,
-            style: AppTextStyle.bodyM.copyWith(
-              color: AppColor.neutralDarkLight,
-            ),
+            style:
+                AppTextStyle.bodyM.copyWith(color: AppColor.neutralDarkLight),
           ),
         ),
         Expanded(
           flex: 6,
           child: Text(
             value,
-            style: AppTextStyle.actionL.copyWith(
-              color: valueColor ?? AppColor.neutralDarkDarkest,
-            ),
+            style: AppTextStyle.actionL
+                .copyWith(color: valueColor ?? AppColor.neutralDarkDarkest),
           ),
         ),
       ],
     );
   }
 
-  List<Widget> list() {
+  List<Widget> _buildRequestList() {
     final data = controller.viewData.value.reqList;
     return [
       Text(
         'Daftar permintaan',
-        style: AppTextStyle.bodyM.copyWith(
-          color: AppColor.neutralDarkLight,
-        ),
+        style: AppTextStyle.bodyM.copyWith(color: AppColor.neutralDarkLight),
       ),
       SizedBox(height: 6),
       ListView.builder(
@@ -184,11 +143,11 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                titleSubtitle('Kode', item.code, 3),
+                _titleSubtitle('Kode', item.code, 3),
                 SizedBox(width: 12),
-                titleSubtitle('Nama', item.name, 5),
+                _titleSubtitle('Nama', item.name, 5),
                 SizedBox(width: 12),
-                titleSubtitle('Jumlah', item.qty, 2),
+                _titleSubtitle('Jumlah', item.qty, 2),
               ],
             ),
           );
@@ -197,7 +156,7 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
     ];
   }
 
-  Widget titleSubtitle(String title, String subtitle, int flex) {
+  Widget _titleSubtitle(String title, String subtitle, int flex) {
     return Expanded(
       flex: flex,
       child: Column(
@@ -205,23 +164,21 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
         children: [
           Text(
             title,
-            style: AppTextStyle.bodyS.copyWith(
-              color: AppColor.neutralDarkLightest,
-            ),
+            style: AppTextStyle.bodyS
+                .copyWith(color: AppColor.neutralDarkLightest),
           ),
           SizedBox(height: 6),
           Text(
             subtitle,
-            style: AppTextStyle.bodyM.copyWith(
-              color: AppColor.neutralDarkDarkest,
-            ),
+            style:
+                AppTextStyle.bodyM.copyWith(color: AppColor.neutralDarkDarkest),
           ),
         ],
       ),
     );
   }
 
-  Widget timeline() {
+  Widget _buildTimeline() {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 24),
       padding: EdgeInsets.symmetric(vertical: 24),
@@ -230,21 +187,17 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
         children: [
           Text(
             'Linimasa',
-            style: AppTextStyle.bodyM.copyWith(
-              color: AppColor.neutralDarkLight,
-            ),
+            style:
+                AppTextStyle.bodyM.copyWith(color: AppColor.neutralDarkLight),
           ),
           SizedBox(height: 6),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 12),
             child: Column(
-              children: List.generate(
-                2,
-                (i) {
-                  return timelineItem(
-                      '14/02/2025\n14:00', 'Permintaan APD diajukan', 'Siti');
-                },
-              ),
+              children: List.generate(2, (i) {
+                return _timelineItem(
+                    '14/02/2025\n14:00', 'Permintaan APD diajukan', 'Siti');
+              }),
             ),
           ),
         ],
@@ -252,7 +205,7 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
     );
   }
 
-  Widget timelineItem(String t1, String t2, String t3) {
+  Widget _timelineItem(String t1, String t2, String t3) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
@@ -261,18 +214,16 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
             flex: 3,
             child: Text(
               t1,
-              style: AppTextStyle.bodyS.copyWith(
-                color: AppColor.neutralDarkLightest,
-              ),
+              style: AppTextStyle.bodyS
+                  .copyWith(color: AppColor.neutralDarkLightest),
             ),
           ),
           Expanded(
             flex: 3,
             child: Text(
               t2,
-              style: AppTextStyle.bodyS.copyWith(
-                color: AppColor.neutralDarkLightest,
-              ),
+              style: AppTextStyle.bodyS
+                  .copyWith(color: AppColor.neutralDarkLightest),
             ),
           ),
           Expanded(
@@ -280,9 +231,8 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
             child: Text(
               'oleh: $t3',
               textAlign: TextAlign.center,
-              style: AppTextStyle.bodyS.copyWith(
-                color: AppColor.neutralDarkLightest,
-              ),
+              style: AppTextStyle.bodyS
+                  .copyWith(color: AppColor.neutralDarkLightest),
             ),
           ),
         ],

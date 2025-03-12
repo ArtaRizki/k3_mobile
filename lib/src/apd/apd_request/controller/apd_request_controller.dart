@@ -9,14 +9,15 @@ class ApdRequestController extends GetxController {
   var filteredApdReq = <ApdRequestParam>[].obs;
 
   @override
-  void onInit() async {
+  void onInit() {
+    super.onInit();
     filteredApdReq.assignAll(apdReq);
     searchC.value.addListener(_onSearchChanged);
-    super.onInit();
   }
 
   void _onSearchChanged() {
     String query = searchC.value.text.toLowerCase();
+
     if (query.isEmpty) {
       filteredApdReq.assignAll(apdReq);
     } else {
@@ -42,26 +43,33 @@ class ApdRequestController extends GetxController {
     return 'Status';
   }
 
-  Color statusColor(String v) {
-    if (v == 'Draft') return AppColor.highlightDarkest;
-    if (v == 'Diajukan') return AppColor.warningDark;
-    if (v == 'Disetujui') return AppColor.successMedium;
-    if (v == 'Ditolak') return AppColor.errorDark;
-    return AppColor.neutralDarkDarkest;
+  Color statusColor(String status) {
+    switch (status) {
+      case 'Draft':
+        return AppColor.highlightDarkest;
+      case 'Diajukan':
+        return AppColor.warningDark;
+      case 'Disetujui':
+        return AppColor.successMedium;
+      case 'Ditolak':
+        return AppColor.errorDark;
+      default:
+        return AppColor.neutralDarkDarkest;
+    }
   }
 
-  deleteApdRequestParam(int i) async {
-    filteredApdReq.removeAt(i);
+  Future<void> deleteApdRequestParam(int index) async {
+    filteredApdReq.removeAt(index);
     update();
   }
 
   @override
-  void onReady() async {
+  void onReady() {
     super.onReady();
   }
 
   @override
-  void onClose() async {
+  void onClose() {
     searchC.value.dispose();
     super.onClose();
   }
