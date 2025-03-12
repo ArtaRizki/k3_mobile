@@ -30,4 +30,26 @@ class EmptyList {
       ),
     );
   }
+
+  static Widget textEmptyListNoScroll({
+    required double minHeight,
+    double? topPadding,
+    required Future<void> Function() onRefresh,
+  }) {
+    return Container(
+      constraints: BoxConstraints(minHeight: minHeight),
+      child: Column(
+        children: [
+          SizedBox(height: topPadding ?? Get.size.height * .12),
+          Center(
+            child: Text(
+              'Tidak ada data',
+              textAlign: TextAlign.center,
+              style: AppTextStyle.actionM,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

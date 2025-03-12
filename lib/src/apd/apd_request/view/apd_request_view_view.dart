@@ -1,85 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:k3_mobile/const/app_appbar.dart';
 import 'package:k3_mobile/const/app_card.dart';
 import 'package:k3_mobile/const/app_color.dart';
+import 'package:k3_mobile/const/app_page.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
-import 'package:k3_mobile/generated/assets.dart';
 import 'package:k3_mobile/src/apd/apd_request/controller/apd_request_controller.dart';
+import 'package:k3_mobile/src/apd/apd_request/controller/apd_request_view_controller.dart';
 
-class ApdRequestViewView extends GetView<ApdRequestController> {
+class ApdRequestViewView extends GetView<ApdRequestViewController> {
   ApdRequestViewView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColor.neutralLightLightest,
-        leadingWidth: 72,
+      appBar: AppAppbar.basicAppbar(
+        title: 'ARQ/2025/II/001',
+        centerTitle: false,
         titleSpacing: 0,
-        leading: InkWell(
-          onTap: () async {
-            Get.back();
-          },
-          child: SizedBox(
-            width: 24,
-            height: 24,
-            child: Padding(
-              padding: EdgeInsets.all(4),
-              child: Transform.scale(
-                scale: 0.5,
-                child: Image.asset(
-                  Assets.iconsIcArrowBack,
-                  width: 24,
-                  height: 24,
-                ),
-              ),
-            ),
-          ),
+        titleStyle: AppTextStyle.h4.copyWith(
+          color: AppColor.neutralDarkDarkest,
         ),
-        title: Text(
-          'ARQ/2025/II/001',
-          style: AppTextStyle.h4.copyWith(
-            color: AppColor.neutralDarkDarkest,
-          ),
-        ),
-        actions: [
-          InkWell(
-            onTap: () {},
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 6),
-              child: Text(
-                'Ajukan',
-                style: AppTextStyle.bodyM.copyWith(
-                  color: AppColor.warningDark,
-                ),
-              ),
-            ),
-          ),
-          InkWell(
-            onTap: () {},
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 6),
-              child: Text(
-                'Edit',
-                style: AppTextStyle.bodyM.copyWith(
-                  color: AppColor.highlightDarkest,
-                ),
-              ),
-            ),
-          ),
-          InkWell(
-            onTap: () {},
-            child: Padding(
-              padding: EdgeInsets.only(left: 6, right: 24),
-              child: Text(
-                'Hapus',
-                style: AppTextStyle.bodyM.copyWith(
-                  color: AppColor.errorDark,
-                ),
-              ),
-            ),
-          ),
-        ],
+        action: action(),
       ),
       body: SafeArea(
         child: Container(
@@ -93,17 +36,8 @@ class ApdRequestViewView extends GetView<ApdRequestController> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 12),
                     ...header(),
-                    SizedBox(height: 24),
-                    Text(
-                      'Daftar permintaan',
-                      style: AppTextStyle.bodyM.copyWith(
-                        color: AppColor.neutralDarkLight,
-                      ),
-                    ),
-                    SizedBox(height: 6),
-                    list(),
+                    ...list(),
                     timeline(),
                   ],
                 ),
@@ -115,23 +49,89 @@ class ApdRequestViewView extends GetView<ApdRequestController> {
     );
   }
 
-  List<Widget> header() {
+  List<Widget> action() {
+    final status = controller.viewData.value.status;
     return [
-      headerItem('Tanggal', '12/02/2025'),
+      if (status == 'Draft')
+        InkWell(
+          onTap: () {
+            Get.back();
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 6),
+            child: Text(
+              'Ajukan',
+              style: AppTextStyle.bodyM.copyWith(
+                color: AppColor.warningDark,
+              ),
+            ),
+          ),
+        ),
+      if (status == 'Draft' || status == 'Ditolak')
+        InkWell(
+          onTap: () async {
+            Get.toNamed(
+              AppRoute.APD_REQUEST_CREATE,
+              arguments: [
+                controller.indexData.value,
+                controller.viewData.value
+              ],
+            );
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 6),
+            child: Text(
+              'Edit',
+              style: AppTextStyle.bodyM.copyWith(
+                color: AppColor.highlightDarkest,
+              ),
+            ),
+          ),
+        ),
+      if (status == 'Draft')
+        InkWell(
+          onTap: () async {
+            var c = Get.find<ApdRequestController>();
+            await c.deleteApdRequestParam(
+              controller.indexData.value,
+            );
+            c.update();
+            Get.back();
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 6),
+            child: Text(
+              'Hapus',
+              style: AppTextStyle.bodyM.copyWith(
+                color: AppColor.errorDark,
+              ),
+            ),
+          ),
+        ),
+      SizedBox(width: 18),
+    ];
+  }
+
+  List<Widget> header() {
+    final data = controller.viewData.value;
+    return [
+      SizedBox(height: 12),
+      headerItem(
+        'Tanggal',
+        DateFormat('dd/MM/yyyy')
+            .format(DateFormat('dd-MM-yyyy').parse(data.date)),
+      ),
       SizedBox(height: 9),
-      headerItem('Unit', 'Kalimantan'),
+      headerItem('Unit', data.unit),
       SizedBox(height: 9),
-      headerItem('Keterangan', 'Deskripsi dokumen'),
+      headerItem('Keterangan', data.note),
       SizedBox(height: 9),
       headerItem(
         'Status',
-        'Draft',
-        valueColor: controller.statusColor('Draft'),
+        data.status,
+        valueColor: controller.statusColor(data.status),
       ),
-      // headerItem('Status', 'Diajukan'),
-      // headerItem('Status', 'Disetujui'),
-      // headerItem('Status', 'Ditolak'),
-      SizedBox(height: 9),
+      SizedBox(height: 31),
     ];
   }
 
@@ -160,42 +160,41 @@ class ApdRequestViewView extends GetView<ApdRequestController> {
     );
   }
 
-  Widget list() {
-    return ListView.builder(
-      physics: NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      itemCount: 10,
-      itemBuilder: (c, i) {
-        return AppCard.listCard(
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 6),
-          color: i % 2 == 0
-              ? AppColor.highlightLightest
-              : AppColor.neutralLightLightest,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              titleSubtitle(
-                'Kode',
-                'APD00${i + 1}',
-                3,
-              ),
-              SizedBox(width: 12),
-              titleSubtitle(
-                'Nama',
-                'Helm Proyek',
-                5,
-              ),
-              SizedBox(width: 12),
-              titleSubtitle(
-                'Jumlah',
-                '${(i + 1) * 10}',
-                2,
-              ),
-            ],
-          ),
-        );
-      },
-    );
+  List<Widget> list() {
+    final data = controller.viewData.value.reqList;
+    return [
+      Text(
+        'Daftar permintaan',
+        style: AppTextStyle.bodyM.copyWith(
+          color: AppColor.neutralDarkLight,
+        ),
+      ),
+      SizedBox(height: 6),
+      ListView.builder(
+        physics: NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        itemCount: data.length,
+        itemBuilder: (c, i) {
+          final item = data[i];
+          return AppCard.listCard(
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+            color: i % 2 == 0
+                ? AppColor.highlightLightest
+                : AppColor.neutralLightLightest,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                titleSubtitle('Kode', item.code, 3),
+                SizedBox(width: 12),
+                titleSubtitle('Nama', item.name, 5),
+                SizedBox(width: 12),
+                titleSubtitle('Jumlah', item.qty, 2),
+              ],
+            ),
+          );
+        },
+      ),
+    ];
   }
 
   Widget titleSubtitle(String title, String subtitle, int flex) {

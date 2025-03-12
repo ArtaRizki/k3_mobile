@@ -7,11 +7,16 @@ import 'package:k3_mobile/generated/assets.dart';
 class AppAppbar {
   static PreferredSizeWidget basicAppbar({
     required String title,
+    List<Widget>? action,
+    bool centerTitle = true,
+    TextStyle? titleStyle,
+    double? titleSpacing,
   }) {
     return AppBar(
       surfaceTintColor: AppColor.neutralLightLightest,
       backgroundColor: AppColor.neutralLightLightest,
       leadingWidth: 72,
+      titleSpacing: titleSpacing,
       leading: InkWell(
         onTap: () async {
           Get.back();
@@ -32,13 +37,15 @@ class AppAppbar {
           ),
         ),
       ),
-      centerTitle: true,
+      centerTitle: centerTitle,
       title: Text(
         title,
-        style: AppTextStyle.h4.copyWith(
-          color: AppColor.neutralDarkLight,
-        ),
+        style: titleStyle ??
+            AppTextStyle.h4.copyWith(
+              color: AppColor.neutralDarkLight,
+            ),
       ),
+      actions: action,
     );
   }
 }

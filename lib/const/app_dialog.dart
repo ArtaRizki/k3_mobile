@@ -12,47 +12,49 @@ class AppDialog {
     return showDialog(
       context: Get.context!,
       builder: (BuildContext context) {
-        return AlertDialog(
-          insetPadding: EdgeInsets.symmetric(vertical: 24, horizontal: 0),
-          backgroundColor: AppColor.neutralLightLightest,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          title: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(top: 4),
-                  child: Center(
-                    child: Text(
-                      title,
-                      style: AppTextStyle.h4.copyWith(
-                        color: AppColor.neutralDarkLight,
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            insetPadding: EdgeInsets.symmetric(vertical: 24, horizontal: 0),
+            backgroundColor: AppColor.neutralLightLightest,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            title: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 4),
+                    child: Center(
+                      child: Text(
+                        title,
+                        style: AppTextStyle.h4.copyWith(
+                          color: AppColor.neutralDarkLight,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              InkWell(
-                onTap: () => Get.back(),
-                child: SizedBox(
-                  width: 14,
-                  height: 14,
-                  child: Icon(
-                    Icons.close,
-                    color: AppColor.neutralDarkLight,
+                InkWell(
+                  onTap: () => Get.back(),
+                  child: SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: Icon(
+                      Icons.close,
+                      color: AppColor.neutralDarkLight,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          content: Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: content,
-          ),
-          actions: btn != null ? [btn] : null,
-        );
+              ],
+            ),
+            content: Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: content,
+            ),
+            actions: btn != null ? [btn] : null,
+          );
+        });
       },
     );
   }

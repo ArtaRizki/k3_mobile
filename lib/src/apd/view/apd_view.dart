@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:k3_mobile/const/app_appbar.dart';
 import 'package:k3_mobile/const/app_card.dart';
 import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_page.dart';
@@ -13,37 +14,7 @@ class ApdView extends GetView {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.neutralLightLightest,
-      appBar: AppBar(
-        backgroundColor: AppColor.neutralLightLightest,
-        leadingWidth: 72,
-        leading: InkWell(
-          onTap: () async {
-            Get.back();
-          },
-          child: SizedBox(
-            width: 24,
-            height: 24,
-            child: Padding(
-              padding: EdgeInsets.all(4),
-              child: Transform.scale(
-                scale: 0.5,
-                child: Image.asset(
-                  Assets.iconsIcArrowBack,
-                  width: 24,
-                  height: 24,
-                ),
-              ),
-            ),
-          ),
-        ),
-        centerTitle: true,
-        title: Text(
-          'Manajemen APD',
-          style: AppTextStyle.h4.copyWith(
-            color: AppColor.neutralDarkLight,
-          ),
-        ),
-      ),
+      appBar: AppAppbar.basicAppbar(title: 'Manajemen APD'),
       body: SafeArea(
         child: Container(
           color: AppColor.neutralLightLightest,
@@ -55,110 +26,62 @@ class ApdView extends GetView {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              AppCard.basicCard(
+              card(
                 onTap: () async {
                   Get.toNamed(AppRoute.APD_REQUEST);
                 },
-                radius: 24,
-                padding: EdgeInsets.all(24),
-                color: AppColor.highlightLightest,
-                child: Row(
-                  children: [
-                    Image.asset(
-                      Assets.iconsIcCardApdRequest,
-                      width: 32,
-                      height: 32,
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Text(
-                          'Permintaan APD',
-                          style: AppTextStyle.actionL.copyWith(
-                            color: AppColor.neutralDarkMedium,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Image.asset(
-                      Assets.iconsIcArrowRight,
-                      width: 12,
-                      height: 24,
-                    ),
-                  ],
-                ),
+                title: 'Permintaan APD',
+                iconPath: Assets.iconsIcCardApdRequest,
               ),
               SizedBox(height: 24),
-              AppCard.basicCard(
+              card(
                 onTap: () async {
                   Get.toNamed(AppRoute.APD_RECEPTION);
                 },
-                radius: 24,
-                padding: EdgeInsets.all(24),
-                color: AppColor.highlightLightest,
-                child: Row(
-                  children: [
-                    Image.asset(
-                      Assets.iconsIcCardApdReception,
-                      width: 36,
-                      height: 36,
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Text(
-                          'Penerimaan APD',
-                          style: AppTextStyle.actionL.copyWith(
-                            color: AppColor.neutralDarkMedium,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Image.asset(
-                      Assets.iconsIcArrowRight,
-                      width: 12,
-                      height: 24,
-                    ),
-                  ],
-                ),
+                title: 'Penerimaan APD',
+                iconPath: Assets.iconsIcCardApdReception,
               ),
               SizedBox(height: 24),
-              AppCard.basicCard(
+              card(
                 onTap: () async {
                   Get.toNamed(AppRoute.APD_RETURN);
                 },
-                radius: 24,
-                padding: EdgeInsets.all(24),
-                color: AppColor.highlightLightest,
-                child: Row(
-                  children: [
-                    Image.asset(
-                      Assets.iconsIcCardApdReturn,
-                      width: 36,
-                      height: 36,
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Text(
-                          'Pengembalian APD',
-                          style: AppTextStyle.actionL.copyWith(
-                            color: AppColor.neutralDarkMedium,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Image.asset(
-                      Assets.iconsIcArrowRight,
-                      width: 12,
-                      height: 24,
-                    ),
-                  ],
-                ),
+                title: 'Pengembalian APD',
+                iconPath: Assets.iconsIcCardApdReturn,
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget card({
+    required GestureTapCallback onTap,
+    required String title,
+    required String iconPath,
+  }) {
+    return AppCard.basicCard(
+      onTap: onTap,
+      radius: 24,
+      padding: EdgeInsets.all(24),
+      color: AppColor.highlightLightest,
+      child: Row(
+        children: [
+          Image.asset(iconPath, width: 36, height: 36),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Text(
+                title,
+                style: AppTextStyle.actionL.copyWith(
+                  color: AppColor.neutralDarkMedium,
+                ),
+              ),
+            ),
+          ),
+          Image.asset(Assets.iconsIcArrowRight, width: 12, height: 24),
+        ],
       ),
     );
   }
