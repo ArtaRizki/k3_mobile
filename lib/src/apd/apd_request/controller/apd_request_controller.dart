@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/src/apd/apd_request/model/apd_request_param.dart';
-import 'package:k3_mobile/src/apd/apd_request/model/apd_request_select.dart';
 
 class ApdRequestController extends GetxController {
   final searchC = TextEditingController().obs;
@@ -18,7 +17,6 @@ class ApdRequestController extends GetxController {
 
   void _onSearchChanged() {
     String query = searchC.value.text.toLowerCase();
-
     if (query.isEmpty) {
       filteredApdReq.assignAll(apdReq);
     } else {

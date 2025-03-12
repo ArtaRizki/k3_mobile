@@ -370,54 +370,56 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
 
   Widget changeApdDialog({bool isEdit = false}) {
     return Obx(
-      () => SizedBox(
-        width: Get.size.width * .8,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AppTextField.basicTextField(
-                readOnly: true,
-                label: 'Nama APD',
-                controller: controller.searchC.value,
-                hintText: 'Search',
-                suffixIconConstraints: BoxConstraints(maxHeight: 18),
-                onTap: () async {
-                  AppDialog.showBasicDialog(
-                    title: 'Pilih APD',
-                    content: selectApdDialog(),
-                  );
-                },
-                onChanged: (v) {
-                  controller.update();
-                  controller.validateAddApdForm();
-                },
-                suffixIcon: GestureDetector(
-                  onTap: null,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 16),
-                    child: Image.asset(
-                      Assets.iconsIcSearch,
-                      color: AppColor.neutralLightDarkest,
+      () {
+        return SizedBox(
+          width: Get.size.width * .8,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AppTextField.basicTextField(
+                  readOnly: true,
+                  label: 'Nama APD',
+                  controller: controller.searchC.value,
+                  hintText: 'Search',
+                  suffixIconConstraints: BoxConstraints(maxHeight: 18),
+                  onTap: () async {
+                    AppDialog.showBasicDialog(
+                      title: 'Pilih APD',
+                      content: selectApdDialog(),
+                    );
+                  },
+                  onChanged: (v) {
+                    controller.update();
+                    controller.validateAddApdForm();
+                  },
+                  suffixIcon: GestureDetector(
+                    onTap: null,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 16),
+                      child: Image.asset(
+                        Assets.iconsIcSearch,
+                        color: AppColor.neutralLightDarkest,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              SizedBox(height: 12),
-              AppTextField.basicTextField(
-                controller: controller.amountC.value,
-                label: 'Jumlah',
-                hintText: 'Jumlah',
-                keyboardType: TextInputType.number,
-                onChanged: (v) {
-                  controller.validateAddApdForm();
-                  controller.update();
-                },
-              ),
-            ],
+                SizedBox(height: 12),
+                AppTextField.basicTextField(
+                  controller: controller.amountC.value,
+                  label: 'Jumlah',
+                  hintText: 'Jumlah',
+                  keyboardType: TextInputType.number,
+                  onChanged: (v) {
+                    controller.validateAddApdForm();
+                    controller.update();
+                  },
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -473,78 +475,92 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
   }
 
   Widget selectApdDialog() {
-    return Obx(
-      () => SizedBox(
-        width: Get.size.width * .8,
-        height: Get.size.height * .8,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppTextField.loginTextField(
-              controller: controller.searchApdC.value,
-              hintText: 'Cari',
-              suffixIconConstraints: BoxConstraints(maxHeight: 18),
-              onTap: () async {},
-              onChanged: (v) {
-                controller.update();
-              },
-              suffixIcon: GestureDetector(
-                onTap: null,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 16),
-                  child: Image.asset(
-                    Assets.iconsIcSearch,
-                    color: AppColor.neutralLightDarkest,
-                  ),
+    return GetBuilder<ApdRequestCreateController>(
+      builder: (controller) {
+        final query = controller.searchApdC.value.text.isNotEmpty;
+        return SizedBox(
+          width: Get.size.width * .8,
+          height: Get.size.height * .8,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppTextField.loginTextField(
+                controller: controller.searchApdC.value,
+                hintText: 'Cari',
+                suffixIconConstraints:
+                    BoxConstraints(maxHeight: query ? 23 : 18),
+                onTap: () async {},
+                onChanged: (v) {
+                  controller.update();
+                },
+                suffixIcon: InkWell(
+                  onTap: query ? controller.clearSearchApdField : null,
+                  child: query
+                      ? Container(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Icon(
+                              Icons.close,
+                              color: AppColor.neutralDarkLight,
+                            ),
+                          ),
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.only(right: 16),
+                          child: Image.asset(
+                            Assets.iconsIcSearch,
+                            color: AppColor.neutralLightDarkest,
+                          ),
+                        ),
                 ),
               ),
-            ),
-            SizedBox(height: 24),
-            Expanded(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: controller.filteredApdSelectList.length,
-                itemBuilder: (c, i) {
-                  final item = controller.filteredApdSelectList[i];
-                  return AppCard.listCard(
-                    onTap: () async {
-                      controller.apdNameC.value.text = item.name;
-                      controller.searchC.value.text = item.code;
-                      Get.back();
-                    },
-                    padding: EdgeInsets.all(6),
-                    color: i % 2 == 0
-                        ? AppColor.neutralLightLightest
-                        : AppColor.highlightLightest,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        titleSubtitle(
-                          'Kode',
-                          item.code,
-                          3,
-                        ),
-                        SizedBox(width: 12),
-                        titleSubtitle(
-                          'Kategori',
-                          item.category,
-                          3,
-                        ),
-                        SizedBox(width: 12),
-                        titleSubtitle(
-                          'Nama',
-                          item.name,
-                          4,
-                        ),
-                      ],
-                    ),
-                  );
-                },
+              SizedBox(height: 24),
+              Expanded(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: controller.filteredApdSelectList.length,
+                  itemBuilder: (c, i) {
+                    final item = controller.filteredApdSelectList[i];
+                    return AppCard.listCard(
+                      onTap: () async {
+                        controller.apdNameC.value.text = item.name;
+                        controller.searchC.value.text = item.code;
+                        Get.back();
+                      },
+                      padding: EdgeInsets.all(6),
+                      color: i % 2 == 0
+                          ? AppColor.neutralLightLightest
+                          : AppColor.highlightLightest,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          titleSubtitle(
+                            'Kode',
+                            item.code,
+                            3,
+                          ),
+                          SizedBox(width: 12),
+                          titleSubtitle(
+                            'Kategori',
+                            item.category,
+                            3,
+                          ),
+                          SizedBox(width: 12),
+                          titleSubtitle(
+                            'Nama',
+                            item.name,
+                            4,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

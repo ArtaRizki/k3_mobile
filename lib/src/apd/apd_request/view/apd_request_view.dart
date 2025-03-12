@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:k3_mobile/component/empty_list.dart';
+import 'package:k3_mobile/const/app_appbar.dart';
 import 'package:k3_mobile/const/app_card.dart';
 import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_page.dart';
@@ -16,98 +17,86 @@ class ApdRequestView extends GetView<ApdRequestController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColor.neutralLightLightest,
-        leadingWidth: 72,
-        leading: InkWell(
-          onTap: () async {
-            Get.back();
-          },
-          child: SizedBox(
-            width: 24,
-            height: 24,
-            child: Padding(
-              padding: EdgeInsets.all(4),
-              child: Transform.scale(
-                scale: 0.5,
-                child: Image.asset(
-                  Assets.iconsIcArrowBack,
-                  width: 24,
-                  height: 24,
-                ),
-              ),
-            ),
-          ),
-        ),
-        centerTitle: true,
-        title: Text(
-          'Permintaan APD',
-          style: AppTextStyle.h4.copyWith(
-            color: AppColor.neutralDarkLight,
-          ),
-        ),
-      ),
+      appBar: AppAppbar.basicAppbar(title: 'Permintaan APD'),
       body: SafeArea(
         child: Container(
           color: AppColor.neutralLightLightest,
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              AppTextField.loginTextField(
-                controller: controller.searchC.value,
-                hintText: 'Search',
-                suffixIconConstraints: BoxConstraints(maxHeight: 18),
-                onChanged: (v) {
-                  controller.update();
-                },
-                suffixIcon: GestureDetector(
-                  onTap: null,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 16),
-                    child: Image.asset(
-                      Assets.iconsIcSearch,
-                      color: AppColor.neutralLightDarkest,
+          child: Obx(
+            () {
+              final query = controller.searchC.value.text.isNotEmpty;
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  AppTextField.loginTextField(
+                    controller: controller.searchC.value,
+                    hintText: 'Search',
+                    suffixIconConstraints:
+                        BoxConstraints(maxHeight: query ? 23 : 18),
+                    onChanged: (v) {
+                      controller.update();
+                    },
+                    suffixIcon: InkWell(
+                      onTap: query ? controller.clearField : null,
+                      child: query
+                          ? Container(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 16),
+                                child: Icon(
+                                  Icons.close,
+                                  color: AppColor.neutralDarkLight,
+                                ),
+                              ),
+                            )
+                          : Padding(
+                              padding: const EdgeInsets.only(right: 16),
+                              child: Image.asset(
+                                Assets.iconsIcSearch,
+                                color: AppColor.neutralLightDarkest,
+                              ),
+                            ),
                     ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 12, bottom: 12),
-                child: Row(
-                  children: [
-                    Text(
-                      'Data Permintaan APD',
-                      textAlign: TextAlign.left,
-                      style: AppTextStyle.actionL.copyWith(
-                        color: AppColor.neutralDarkLight,
-                      ),
-                    ),
-                    Spacer(),
-                    AppCard.basicCard(
-                      onTap: () async {
-                        Get.toNamed(AppRoute.APD_REQUEST_CREATE);
-                      },
-                      color: AppColor.highlightDarkest,
-                      radius: 20,
-                      padding: EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 24,
-                      ),
-                      child: Text(
-                        'Buat baru',
-                        style: AppTextStyle.actionL.copyWith(
-                          color: AppColor.neutralLightLightest,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12, bottom: 12),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Data Permintaan APD',
+                          textAlign: TextAlign.left,
+                          style: AppTextStyle.actionL.copyWith(
+                            color: AppColor.neutralDarkLight,
+                          ),
                         ),
-                      ),
+                        Spacer(),
+                        AppCard.basicCard(
+                          onTap: () async {
+                            Get.toNamed(AppRoute.APD_REQUEST_CREATE);
+                          },
+                          color: AppColor.highlightDarkest,
+                          radius: 20,
+                          padding: EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 24,
+                          ),
+                          child: Text(
+                            'Buat baru',
+                            style: AppTextStyle.actionL.copyWith(
+                              color: AppColor.neutralLightLightest,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 6),
-              list(),
-            ],
+                  ),
+                  SizedBox(height: 6),
+                  list(),
+                ],
+              );
+            },
           ),
         ),
       ),

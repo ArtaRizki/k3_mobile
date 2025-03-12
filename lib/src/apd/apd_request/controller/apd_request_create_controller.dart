@@ -367,6 +367,11 @@ class ApdRequestCreateController extends GetxController {
     update();
   }
 
+  void clearSearchApdField() {
+    searchApdC.value.clear();
+    update();
+  }
+
   @override
   void onReady() async {
     super.onReady();
