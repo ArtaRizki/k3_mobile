@@ -51,6 +51,7 @@ class InspectionProjectCreateController extends GetxController {
 
   List<String> categoryList = [
     'Unsafe Action',
+    'Unsafe Condition',
     'Near Miss',
     'Safety Suggestion',
     'Positive Action',

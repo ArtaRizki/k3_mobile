@@ -13,18 +13,22 @@ class LoginView extends GetView<LoginController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              Image.asset(
-                Assets.imagesImgLogin,
-                width: double.infinity,
-                height: Get.size.height * .4,
-                fit: BoxFit.cover,
-              ),
-              body(),
-            ],
+      backgroundColor: AppColor.neutralLightLightest,
+      body: Container(
+        color: AppColor.neutralLightLightest,
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Image.asset(
+                  Assets.imagesImgLogin,
+                  width: double.infinity,
+                  height: Get.size.height * .4,
+                  fit: BoxFit.cover,
+                ),
+                body(),
+              ],
+            ),
           ),
         ),
       ),
@@ -113,7 +117,8 @@ class LoginView extends GetView<LoginController> {
               SizedBox(height: 30),
               AppButton.basicButton(
                 width: double.infinity,
-                enable: controller.enableLoginBtn.value,
+                // enable: controller.enableLoginBtn.value,
+                enable: true,
                 onTap: () async {
                   if (!isLoading) {
                     FocusManager.instance.primaryFocus?.unfocus();

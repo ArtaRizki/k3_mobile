@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:k3_mobile/const/app_appbar.dart';
@@ -8,7 +7,6 @@ import 'package:k3_mobile/const/app_card.dart';
 import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_page.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
-import 'package:k3_mobile/generated/assets.dart';
 import 'package:k3_mobile/src/apd/apd_reception/controller/apd_reception_controller.dart';
 import 'package:k3_mobile/src/apd/apd_reception/controller/apd_reception_view_controller.dart';
 

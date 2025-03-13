@@ -239,26 +239,7 @@ class AppSheet {
                   color: Color(0xff191d29),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Expanded(
-                      //   child: CustomButton.mainButtonWithIcon(
-                      //     Icon(Icons.close),
-                      //     'Tidak Jadi',
-                      //     () => Navigator.pop(context),
-                      //   ),
-                      // ),
-                      // SizedBox(width: 10),
-                      // Expanded(
-                      //   child: CustomButton.mainButtonWithIcon(
-                      //     Icon(
-                      //       Icons.send_rounded,
-                      //       color: Colors.white,
-                      //     ),
-                      //     'Cek',
-                      //     () => Navigator.pop(context),
-                      //   ),
-                      // ),
-                    ],
+                    children: [],
                   ),
                 ),
               ],

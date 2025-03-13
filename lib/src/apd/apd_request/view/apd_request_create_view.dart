@@ -245,8 +245,9 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
   Widget _buildSaveDraftButton() {
     return Expanded(
       child: AppButton.basicButton(
-        enable:
-            controller.isValidated.value && !controller.loadingSendApd.value,
+        enable: true,
+        // enable:
+        //     controller.isValidated.value && !controller.loadingSendApd.value,
         onTap: () async {
           if (!controller.loadingSaveDraftApd.value &&
               !controller.loadingSendApd.value) {
@@ -274,8 +275,9 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
   Widget _buildSubmitButton() {
     return Expanded(
       child: AppButton.basicButton(
-        enable: controller.isValidated.value &&
-            !controller.loadingSaveDraftApd.value,
+        enable: true,
+        // enable: controller.isValidated.value &&
+        //     !controller.loadingSaveDraftApd.value,
         onTap: () async {
           if (!controller.loadingSendApd.value &&
               !controller.loadingSaveDraftApd.value) {
@@ -415,8 +417,9 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
     return GetBuilder<ApdRequestCreateController>(
       builder: (controller) {
         return AppButton.basicButton(
-          enable: controller.isValidatedAddApd.value &&
-              !controller.loadingAddApd.value,
+          enable: true,
+          // enable: controller.isValidatedAddApd.value &&
+          //     !controller.loadingAddApd.value,
           onTap: () async {
             FocusManager.instance.primaryFocus?.unfocus();
             if (!controller.loadingAddApd.value &&

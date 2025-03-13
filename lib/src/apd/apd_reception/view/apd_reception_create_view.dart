@@ -621,8 +621,9 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
   Widget _buildSaveDraftButton() {
     return Expanded(
       child: AppButton.basicButton(
-        enable:
-            controller.isValidated.value && !controller.loadingSendApd.value,
+        enable: true,
+        // enable:
+        //     controller.isValidated.value && !controller.loadingSendApd.value,
         onTap: () async {
           if (!controller.loadingSaveDraftApd.value &&
               !controller.loadingSendApd.value) {
@@ -650,8 +651,9 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
   Widget _buildSubmitButton() {
     return Expanded(
       child: AppButton.basicButton(
-        enable: controller.isValidated.value &&
-            !controller.loadingSaveDraftApd.value,
+        enable: true,
+        // enable: controller.isValidated.value &&
+        //     !controller.loadingSaveDraftApd.value,
         onTap: () async {
           if (!controller.loadingSendApd.value &&
               !controller.loadingSaveDraftApd.value) {

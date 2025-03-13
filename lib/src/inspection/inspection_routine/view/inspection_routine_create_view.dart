@@ -403,7 +403,8 @@ class InspectionRoutineCreateView
     return Padding(
       padding: EdgeInsets.only(top: 24, bottom: 24),
       child: AppButton.basicButton(
-        enable: controller.isValidated.value,
+        // enable: controller.isValidated.value,
+        enable: true,
         onTap: () async {
           if (!controller.loading.value)
             await controller.sendInspectionRoutine();

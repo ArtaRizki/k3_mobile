@@ -37,13 +37,9 @@ class AppDialog {
                 ),
                 InkWell(
                   onTap: () => Get.back(),
-                  child: SizedBox(
-                    width: 14,
-                    height: 14,
-                    child: Icon(
-                      Icons.close,
-                      color: AppColor.neutralDarkLight,
-                    ),
+                  child: Icon(
+                    Icons.close,
+                    color: AppColor.neutralDarkLight,
                   ),
                 ),
               ],

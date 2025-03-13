@@ -5,11 +5,13 @@ import 'package:k3_mobile/src/inspection/inspection_project/controller/inspectio
 import 'package:k3_mobile/src/inspection/inspection_routine/controller/inspection_routine_controller.dart';
 import 'package:k3_mobile/src/main_home/controller/main_home_controller.dart';
 import 'package:k3_mobile/src/profile/controller/profile_controller.dart';
+import 'package:k3_mobile/src/session/controller/session_controller.dart';
 
 class MainHomeBinding extends Bindings {
   @override
   void dependencies() {
     Get.put(MainHomeController());
+    Get.put(SessionController());
     Get.lazyPut(() => HomeController());
     Get.lazyPut(() => ProfileController());
     Get.lazyPut(() => GuideController());
