@@ -22,63 +22,78 @@ class ApdReceptionView extends GetView<ApdReceptionController> {
         child: Container(
           color: AppColor.neutralLightLightest,
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              AppTextField.loginTextField(
-                controller: controller.searchC.value,
-                hintText: 'Search',
-                suffixIconConstraints: BoxConstraints(maxHeight: 18),
-                onChanged: (v) {
-                  controller.update();
-                },
-                suffixIcon: GestureDetector(
-                  onTap: null,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 16),
-                    child: Image.asset(
-                      Assets.iconsIcSearch,
-                      color: AppColor.neutralLightDarkest,
+          child: Obx(
+            () {
+              final query = controller.searchC.value.text.isNotEmpty;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  AppTextField.loginTextField(
+                    controller: controller.searchC.value,
+                    hintText: 'Search',
+                    suffixIconConstraints:
+                        BoxConstraints(maxHeight: query ? 23 : 18),
+                    onChanged: (v) {
+                      controller.update();
+                    },
+                    suffixIcon: InkWell(
+                      onTap: query ? controller.clearField : null,
+                      child: query
+                          ? Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              child: Icon(
+                                Icons.close,
+                                color: AppColor.neutralDarkLight,
+                              ),
+                            )
+                          : Padding(
+                              padding: const EdgeInsets.only(right: 16),
+                              child: Image.asset(
+                                Assets.iconsIcSearch,
+                                color: AppColor.neutralLightDarkest,
+                              ),
+                            ),
                     ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 12, bottom: 12),
-                child: Row(
-                  children: [
-                    Text(
-                      'Data Penerimaan APD',
-                      textAlign: TextAlign.left,
-                      style: AppTextStyle.actionL.copyWith(
-                        color: AppColor.neutralDarkLight,
-                      ),
-                    ),
-                    Spacer(),
-                    AppCard.basicCard(
-                      onTap: () async {
-                        Get.toNamed(AppRoute.APD_RECEPTION_CREATE);
-                      },
-                      color: AppColor.highlightDarkest,
-                      radius: 20,
-                      padding: EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 24,
-                      ),
-                      child: Text(
-                        'Buat baru',
-                        style: AppTextStyle.actionL.copyWith(
-                          color: AppColor.neutralLightLightest,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12, bottom: 12),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Data Penerimaan APD',
+                          textAlign: TextAlign.left,
+                          style: AppTextStyle.actionL.copyWith(
+                            color: AppColor.neutralDarkLight,
+                          ),
                         ),
-                      ),
+                        Spacer(),
+                        AppCard.basicCard(
+                          onTap: () async {
+                            Get.toNamed(AppRoute.APD_RECEPTION_CREATE);
+                          },
+                          color: AppColor.highlightDarkest,
+                          radius: 20,
+                          padding: EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 24,
+                          ),
+                          child: Text(
+                            'Buat baru',
+                            style: AppTextStyle.actionL.copyWith(
+                              color: AppColor.neutralLightLightest,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 6),
-              list(),
-            ],
+                  ),
+                  SizedBox(height: 6),
+                  list(),
+                ],
+              );
+            },
           ),
         ),
       ),
