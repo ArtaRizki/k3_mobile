@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:k3_mobile/component/empty_list.dart';
+import 'package:k3_mobile/const/app_appbar.dart';
 import 'package:k3_mobile/const/app_card.dart';
 import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_page.dart';
@@ -14,37 +17,7 @@ class ApdReceptionView extends GetView<ApdReceptionController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColor.neutralLightLightest,
-        leadingWidth: 72,
-        leading: InkWell(
-          onTap: () async {
-            Get.back();
-          },
-          child: SizedBox(
-            width: 24,
-            height: 24,
-            child: Padding(
-              padding: EdgeInsets.all(4),
-              child: Transform.scale(
-                scale: 0.5,
-                child: Image.asset(
-                  Assets.iconsIcArrowBack,
-                  width: 24,
-                  height: 24,
-                ),
-              ),
-            ),
-          ),
-        ),
-        centerTitle: true,
-        title: Text(
-          'Penerimaan APD',
-          style: AppTextStyle.h4.copyWith(
-            color: AppColor.neutralDarkLight,
-          ),
-        ),
-      ),
+      appBar: AppAppbar.basicAppbar(title: 'Penerimaan APD'),
       body: SafeArea(
         child: Container(
           color: AppColor.neutralLightLightest,
@@ -113,116 +86,134 @@ class ApdReceptionView extends GetView<ApdReceptionController> {
   }
 
   Widget list() {
-    return Expanded(
-      child: ListView.separated(
-        itemCount: 10,
-        shrinkWrap: true,
-        separatorBuilder: (_, __) => SizedBox(height: 12),
-        itemBuilder: (c, i) {
-          return AppCard.listCard(
-            onTap: () async {
-              FocusManager.instance.primaryFocus?.unfocus();
-              Get.toNamed(AppRoute.APD_RECEPTION_VIEW);
+    return Obx(
+      () {
+        final data = controller.filteredApdRec;
+        if (data.isEmpty) {
+          return EmptyList.textEmptyList(
+            minHeight: Get.size.height * .71,
+            onRefresh: () async {
+              controller.update();
             },
-            color: AppColor.neutralLightLightest,
-            child: Row(
-              children: [
-                Image.asset(
-                  Assets.iconsIcListApdReception,
-                  width: 52,
-                  height: 52,
-                ),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
+          );
+        }
+        return Expanded(
+          child: ListView.separated(
+            itemCount: data.length,
+            shrinkWrap: true,
+            separatorBuilder: (_, __) => SizedBox(height: 12),
+            itemBuilder: (c, i) {
+              final item = data[i];
+              return AppCard.listCard(
+                onTap: () async {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  Get.toNamed(
+                    AppRoute.APD_RECEPTION_VIEW,
+                    arguments: [i, item],
+                  );
+                },
+                color: AppColor.neutralLightLightest,
+                child: Row(
+                  children: [
+                    Image.asset(
+                      Assets.iconsIcListApdReception,
+                      width: 52,
+                      height: 52,
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Expanded(
-                            child: Text(
-                              'ARC/2025/II/021',
-                              style: AppTextStyle.h4.copyWith(
-                                color: AppColor.neutralDarkDarkest,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  item.id,
+                                  style: AppTextStyle.h4.copyWith(
+                                    color: AppColor.neutralDarkDarkest,
+                                  ),
+                                ),
                               ),
+                              Text(
+                                DateFormat('dd/MM/yyyy').format(
+                                  DateFormat('dd-MM-yyyy').parse(item.date),
+                                ),
+                                style: AppTextStyle.bodyM.copyWith(
+                                  color: AppColor.neutralDarkDarkest,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 3),
+                          Flexible(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    item.unit,
+                                    style: AppTextStyle.bodyS.copyWith(
+                                      color: AppColor.neutralDarkDarkest,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  item.status,
+                                  style: AppTextStyle.actionM.copyWith(
+                                    color: controller.statusColor(item.status),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
+                          SizedBox(height: 3),
                           Text(
-                            '12/02/2025',
-                            style: AppTextStyle.bodyM.copyWith(
+                            item.note,
+                            style: AppTextStyle.bodyS.copyWith(
                               color: AppColor.neutralDarkDarkest,
+                              fontSize: 12,
+                            ),
+                          ),
+                          SizedBox(height: 3),
+                          Flexible(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  flex: 4,
+                                  child: Text(
+                                    item.id,
+                                    textAlign: TextAlign.left,
+                                    style: AppTextStyle.bodyS.copyWith(
+                                      color: AppColor.neutralDarkLightest,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 6,
+                                  child: Text(
+                                    item.date,
+                                    textAlign: TextAlign.left,
+                                    style: AppTextStyle.bodyS.copyWith(
+                                      color: AppColor.neutralDarkLightest,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                      SizedBox(height: 3),
-                      Flexible(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                'Unit Kalimantan',
-                                style: AppTextStyle.bodyS.copyWith(
-                                  color: AppColor.neutralDarkDarkest,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              controller.statusTxt(i),
-                              style: AppTextStyle.actionM.copyWith(
-                                color: controller
-                                    .statusColor(controller.statusTxt(i)),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 3),
-                      Text(
-                        'Deskripsi dokumen',
-                        style: AppTextStyle.bodyS.copyWith(
-                          color: AppColor.neutralDarkDarkest,
-                          fontSize: 12,
-                        ),
-                      ),
-                      SizedBox(height: 3),
-                      Flexible(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              flex: 4,
-                              child: Text(
-                                'ARQ/2025/II/001',
-                                textAlign: TextAlign.left,
-                                style: AppTextStyle.bodyS.copyWith(
-                                  color: AppColor.neutralDarkLightest,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 6,
-                              child: Text(
-                                '15/02/2025',
-                                textAlign: TextAlign.left,
-                                style: AppTextStyle.bodyS.copyWith(
-                                  color: AppColor.neutralDarkLightest,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          );
-        },
-      ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

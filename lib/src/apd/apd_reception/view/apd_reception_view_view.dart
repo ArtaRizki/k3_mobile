@@ -1,17 +1,15 @@
-import 'dart:developer';
+import 'dart:io';
 
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_signature_pad/flutter_signature_pad.dart';
 import 'package:get/get.dart';
-import 'package:k3_mobile/const/app_button.dart';
+import 'package:k3_mobile/const/app_appbar.dart';
 import 'package:k3_mobile/const/app_card.dart';
 import 'package:k3_mobile/const/app_color.dart';
-import 'package:k3_mobile/const/app_dialog.dart';
-import 'package:k3_mobile/const/app_dropdown.dart';
+import 'package:k3_mobile/const/app_page.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
-import 'package:k3_mobile/const/app_textfield.dart';
 import 'package:k3_mobile/generated/assets.dart';
+import 'package:k3_mobile/src/apd/apd_reception/controller/apd_reception_controller.dart';
 import 'package:k3_mobile/src/apd/apd_reception/controller/apd_reception_view_controller.dart';
 
 class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
@@ -20,74 +18,14 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColor.neutralLightLightest,
-        leadingWidth: 72,
+      appBar: AppAppbar.basicAppbar(
+        title: controller.viewData.value.id,
+        centerTitle: false,
         titleSpacing: 0,
-        leading: InkWell(
-          onTap: () async {
-            Get.back();
-          },
-          child: SizedBox(
-            width: 24,
-            height: 24,
-            child: Padding(
-              padding: EdgeInsets.all(4),
-              child: Transform.scale(
-                scale: 0.5,
-                child: Image.asset(
-                  Assets.iconsIcArrowBack,
-                  width: 24,
-                  height: 24,
-                ),
-              ),
-            ),
-          ),
+        titleStyle: AppTextStyle.h4.copyWith(
+          color: AppColor.neutralDarkDarkest,
         ),
-        title: Text(
-          'ARQ/2025/II/001',
-          style: AppTextStyle.h4.copyWith(
-            color: AppColor.neutralDarkDarkest,
-          ),
-        ),
-        actions: [
-          InkWell(
-            onTap: () {},
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 6),
-              child: Text(
-                'Ajukan',
-                style: AppTextStyle.bodyM.copyWith(
-                  color: AppColor.warningDark,
-                ),
-              ),
-            ),
-          ),
-          InkWell(
-            onTap: () {},
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 6),
-              child: Text(
-                'Edit',
-                style: AppTextStyle.bodyM.copyWith(
-                  color: AppColor.highlightDarkest,
-                ),
-              ),
-            ),
-          ),
-          InkWell(
-            onTap: () {},
-            child: Padding(
-              padding: EdgeInsets.only(left: 6, right: 24),
-              child: Text(
-                'Hapus',
-                style: AppTextStyle.bodyM.copyWith(
-                  color: AppColor.errorDark,
-                ),
-              ),
-            ),
-          ),
-        ],
+        action: _buildActionButtons(),
       ),
       body: SafeArea(
         child: Container(
@@ -120,59 +58,47 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
                           .copyWith(color: AppColor.neutralDarkDarkest),
                     ),
                     SizedBox(height: 6),
-                    Container(
-                      padding: EdgeInsets.symmetric(vertical: 6),
-                      child: controller.pictureList.isEmpty
-                          ? addImageBtn()
-                          : Wrap(
-                              spacing: 10,
-                              children: List.generate(
-                                controller.pictureList.isEmpty
-                                    ? 1
-                                    : controller.pictureList.length + 1,
-                                (i) {
-                                  if (i == controller.pictureList.length)
-                                    return addImageBtn();
-                                  final item = controller.pictureList[i];
-                                  return Container(
-                                    width: 68,
-                                    height: 68,
-                                    decoration:
-                                        BoxDecoration(color: Colors.white),
-                                    child: Stack(
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          child: Image.file(
-                                            item,
-                                            width: 68,
-                                            height: 68,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                        Positioned(
-                                          right: -1,
-                                          top: -1,
-                                          child: GestureDetector(
-                                            onTap: () =>
-                                                controller.removePicture(i),
-                                            child: SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              child: Image.asset(
-                                                Assets.iconsIcRemoveImage,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                    if (controller.viewData.value.images.isEmpty) ...[
+                      Center(child: Text('Tidak ada gambar')),
+                    ] else ...[
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 6),
+                        child: Wrap(
+                          spacing: 10,
+                          children: List.generate(
+                            controller.viewData.value.images.isEmpty
+                                ? 1
+                                : controller.viewData.value.images.length,
+                            (i) {
+                              final item = controller.viewData.value.images[i];
+                              return InkWell(
+                                onTap: () async {
+                                  await Get.toNamed(
+                                    AppRoute.IMAGE_PREVIEW,
+                                    arguments: item,
                                   );
                                 },
-                              ),
-                            ),
-                    ),
+                                child: Container(
+                                  width: 68,
+                                  height: 68,
+                                  decoration:
+                                      BoxDecoration(color: Colors.white),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Image.file(
+                                      File(item),
+                                      width: 68,
+                                      height: 68,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      )
+                    ],
                     SizedBox(height: 12),
                     Text(
                       'Tanda tangan',
@@ -190,8 +116,8 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
                       child: Stack(
                         children: [
                           Center(
-                            child: Image.asset(
-                              Assets.imagesImgSampleSignature,
+                            child: Image.file(
+                              File(controller.viewData.value.signature),
                               height: 138,
                             ),
                           ),
@@ -209,42 +135,7 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 24, bottom: 24),
-                      child: AppButton.basicButton(
-                        enable: controller.isValidated.value,
-                        onTap: () async {
-                          if (!controller.loading.value)
-                            await controller.sendApdReception();
-                        },
-                        width: double.infinity,
-                        color: AppColor.highlightDarkest,
-                        height: 55,
-                        radius: 12,
-                        padding: EdgeInsets.fromLTRB(
-                            16, controller.loading.value ? 0 : 16, 16, 0),
-                        child: controller.loading.value
-                            ? Transform.scale(
-                                scale: 0.5,
-                                child: SizedBox(
-                                  width: 16,
-                                  height: 6,
-                                  child: FittedBox(
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : Text(
-                                'Kirim',
-                                textAlign: TextAlign.center,
-                                style: AppTextStyle.actionL.copyWith(
-                                  color: AppColor.neutralLightLightest,
-                                ),
-                              ),
-                      ),
-                    ),
+                    SizedBox(height: 24),
                   ],
                 ),
               );
@@ -255,41 +146,77 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
     );
   }
 
-  List<Widget> header() {
+  List<Widget> _buildActionButtons() {
+    final status = controller.viewData.value.status;
     return [
-      headerItem('Tanggal', '12/02/2025'),
+      if (status == 'Draft')
+        _buildActionButton('Ajukan', AppColor.warningDark, () => Get.back()),
+      if (status == 'Draft' || status == 'Ditolak')
+        _buildActionButton('Edit', AppColor.highlightDarkest, () async {
+          Get.toNamed(AppRoute.APD_REQUEST_CREATE, arguments: [
+            controller.indexData.value,
+            controller.viewData.value,
+          ]);
+        }),
+      if (status == 'Draft')
+        _buildActionButton('Hapus', AppColor.errorDark, () async {
+          var c = Get.find<ApdReceptionController>();
+          await c.deleteApdReceptionParam(controller.indexData.value);
+          c.update();
+          Get.back();
+        }),
+      SizedBox(width: 18),
+    ];
+  }
+
+  Widget _buildActionButton(String label, Color color, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 6),
+        child: Text(
+          label,
+          style: AppTextStyle.bodyM.copyWith(color: color),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> header() {
+    final data = controller.viewData.value;
+    return [
+      headerItem('Tanggal', data.date),
       SizedBox(height: 9),
-      headerItem('Unit', 'Kalimantan'),
+      headerItem('Unit', data.unit),
       SizedBox(height: 9),
-      headerItem('Keterangan', 'Deskripsi dokumen'),
+      headerItem('Keterangan', data.note),
       SizedBox(height: 9),
       headerItem(
         'Status',
-        'Draft',
-        valueColor: controller.statusColor('Draft'),
+        data.status,
+        valueColor: controller.statusColor(data.status),
       ),
-      // headerItem('Status', 'Diajukan'),
-      // headerItem('Status', 'Disetujui'),
-      // headerItem('Status', 'Ditolak'),
       SizedBox(height: 9),
     ];
   }
 
   List<Widget> headerApdRequest() {
+    final data = controller.viewData.value;
     return [
-      headerItem('Permintaan APD No', 'ARQ/2025/II/001'),
+      headerItem('Permintaan APD No', data.reqNumber),
       SizedBox(height: 9),
-      headerItem('Tanggal', '12/02/2025'),
+      headerItem('Tanggal', data.date),
     ];
   }
 
   List<Widget> headerOutcome() {
+    final data = controller.viewData.value;
     return [
-      headerItem('Pengeluaran barang No', 'GDI/2025/II/001'),
+      headerItem('Pengeluaran barang No', data.expNumber),
       SizedBox(height: 9),
-      headerItem('Tanggal', '12/02/2025'),
+      headerItem('Tanggal', data.date),
       SizedBox(height: 9),
-      headerItem('Vendor', 'Kantor Pusat'),
+      headerItem('Vendor', data.vendor),
     ];
   }
 
@@ -310,7 +237,7 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
           child: Text(
             value,
             style: AppTextStyle.actionL.copyWith(
-              color: valueColor ?? const Color.fromARGB(255, 42, 68, 173),
+              color: valueColor ?? AppColor.neutralDarkDarkest,
             ),
           ),
         ),
@@ -319,11 +246,13 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
   }
 
   Widget list() {
+    final data = controller.viewData.value.recList;
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: 10,
+      itemCount: data.length,
       physics: NeverScrollableScrollPhysics(),
       itemBuilder: (c, i) {
+        final item = data[i];
         return AppCard.listCard(
           onTap: () async {
             Get.back();
@@ -335,90 +264,19 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              titleSubtitle(
-                'Kode',
-                'APD00${i + 1}',
-                3,
-              ),
+              titleSubtitle('Kode', item.code, 3),
               SizedBox(width: 6),
-              titleSubtitle(
-                'Nama',
-                'Helm Proyek',
-                4,
-              ),
+              titleSubtitle('Nama', item.name, 4),
               SizedBox(width: 6),
-              titleSubtitle(
-                'Jumlah',
-                '${(i + 1) * 10}',
-                2,
-              ),
+              titleSubtitle('Jumlah', item.qty, 2),
               SizedBox(width: 6),
-              titleSubtitle(
-                'Sisa',
-                '${(i + 1) * 10}',
-                2,
-              ),
+              titleSubtitle('Sisa', item.remainingQty, 2),
               SizedBox(width: 6),
-              titleSubtitle(
-                'Diterima',
-                '${(i + 1) - 1}',
-                2,
-              ),
+              titleSubtitle('Diterima', item.receivedQty, 2),
             ],
           ),
         );
       },
-    );
-  }
-
-  Widget receive(GestureTapCallback onTap) {
-    {
-      return Expanded(
-        flex: 2,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Diterima',
-              style: AppTextStyle.bodyS.copyWith(
-                color: AppColor.neutralDarkLightest,
-              ),
-            ),
-            SizedBox(height: 6),
-            AppButton.basicButton(
-              enable: true,
-              color: AppColor.neutralLightLightest,
-              radius: 6,
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-              border: Border.all(
-                width: 0.5,
-                color: AppColor.neutralDarkLightest,
-              ),
-              child: Text(
-                'input',
-                style: AppTextStyle.bodyS.copyWith(
-                  color: AppColor.neutralLightDarkest,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-    return AppButton.basicButton(
-      color: AppColor.neutralLightLightest,
-      radius: 6,
-      padding: EdgeInsets.symmetric(vertical: 10),
-      border: Border.all(
-        width: 0.5,
-        color: AppColor.neutralDarkLightest,
-      ),
-      child: Text(
-        'Input',
-        style: AppTextStyle.bodyS.copyWith(
-          color: AppColor.neutralLightDarkest,
-        ),
-      ),
     );
   }
 
@@ -466,40 +324,6 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget addImageBtn() {
-    return GestureDetector(
-      onTap: () async {
-        FocusManager.instance.primaryFocus?.unfocus();
-        await controller.addPicture();
-        controller.validateForm();
-      },
-      child: DottedBorder(
-        dashPattern: [6, 3],
-        color: AppColor.highlightDark,
-        borderType: BorderType.RRect,
-        radius: Radius.circular(12),
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(color: Colors.white),
-            child: Center(
-              child: Text(
-                '+',
-                style: TextStyle(
-                  fontSize: 26,
-                  color: AppColor.highlightDark,
-                ),
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

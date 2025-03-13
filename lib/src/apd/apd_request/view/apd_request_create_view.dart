@@ -191,9 +191,9 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
   Widget _buildRequestCard(item, int i) {
     return AppCard.listCard(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 6),
-      color: i % 2 == 0 && i != 0
-          ? AppColor.neutralLightLightest
-          : AppColor.highlightLightest,
+      color: i % 2 == 0
+          ? AppColor.highlightLightest
+          : AppColor.neutralLightLightest,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -497,8 +497,8 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
                       },
                       padding: EdgeInsets.all(6),
                       color: i % 2 == 0
-                          ? AppColor.neutralLightLightest
-                          : AppColor.highlightLightest,
+                          ? AppColor.highlightLightest
+                          : AppColor.neutralLightLightest,
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

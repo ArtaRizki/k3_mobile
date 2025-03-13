@@ -4,11 +4,14 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signature_pad/flutter_signature_pad.dart';
 import 'package:get/get.dart';
+import 'package:k3_mobile/component/empty_list.dart';
+import 'package:k3_mobile/const/app_appbar.dart';
 import 'package:k3_mobile/const/app_button.dart';
 import 'package:k3_mobile/const/app_card.dart';
 import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_dialog.dart';
 import 'package:k3_mobile/const/app_dropdown.dart';
+import 'package:k3_mobile/const/app_page.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/const/app_textfield.dart';
 import 'package:k3_mobile/generated/assets.dart';
@@ -20,37 +23,7 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColor.neutralLightLightest,
-        leadingWidth: 72,
-        leading: InkWell(
-          onTap: () async {
-            Get.back();
-          },
-          child: SizedBox(
-            width: 24,
-            height: 24,
-            child: Padding(
-              padding: EdgeInsets.all(4),
-              child: Transform.scale(
-                scale: 0.5,
-                child: Image.asset(
-                  Assets.iconsIcArrowBack,
-                  width: 24,
-                  height: 24,
-                ),
-              ),
-            ),
-          ),
-        ),
-        centerTitle: true,
-        title: Text(
-          'Buat Penerimaan APD',
-          style: AppTextStyle.h4.copyWith(
-            color: AppColor.neutralDarkLight,
-          ),
-        ),
-      ),
+      appBar: AppAppbar.basicAppbar(title: 'Buat Penerimaan APD'),
       body: SafeArea(
         child: Container(
           color: AppColor.neutralLightLightest,
@@ -93,13 +66,14 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
                     AppTextField.basicTextField(
                       readOnly: true,
                       required: true,
-                      controller: controller.apdReceptionNumberC.value,
+                      controller: controller.apdReqNumberC.value,
                       label: 'Permintaan APD No',
                       hintText: 'Pilih',
                       onTap: () async {
+                        controller.searchApdRequestC.value.clear();
                         AppDialog.showBasicDialog(
                           title: 'Pilih Permintaan APD',
-                          content: selectApdRequestDialog(),
+                          content: selectApdReceptionDialog(),
                         );
                       },
                       onChanged: (v) {
@@ -122,10 +96,11 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
                     AppTextField.basicTextField(
                       readOnly: true,
                       required: true,
-                      controller: controller.outcomeNumberC.value,
+                      controller: controller.expNumberC.value,
                       label: 'Pengeluaran Barang No',
                       hintText: 'Pilih',
                       onTap: () async {
+                        controller.searchExpenditureC.value.clear();
                         AppDialog.showBasicDialog(
                           title: 'Pilih Pengeluaran Barang',
                           content: selectOutcomeDialog(),
@@ -182,6 +157,29 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
                       maxLines: 4,
                     ),
                     SizedBox(height: 12),
+                    AppDropdown.normalDropdown(
+                      label: 'Status',
+                      hintText: 'Pilih Kategori',
+                      selectedItem: controller.selectedStatus.value,
+                      onChanged: (v) {
+                        controller.selectedStatus.value = v;
+                        controller.validateForm();
+                        FocusManager.instance.primaryFocus?.unfocus();
+                        controller.update();
+                      },
+                      list: controller.statusList.map((item) {
+                        return DropdownMenuItem(
+                          value: item,
+                          child: Text(
+                            item,
+                            style: AppTextStyle.bodyM.copyWith(
+                              color: AppColor.neutralDarkMedium,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    SizedBox(height: 12),
                     Text(
                       'Daftar APD',
                       style: AppTextStyle.actionL
@@ -198,51 +196,59 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
                     SizedBox(height: 6),
                     Container(
                       padding: EdgeInsets.symmetric(vertical: 6),
-                      child: controller.pictureList.isEmpty
+                      child: controller.images.isEmpty
                           ? addImageBtn()
                           : Wrap(
                               spacing: 10,
                               children: List.generate(
-                                controller.pictureList.isEmpty
+                                controller.images.isEmpty
                                     ? 1
-                                    : controller.pictureList.length + 1,
+                                    : controller.images.length + 1,
                                 (i) {
-                                  if (i == controller.pictureList.length)
+                                  if (i == controller.images.length)
                                     return addImageBtn();
-                                  final item = controller.pictureList[i];
-                                  return Container(
-                                    width: 68,
-                                    height: 68,
-                                    decoration:
-                                        BoxDecoration(color: Colors.white),
-                                    child: Stack(
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          child: Image.file(
-                                            item,
-                                            width: 68,
-                                            height: 68,
-                                            fit: BoxFit.cover,
+                                  final item = controller.images[i];
+                                  return InkWell(
+                                    onTap: () async {
+                                      await Get.toNamed(
+                                        AppRoute.IMAGE_PREVIEW,
+                                        arguments: item,
+                                      );
+                                    },
+                                    child: Container(
+                                      width: 68,
+                                      height: 68,
+                                      decoration:
+                                          BoxDecoration(color: Colors.white),
+                                      child: Stack(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            child: Image.file(
+                                              item,
+                                              width: 68,
+                                              height: 68,
+                                              fit: BoxFit.cover,
+                                            ),
                                           ),
-                                        ),
-                                        Positioned(
-                                          right: -1,
-                                          top: -1,
-                                          child: GestureDetector(
-                                            onTap: () =>
-                                                controller.removePicture(i),
-                                            child: SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              child: Image.asset(
-                                                Assets.iconsIcRemoveImage,
+                                          Positioned(
+                                            right: -1,
+                                            top: -1,
+                                            child: GestureDetector(
+                                              onTap: () =>
+                                                  controller.removePicture(i),
+                                              child: SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child: Image.asset(
+                                                  Assets.iconsIcRemoveImage,
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   );
                                 },
@@ -297,42 +303,6 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 24, bottom: 24),
-                      child: AppButton.basicButton(
-                        enable: controller.isValidated.value,
-                        onTap: () async {
-                          if (!controller.loading.value)
-                            await controller.sendApdReception();
-                        },
-                        width: double.infinity,
-                        color: AppColor.highlightDarkest,
-                        height: 55,
-                        radius: 12,
-                        padding: EdgeInsets.fromLTRB(
-                            16, controller.loading.value ? 0 : 16, 16, 0),
-                        child: controller.loading.value
-                            ? Transform.scale(
-                                scale: 0.5,
-                                child: SizedBox(
-                                  width: 16,
-                                  height: 6,
-                                  child: FittedBox(
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : Text(
-                                'Kirim',
-                                textAlign: TextAlign.center,
-                                style: AppTextStyle.actionL.copyWith(
-                                  color: AppColor.neutralLightLightest,
-                                ),
-                              ),
-                      ),
-                    ),
                   ],
                 ),
               );
@@ -340,57 +310,45 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
           ),
         ),
       ),
+      bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
 
   Widget list() {
+    if (controller.apdRecList.isEmpty) {
+      return EmptyList.textEmptyListNoScroll(
+        minHeight: Get.size.height * .15,
+        onRefresh: () async {
+          controller.update();
+        },
+      );
+    }
     return ListView.builder(
-      shrinkWrap: true,
-      itemCount: 10,
       physics: NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: controller.apdRecList.length,
       itemBuilder: (c, i) {
+        final item = controller.apdRecList[i];
         return AppCard.listCard(
           onTap: () async {
             Get.back();
           },
           padding: EdgeInsets.all(6),
           color: i % 2 == 0
-              ? AppColor.neutralLightLightest
-              : AppColor.highlightLightest,
+              ? AppColor.highlightLightest
+              : AppColor.neutralLightLightest,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              titleSubtitle(
-                'Kode',
-                'APD00${i + 1}',
-                3,
-              ),
+              titleSubtitle('Kode', item.code, 3),
               SizedBox(width: 6),
-              titleSubtitle(
-                'Kategori',
-                'Sipil',
-                3,
-              ),
+              titleSubtitle('Nama', item.name, 3),
               SizedBox(width: 6),
-              titleSubtitle(
-                'Nama',
-                'Helm Proyek',
-                2,
-              ),
+              titleSubtitle('Jumlah', item.qty, 2),
               SizedBox(width: 6),
-              titleSubtitle(
-                'Jumlah',
-                '${(i + 1) * 10}',
-                2,
-              ),
+              titleSubtitle('Sisa', item.remainingQty, 1),
               SizedBox(width: 6),
-              titleSubtitle(
-                'Sisa',
-                '${(i + 1) * 10}',
-                1,
-              ),
-              SizedBox(width: 6),
-              receive(() {}),
+              receive(() {}, i),
             ],
           ),
         );
@@ -398,7 +356,7 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
     );
   }
 
-  Widget receive(GestureTapCallback onTap) {
+  Widget receive(GestureTapCallback onTap, i) {
     return Expanded(
       flex: 2,
       child: Column(
@@ -411,181 +369,164 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
             ),
           ),
           SizedBox(height: 6),
-
           AppTextField.basicTextField(
             label: '',
             radius: 6,
             isDense: true,
+            prefix: SizedBox(width: 12),
             keyboardType: TextInputType.number,
-            controller: TextEditingController(),
+            controller: controller.apdRecListC[i],
             hintText: 'input',
-            contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+            contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 0),
             onTap: () async {},
             onChanged: (v) {
+              controller.apdRecList[i].receivedQty = v;
               controller.update();
             },
           ),
-          // AppButton.basicButton(
-          //   enable: true,
-          //   color: AppColor.neutralLightLightest,
-          //   radius: 6,
-          //   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-          //   border: Border.all(
-          //     width: 0.5,
-          //     color: AppColor.neutralDarkLightest,
-          //   ),
-          //   child: Text(
-          //     'input',
-          //     style: AppTextStyle.bodyS.copyWith(
-          //       color: AppColor.neutralLightDarkest,
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     );
   }
 
-  Widget selectApdRequestDialog() {
-    return SizedBox(
-      width: Get.size.width * .8,
-      height: Get.size.height * .8,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AppTextField.loginTextField(
-            controller: controller.searchApdRequestC.value,
-            hintText: 'Search',
-            suffixIconConstraints: BoxConstraints(maxHeight: 18),
-            onTap: () async {},
-            onChanged: (v) {
-              controller.update();
-            },
-            suffixIcon: GestureDetector(
-              onTap: null,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: Image.asset(
-                  Assets.iconsIcSearch,
-                  color: AppColor.neutralLightDarkest,
-                ),
+  Widget selectApdReceptionDialog() {
+    return GetBuilder<ApdReceptionCreateController>(builder: (controller) {
+      final query = controller.searchApdRequestC.value.text.isNotEmpty;
+      return SizedBox(
+        width: Get.size.width * .8,
+        height: Get.size.height * .8,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppTextField.loginTextField(
+              controller: controller.searchApdRequestC.value,
+              hintText: 'Search',
+              suffixIconConstraints: BoxConstraints(maxHeight: query ? 23 : 18),
+              onChanged: (v) {
+                controller.update();
+              },
+              suffixIcon: InkWell(
+                onTap: query ? controller.clearSearchApdField : null,
+                child: query
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child:
+                            Icon(Icons.close, color: AppColor.neutralDarkLight),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.only(right: 16),
+                        child: Image.asset(
+                          Assets.iconsIcSearch,
+                          color: AppColor.neutralLightDarkest,
+                        ),
+                      ),
               ),
             ),
-          ),
-          SizedBox(height: 24),
-          Expanded(
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: 10,
-              itemBuilder: (c, i) {
-                return AppCard.listCard(
-                  onTap: () async {
-                    Get.back();
-                  },
-                  padding: EdgeInsets.all(6),
-                  color: i % 2 == 0
-                      ? AppColor.neutralLightLightest
-                      : AppColor.highlightLightest,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      titleSubtitleSelect(
-                        'Tanggal',
-                        '15/02/2025',
-                        3,
-                      ),
-                      SizedBox(width: 12),
-                      titleSubtitleSelect(
-                        'Permintaan No',
-                        'ARQ/2025/II/00$i',
-                        3,
-                      ),
-                      SizedBox(width: 12),
-                      titleSubtitleSelect(
-                        'Keterangan',
-                        'Minta Sepatu safety',
-                        4,
-                      ),
-                    ],
-                  ),
-                );
-              },
+            SizedBox(height: 24),
+            Expanded(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: controller.filteredApdReqSelectList.length,
+                itemBuilder: (c, i) {
+                  final item = controller.filteredApdReqSelectList[i];
+                  return AppCard.listCard(
+                    onTap: () async {
+                      controller.apdReqNumberC.value.text = item.reqNumber;
+                      Get.back();
+                    },
+                    padding: EdgeInsets.all(6),
+                    color: i % 2 == 0
+                        ? AppColor.highlightLightest
+                        : AppColor.neutralLightLightest,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        titleSubtitleSelect('Tanggal', item.date, 3),
+                        SizedBox(width: 12),
+                        titleSubtitleSelect('Permintaan No', item.reqNumber, 3),
+                        SizedBox(width: 12),
+                        titleSubtitleSelect('Keterangan', item.note, 4),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
   Widget selectOutcomeDialog() {
-    return SizedBox(
-      width: Get.size.width * .8,
-      height: Get.size.height * .8,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AppTextField.loginTextField(
-            controller: controller.searchOutcomeC.value,
-            hintText: 'Search',
-            suffixIconConstraints: BoxConstraints(maxHeight: 18),
-            onTap: () async {},
-            onChanged: (v) {
-              controller.update();
-            },
-            suffixIcon: GestureDetector(
-              onTap: null,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: Image.asset(
-                  Assets.iconsIcSearch,
-                  color: AppColor.neutralLightDarkest,
-                ),
+    return GetBuilder<ApdReceptionCreateController>(builder: (controller) {
+      final query = controller.searchExpenditureC.value.text.isNotEmpty;
+      return SizedBox(
+        width: Get.size.width * .8,
+        height: Get.size.height * .8,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppTextField.loginTextField(
+              controller: controller.searchExpenditureC.value,
+              hintText: 'Search',
+              suffixIconConstraints: BoxConstraints(maxHeight: query ? 23 : 18),
+              onChanged: (v) {
+                controller.update();
+              },
+              suffixIcon: InkWell(
+                onTap: query ? controller.clearSearchExpField : null,
+                child: query
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child:
+                            Icon(Icons.close, color: AppColor.neutralDarkLight),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.only(right: 16),
+                        child: Image.asset(
+                          Assets.iconsIcSearch,
+                          color: AppColor.neutralLightDarkest,
+                        ),
+                      ),
               ),
             ),
-          ),
-          SizedBox(height: 24),
-          Expanded(
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: 10,
-              itemBuilder: (c, i) {
-                return AppCard.listCard(
-                  onTap: () async {
-                    Get.back();
-                  },
-                  padding: EdgeInsets.all(6),
-                  color: i % 2 == 0
-                      ? AppColor.neutralLightLightest
-                      : AppColor.highlightLightest,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      titleSubtitleSelect(
-                        'Tanggal',
-                        '15/02/2025',
-                        3,
-                      ),
-                      SizedBox(width: 12),
-                      titleSubtitleSelect(
-                        'Pengeluaran barang No',
-                        'GDI/2025/II/00$i',
-                        3,
-                      ),
-                      SizedBox(width: 12),
-                      titleSubtitleSelect(
-                        'Vendor',
-                        'Kantor Pusat',
-                        4,
-                      ),
-                    ],
-                  ),
-                );
-              },
+            SizedBox(height: 24),
+            Expanded(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: controller.filteredApdExpSelectList.length,
+                itemBuilder: (c, i) {
+                  final item = controller.filteredApdExpSelectList[i];
+                  return AppCard.listCard(
+                    onTap: () async {
+                      controller.expNumberC.value.text = item.expNumber;
+                      controller.vendorC.value.text = item.vendor;
+                      Get.back();
+                    },
+                    padding: EdgeInsets.all(6),
+                    color: i % 2 == 0
+                        ? AppColor.highlightLightest
+                        : AppColor.neutralLightLightest,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        titleSubtitleSelect('Tanggal', item.date, 3),
+                        SizedBox(width: 12),
+                        titleSubtitleSelect(
+                            'Pengeluaran barang No', item.expNumber, 3),
+                        SizedBox(width: 12),
+                        titleSubtitleSelect('Vendor', item.vendor, 4),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
   Widget titleSubtitle(String title, String subtitle, int flex) {
@@ -667,6 +608,92 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLoadingIndicator() {
+    return Transform.scale(
+      scale: 0.5,
+      child: CircularProgressIndicator(color: Colors.white),
+    );
+  }
+
+  Widget _buildSaveDraftButton() {
+    return Expanded(
+      child: AppButton.basicButton(
+        enable:
+            controller.isValidated.value && !controller.loadingSendApd.value,
+        onTap: () async {
+          if (!controller.loadingSaveDraftApd.value &&
+              !controller.loadingSendApd.value) {
+            await controller.saveDraftApdReception();
+          }
+        },
+        color: AppColor.warningDark,
+        height: 55,
+        radius: 12,
+        padding: EdgeInsets.fromLTRB(
+            16, controller.loadingSaveDraftApd.value ? 0 : 18, 16, 0),
+        child: controller.loadingSaveDraftApd.value
+            ? _buildLoadingIndicator()
+            : Text(
+                'Simpan draft',
+                textAlign: TextAlign.center,
+                style: AppTextStyle.actionL.copyWith(
+                  color: AppColor.neutralLightLightest,
+                ),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return Expanded(
+      child: AppButton.basicButton(
+        enable: controller.isValidated.value &&
+            !controller.loadingSaveDraftApd.value,
+        onTap: () async {
+          if (!controller.loadingSendApd.value &&
+              !controller.loadingSaveDraftApd.value) {
+            if (controller.isEditMode.value) {
+              await controller.editSendApdReception(controller.indexData.value);
+            } else {
+              await controller.sendApdReception();
+            }
+          }
+        },
+        color: AppColor.highlightDarkest,
+        height: 55,
+        radius: 12,
+        padding: EdgeInsets.fromLTRB(
+            16, controller.loadingSendApd.value ? 0 : 18, 16, 0),
+        child: controller.loadingSendApd.value
+            ? _buildLoadingIndicator()
+            : Text(
+                'Ajukan',
+                textAlign: TextAlign.center,
+                style: AppTextStyle.actionL.copyWith(
+                  color: AppColor.neutralLightLightest,
+                ),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildBottomNavigationBar() {
+    return Obx(
+      () {
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+          child: Row(
+            children: [
+              _buildSaveDraftButton(),
+              SizedBox(width: 12),
+              _buildSubmitButton(),
+            ],
+          ),
+        );
+      },
     );
   }
 }

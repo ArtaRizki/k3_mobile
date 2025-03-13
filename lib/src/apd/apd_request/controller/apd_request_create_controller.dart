@@ -121,6 +121,7 @@ class ApdRequestCreateController extends GetxController {
     if (Get.arguments != null) {
       isEditMode.value = true;
       viewData.value = Get.arguments[1];
+      indexData.value = Get.arguments[0];
       final data = viewData.value;
       dateC.value.text = data.date;
       noteC.value.text = data.note;

@@ -21,11 +21,11 @@ class ApdReturnCreateController extends GetxController {
   var showHintSignature = true.obs;
 
   var searchApdRequestC = TextEditingController().obs,
-      searchOutcomeC = TextEditingController().obs,
+      searchExpenditureC = TextEditingController().obs,
       searchVendorC = TextEditingController().obs,
       dateC = TextEditingController().obs,
       apdReturnNumberC = TextEditingController().obs,
-      outcomeNumberC = TextEditingController().obs,
+      expNumberC = TextEditingController().obs,
       vendorC = TextEditingController().obs,
       noteC = TextEditingController().obs;
   var pictureList = <File>[].obs;

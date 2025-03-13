@@ -1,4 +1,3 @@
-import 'package:k3_mobile/src/apd/apd_request/model/apd_request_model.dart';
 
 class ApdRequestSelect {
   final String code;

@@ -8,7 +8,6 @@ import 'package:k3_mobile/const/app_button.dart';
 import 'package:k3_mobile/const/app_card.dart';
 import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_dialog.dart';
-import 'package:k3_mobile/const/app_dropdown.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/const/app_textfield.dart';
 import 'package:k3_mobile/generated/assets.dart';
@@ -122,7 +121,7 @@ class ApdReturnCreateView extends GetView<ApdReturnCreateController> {
                     AppTextField.basicTextField(
                       readOnly: true,
                       required: true,
-                      controller: controller.outcomeNumberC.value,
+                      controller: controller.expNumberC.value,
                       label: 'Pengeluaran Barang No',
                       hintText: 'Pilih',
                       onTap: () async {
@@ -355,8 +354,8 @@ class ApdReturnCreateView extends GetView<ApdReturnCreateController> {
           },
           padding: EdgeInsets.all(6),
           color: i % 2 == 0
-              ? AppColor.neutralLightLightest
-              : AppColor.highlightLightest,
+              ? AppColor.highlightLightest
+              : AppColor.neutralLightLightest,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -470,8 +469,8 @@ class ApdReturnCreateView extends GetView<ApdReturnCreateController> {
                   },
                   padding: EdgeInsets.all(6),
                   color: i % 2 == 0
-                      ? AppColor.neutralLightLightest
-                      : AppColor.highlightLightest,
+                      ? AppColor.highlightLightest
+                      : AppColor.neutralLightLightest,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -511,7 +510,7 @@ class ApdReturnCreateView extends GetView<ApdReturnCreateController> {
         mainAxisSize: MainAxisSize.min,
         children: [
           AppTextField.loginTextField(
-            controller: controller.searchOutcomeC.value,
+            controller: controller.searchExpenditureC.value,
             hintText: 'Search',
             suffixIconConstraints: BoxConstraints(maxHeight: 18),
             onTap: () async {},
@@ -541,8 +540,8 @@ class ApdReturnCreateView extends GetView<ApdReturnCreateController> {
                   },
                   padding: EdgeInsets.all(6),
                   color: i % 2 == 0
-                      ? AppColor.neutralLightLightest
-                      : AppColor.highlightLightest,
+                      ? AppColor.highlightLightest
+                      : AppColor.neutralLightLightest,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

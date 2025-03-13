@@ -61,7 +61,9 @@ class AppTextField {
             fillColor: readOnly && onChanged == null
                 ? AppColor.neutralLightLight
                 : Colors.white,
-            prefix: prefixIcon == null ? SizedBox(width: 16) : null,
+            prefix: prefixIcon == null && prefix == null
+                ? SizedBox(width: 16)
+                : prefix ?? null,
             prefixIconConstraints: prefixIconConstraints,
             prefixIcon: prefixIcon,
             suffixIconConstraints: suffixIconConstraints,
