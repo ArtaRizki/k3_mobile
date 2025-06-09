@@ -22,34 +22,18 @@ extension numberExtension on num {
 class Utils {
   static String? get mapStyle => '[]';
 
-  // AppBar
-  static AppBar appBar(
-    String title, {
-    TextStyle? titleTextStyle,
-    Color? backgroundColor,
-    Widget? leading,
-    Widget? action,
-  }) {
-    return AppBar(
-      title: Text(title),
-      titleTextStyle: titleTextStyle,
-      elevation: 0,
-      backgroundColor: backgroundColor ?? AppColor.highlightDarkest,
-      leading: leading,
-      actions: <Widget>[
-        if (action != null) action,
-      ],
-    );
-  }
-
   static bool emailValidator(String email) {
     final regex = RegExp(
-        r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+");
+      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+",
+    );
     return regex.hasMatch(email);
   }
 
-  static Future<List> pickDate(BuildContext context,
-      {bool time = false, DateFormat? format}) async {
+  static Future<List> pickDate(
+    BuildContext context, {
+    bool time = false,
+    DateFormat? format,
+  }) async {
     DateTime? date = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -59,9 +43,7 @@ class Utils {
         return Theme(
           data: ThemeData.light().copyWith(
             primaryColor: AppColor.highlightDarkest,
-            colorScheme: ColorScheme.light(
-              primary: AppColor.highlightDarkest,
-            ),
+            colorScheme: ColorScheme.light(primary: AppColor.highlightDarkest),
             buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
           ),
           child: child!,
@@ -86,20 +68,21 @@ class Utils {
     return [Utils.NullableDateFormat(format, date) ?? '', date];
   }
 
-  static InkWell RoundedButton(
-      {Material.VoidCallback? onpressed, Widget? child}) {
+  static InkWell RoundedButton({
+    Material.VoidCallback? onpressed,
+    Widget? child,
+  }) {
     return InkWell(
       onTap: onpressed ?? () => null,
       child: Material.Card(
-          child: Padding(
-            child: child ??
-                Icon(
-                  Icons.chevron_left,
-                  color: AppColor.highlightDarkest,
-                ),
-            padding: EdgeInsets.all(8),
-          ),
-          shape: CircleBorder()),
+        child: Padding(
+          child:
+              child ??
+              Icon(Icons.chevron_left, color: AppColor.highlightDarkest),
+          padding: EdgeInsets.all(8),
+        ),
+        shape: CircleBorder(),
+      ),
     );
   }
 
@@ -110,21 +93,14 @@ class Utils {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image(
-            image: AssetImage(
-              "assets/images/main-image-not-found.png",
-            ),
+            image: AssetImage("assets/images/main-image-not-found.png"),
             width: 275,
           ),
-          SizedBox(
-            height: 15,
-          ),
+          SizedBox(height: 15),
           Text(
             text ?? "Data tidak ditemukan!",
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
-            ),
-          )
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     );
@@ -139,8 +115,11 @@ class Utils {
 
   // show toast
   static showToast(String msg, {Duration? duration}) async {
-    return await EasyLoading.showToast(msg,
-        toastPosition: EasyLoadingToastPosition.bottom, duration: duration);
+    return await EasyLoading.showToast(
+      msg,
+      toastPosition: EasyLoadingToastPosition.bottom,
+      duration: duration,
+    );
   }
 
   // show loading
@@ -172,8 +151,10 @@ class Utils {
               height: 100,
             ),
           ),
-          Text("Berhasil",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          Text(
+            "Berhasil",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
           Visibility(
             visible: msg != "",
             child: Padding(
@@ -209,8 +190,10 @@ class Utils {
               height: 100,
             ),
           ),
-          Text("Gagal",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          Text(
+            "Gagal",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
           Visibility(
             visible: msg != "",
             child: Padding(
@@ -274,22 +257,27 @@ class Utils {
   /// How to use: Utils.showLoading();
   ///
 
-  static SnackBar displaySnackBar(String message,
-      {Color? bgColor, String? actionMessage, VoidCallback? onClick}) {
+  static SnackBar displaySnackBar(
+    String message, {
+    Color? bgColor,
+    String? actionMessage,
+    VoidCallback? onClick,
+  }) {
     return SnackBar(
       content: Text(
         message,
         style: TextStyle(color: Colors.white, fontSize: 14.0),
       ),
-      action: (actionMessage != null)
-          ? SnackBarAction(
-              textColor: Colors.white,
-              label: actionMessage,
-              onPressed: () {
-                return onClick!();
-              },
-            )
-          : null,
+      action:
+          (actionMessage != null)
+              ? SnackBarAction(
+                textColor: Colors.white,
+                label: actionMessage,
+                onPressed: () {
+                  return onClick!();
+                },
+              )
+              : null,
       duration: Duration(seconds: 2),
       backgroundColor: bgColor ?? Colors.red,
     );
@@ -302,16 +290,21 @@ class Utils {
   /// How to use: Utils.showLoading();
   ///
 
-  static mainButton(String str, VoidCallback onClick,
-      {double? width, double? height, double? textSize, double? padding}) {
+  static mainButton(
+    String str,
+    VoidCallback onClick, {
+    double? width,
+    double? height,
+    double? textSize,
+    double? padding,
+  }) {
     return ElevatedButton(
       style: ButtonStyle(
-        backgroundColor:
-            WidgetStateProperty.all<Color>(AppColor.highlightDarkest),
+        backgroundColor: WidgetStateProperty.all<Color>(
+          AppColor.highlightDarkest,
+        ),
         shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
         ),
         elevation: WidgetStateProperty.all<double>(0),
       ),
@@ -323,9 +316,7 @@ class Utils {
         alignment: Alignment.center,
         child: Text(
           str,
-          style: TextStyle(
-            fontSize: textSize ?? 14,
-          ),
+          style: TextStyle(fontSize: textSize ?? 14),
           textAlign: TextAlign.center,
         ),
       ),
@@ -351,10 +342,7 @@ class Utils {
         padding: EdgeInsets.all(12),
         child: Text(
           str,
-          style: TextStyle(
-            color: AppColor.highlightDarkest,
-            fontSize: 14,
-          ),
+          style: TextStyle(color: AppColor.highlightDarkest, fontSize: 14),
         ),
       ),
     );
@@ -368,15 +356,18 @@ class Utils {
   ///
 
   static basicTextField(
-      String hint, TextEditingController controller, bool obscureText,
-      {TextAlign? align,
-      TextInputType? inputType,
-      bool? isSeparator,
-      int? limit,
-      Widget? prefixIcon,
-      bool? isFocus,
-      Function? onTap,
-      Function(String)? onChanged}) {
+    String hint,
+    TextEditingController controller,
+    bool obscureText, {
+    TextAlign? align,
+    TextInputType? inputType,
+    bool? isSeparator,
+    int? limit,
+    Widget? prefixIcon,
+    bool? isFocus,
+    Function? onTap,
+    Function(String)? onChanged,
+  }) {
     return TextField(
       onChanged: (str) {
         if (onChanged != null) {
@@ -401,15 +392,10 @@ class Utils {
         isDense: true,
         prefixIcon: (prefixIcon != null) ? prefixIcon : null,
         prefixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
-        prefixStyle: TextStyle(
-          color: Colors.black87,
-          fontSize: 15,
-        ),
+        prefixStyle: TextStyle(color: Colors.black87, fontSize: 15),
         hintText: hint,
         focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: AppColor.highlightDarkest,
-          ),
+          borderSide: BorderSide(color: AppColor.highlightDarkest),
         ),
       ),
     );
@@ -442,13 +428,17 @@ class Utils {
         // style: Constant.primaryTextStyle.copyWith(fontSize: 14),
         textAlign: TextAlign.center,
       ),
-      actions: actions ??
+      actions:
+          actions ??
           [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              // Expanded(child: CustomButton.secondaryButton(noText, noCallback)),
-              SizedBox(width: 10),
-              // Expanded(child: CustomButton.mainButton(yesText, yesCallback)),
-            ]),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Expanded(child: CustomButton.secondaryButton(noText, noCallback)),
+                SizedBox(width: 10),
+                // Expanded(child: CustomButton.mainButton(yesText, yesCallback)),
+              ],
+            ),
           ],
     );
 
@@ -478,11 +468,7 @@ class Utils {
       contentPadding: EdgeInsets.all(20),
       title: Column(
         children: [
-          Icon(
-            Icons.error_outlined,
-            color: Colors.red,
-            size: 48,
-          ),
+          Icon(Icons.error_outlined, color: Colors.red, size: 48),
           SizedBox(height: 8),
           Center(
             child: Text(
@@ -499,15 +485,19 @@ class Utils {
         // style: Constant.primaryTextStyle.copyWith(fontSize: 14),
         textAlign: TextAlign.center,
       ),
-      actions: actions ??
+      actions:
+          actions ??
           [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              // Expanded(child: CustomButton.secondaryButton(noText, noCallback)),
-              SizedBox(width: 10),
-              // Expanded(
-              //     child: CustomButton.mainButton(yesText, yesCallback,
-              //         color: Colors.red)),
-            ]),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Expanded(child: CustomButton.secondaryButton(noText, noCallback)),
+                SizedBox(width: 10),
+                // Expanded(
+                //     child: CustomButton.mainButton(yesText, yesCallback,
+                //         color: Colors.red)),
+              ],
+            ),
           ],
     );
 
@@ -588,21 +578,25 @@ class Utils {
   //   );
   // }
 
-  static Material.Card Card(Widget child,
-      {Color color = Colors.white,
-      double elevation = 1,
-      Material.EdgeInsets? margin,
-      double border = 12,
-      ShapeBorder? shape,
-      bool? chainvertical = false}) {
+  static Material.Card Card(
+    Widget child, {
+    Color color = Colors.white,
+    double elevation = 1,
+    Material.EdgeInsets? margin,
+    double border = 12,
+    ShapeBorder? shape,
+    bool? chainvertical = false,
+  }) {
     if (margin == null) {
-      margin = chainvertical!
-          ? Material.EdgeInsets.only(top: 12, left: 12, right: 12)
-          : Material.EdgeInsets.all(12);
+      margin =
+          chainvertical!
+              ? Material.EdgeInsets.only(top: 12, left: 12, right: 12)
+              : Material.EdgeInsets.all(12);
     }
     if (shape == null)
       shape = Material.RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(border));
+        borderRadius: BorderRadius.circular(border),
+      );
     return Material.Card(
       child: child,
       shape: shape,
@@ -616,31 +610,36 @@ class Utils {
   }
 
   static Material.ClipRRect RoundedImage(Image image, double radius) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(radius),
-      child: image,
-    );
+    return ClipRRect(borderRadius: BorderRadius.circular(radius), child: image);
   }
 
   static num? parseCurrencyString(String amount) {
     try {
-      final result =
-          NumberFormat.compactCurrency(decimalDigits: 2).parse(amount);
+      final result = NumberFormat.compactCurrency(
+        decimalDigits: 2,
+      ).parse(amount);
       return result;
     } catch (e) {}
     return null;
   }
 
-  static String formatCurrency2(num? val,
-      {int decimalDigits = 2, bool floating = true}) {
+  static String formatCurrency2(
+    num? val, {
+    int decimalDigits = 2,
+    bool floating = true,
+  }) {
     if (val == null) return '';
     if (Intl.systemLocale == 'id_ID') {
-      return toCurrencyString(val.toString(),
-          mantissaLength: val.isFloating ? decimalDigits : 0,
-          thousandSeparator: ThousandSeparator.Period);
+      return toCurrencyString(
+        val.toString(),
+        mantissaLength: val.isFloating ? decimalDigits : 0,
+        thousandSeparator: ThousandSeparator.Period,
+      );
     } else {
-      return toCurrencyString(val.toString(),
-          mantissaLength: val.isFloating ? decimalDigits : 0);
+      return toCurrencyString(
+        val.toString(),
+        mantissaLength: val.isFloating ? decimalDigits : 0,
+      );
     }
   }
 
@@ -651,8 +650,10 @@ class Utils {
   static String formatCurrency(num val, {int decimalDigits = 0}) {
     try {
       return NumberFormat.simpleCurrency(
-              locale: "en_ID", name: "", decimalDigits: decimalDigits)
-          .format(val);
+        locale: "en_ID",
+        name: "",
+        decimalDigits: decimalDigits,
+      ).format(val);
     } catch (e) {
       print(e);
       return '0';
@@ -661,8 +662,10 @@ class Utils {
 
   static String thousandSeparator(int val) {
     return NumberFormat.currency(
-            locale: "in_ID", symbol: "Rp ", decimalDigits: 0)
-        .format(val);
+      locale: "in_ID",
+      symbol: "Rp ",
+      decimalDigits: 0,
+    ).format(val);
   }
 
   static String digitOnly(String s) {
@@ -677,20 +680,24 @@ class Utils {
     }
   }
 
-  static Widget StatusBadge(String s,
-      {double maxwidth = double.infinity, Material.TextAlign? textAlign}) {
+  static Widget StatusBadge(
+    String s, {
+    double maxwidth = double.infinity,
+    Material.TextAlign? textAlign,
+  }) {
     return Container(
-        constraints: Material.BoxConstraints(maxWidth: maxwidth),
-        color: Color(0xfff8ebc7),
-        padding: EdgeInsets.all(10),
-        child: Text(
-          s,
-          style: Material.TextStyle(
-            // fontSize: Constant.fontSizeRegular,
-            fontWeight: FontWeight.bold,
-          ),
-          textAlign: textAlign,
-        ));
+      constraints: Material.BoxConstraints(maxWidth: maxwidth),
+      color: Color(0xfff8ebc7),
+      padding: EdgeInsets.all(10),
+      child: Text(
+        s,
+        style: Material.TextStyle(
+          // fontSize: Constant.fontSizeRegular,
+          fontWeight: FontWeight.bold,
+        ),
+        textAlign: textAlign,
+      ),
+    );
   }
 
   static Uri forceHttps(Uri uri) {
@@ -717,12 +724,16 @@ class Utils {
 
   static Material.Widget ListLoading() {
     return Container(
-        alignment: Alignment.center,
-        child: Material.CircularProgressIndicator());
+      alignment: Alignment.center,
+      child: Material.CircularProgressIndicator(),
+    );
   }
 
-  static http.MultipartFile MultipartFile(String s, Uint8List uint8list,
-      {String? filename}) {
+  static http.MultipartFile MultipartFile(
+    String s,
+    Uint8List uint8list, {
+    String? filename,
+  }) {
     return http.MultipartFile.fromBytes(s, uint8list, filename: filename);
   }
 
@@ -747,11 +758,43 @@ class Utils {
     if (s.length <= 1) return s;
     return s[0].toUpperCase() + s.substring(1);
   }
+
+  static String getDocStatusName(String n) {
+    switch (n) {
+      case '1':
+        return 'Disetujui';
+      case '2':
+        return 'Draft';
+      case '3':
+        return 'Ditolak';
+      case '4':
+        return 'Dikirim';
+      default:
+        return 'Diajukan';
+    }
+  }
+
+  static Color getDocStatusColor(String status) {
+    switch (status) {
+      case '1':
+        return AppColor.successMedium;
+      case '2':
+        return AppColor.highlightDarkest;
+      case '3':
+        return AppColor.errorDark;
+      case '4':
+        return AppColor.neutralDarkDarkest;
+      default:
+        return AppColor.warningDark;
+    }
+  }
 }
 
 class CurrencyInputFormatter extends TextInputFormatter {
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     if (newValue.selection.baseOffset == 0) {
       print(true);
       return newValue;
@@ -760,13 +803,17 @@ class CurrencyInputFormatter extends TextInputFormatter {
     double value = double.parse(newValue.text);
 
     final formatter = NumberFormat.simpleCurrency(
-        locale: "in_ID", name: "", decimalDigits: 0);
+      locale: "in_ID",
+      name: "",
+      decimalDigits: 0,
+    );
 
     String newText = formatter.format(value);
 
     return newValue.copyWith(
-        text: newText,
-        selection: new TextSelection.collapsed(offset: newText.length));
+      text: newText,
+      selection: new TextSelection.collapsed(offset: newText.length),
+    );
   }
 }
 

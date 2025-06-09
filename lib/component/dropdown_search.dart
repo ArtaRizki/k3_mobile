@@ -160,9 +160,9 @@ class CustomDropdownSearch {
         hintText: hint,
         hintStyle: TextStyle(color: AppColor.neutralLightDarkest),
         filled: true,
-        enabled: enabled ?? true,
+        enabled: enabled,
         fillColor: fillColor ??
-            ((enabled ?? false) ? Colors.white : AppColor.neutralLightDarkest),
+            (enabled ? Colors.white : AppColor.neutralLightDarkest),
         suffixIconColor: AppColor.neutralLightDarkest,
         hoverColor: AppColor.neutralLightDarkest,
         focusColor: AppColor.highlightDarkest,

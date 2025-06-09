@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:k3_mobile/component/utils.dart';
 import 'package:k3_mobile/const/app_appbar.dart';
 import 'package:k3_mobile/const/app_card.dart';
 import 'package:k3_mobile/const/app_color.dart';
@@ -17,7 +18,7 @@ class ApdReturnViewView extends GetView<ApdReturnViewController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppAppbar.basicAppbar(
-        title: controller.viewData.value.id,
+        title: controller.viewData.value.code ?? '',
         centerTitle: false,
         titleSpacing: 0,
         titleStyle: AppTextStyle.h4.copyWith(
@@ -29,132 +30,140 @@ class ApdReturnViewView extends GetView<ApdReturnViewController> {
         child: Container(
           color: AppColor.neutralLightLightest,
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
-          child: Obx(
-            () {
-              return SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    ...header(),
-                    SizedBox(height: 24),
-                    ...headerApdRequest(),
-                    SizedBox(height: 24),
-                    ...headerOutcome(),
-                    SizedBox(height: 24),
-                    Text(
-                      'Daftar APD',
-                      style: AppTextStyle.actionL
-                          .copyWith(color: AppColor.neutralDarkDarkest),
+          child: Obx(() {
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ...header(),
+                  SizedBox(height: 24),
+                  ...headerApdRequest(),
+                  SizedBox(height: 24),
+                  ...headerOutcome(),
+                  SizedBox(height: 24),
+                  Text(
+                    'Daftar APD',
+                    style: AppTextStyle.actionL.copyWith(
+                      color: AppColor.neutralDarkDarkest,
                     ),
-                    SizedBox(height: 12),
-                    list(),
-                    SizedBox(height: 12),
-                    Text(
-                      'Gambar',
-                      style: AppTextStyle.actionL
-                          .copyWith(color: AppColor.neutralDarkDarkest),
+                  ),
+                  SizedBox(height: 12),
+                  list(),
+                  SizedBox(height: 12),
+                  Text(
+                    'Gambar',
+                    style: AppTextStyle.actionL.copyWith(
+                      color: AppColor.neutralDarkDarkest,
                     ),
-                    SizedBox(height: 6),
-                    if (controller.viewData.value.images.isEmpty) ...[
-                      Center(child: Text('Tidak ada gambar')),
-                    ] else ...[
-                      Container(
-                        padding: EdgeInsets.symmetric(vertical: 6),
-                        child: Wrap(
-                          spacing: 10,
-                          children: List.generate(
-                            controller.viewData.value.images.isEmpty
-                                ? 1
-                                : controller.viewData.value.images.length,
-                            (i) {
-                              final item = controller.viewData.value.images[i];
-                              return InkWell(
-                                onTap: () async {
-                                  await Get.toNamed(
-                                    AppRoute.IMAGE_PREVIEW,
-                                    arguments: item,
-                                  );
-                                },
-                                child: Container(
-                                  width: 68,
-                                  height: 68,
-                                  decoration:
-                                      BoxDecoration(color: Colors.white),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Image.file(
-                                      File(item),
-                                      width: 68,
-                                      height: 68,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      )
-                    ],
-                    SizedBox(height: 12),
-                    Text(
-                      'Tanda tangan',
-                      style: AppTextStyle.actionL
-                          .copyWith(color: AppColor.neutralDarkDarkest),
+                  ),
+                  SizedBox(height: 6),
+                  //
+                  //
+                  // MENUNGGGU MAS ICHUL
+                  //
+                  //
+                  // if (controller.viewData.value.images.isEmpty) ...[
+                  //   Center(child: Text('Tidak ada gambar')),
+                  // ] else ...[
+                  // Container(
+                  //   padding: EdgeInsets.symmetric(vertical: 6),
+                  //   child: Wrap(
+                  //     spacing: 10,
+                  //     children: List.generate(
+                  //       controller.viewData.value.images.isEmpty
+                  //           ? 1
+                  //           : controller.viewData.value.images.length,
+                  //       (i) {
+                  //         final item = controller.viewData.value.images[i];
+                  //         return InkWell(
+                  //           onTap: () async {
+                  //             await Get.toNamed(
+                  //               AppRoute.IMAGE_PREVIEW,
+                  //               arguments: item,
+                  //             );
+                  //           },
+                  //           child: Container(
+                  //             width: 68,
+                  //             height: 68,
+                  //             decoration:
+                  //                 BoxDecoration(color: Colors.white),
+                  //             child: ClipRRect(
+                  //               borderRadius: BorderRadius.circular(12),
+                  //               child: Image.file(
+                  //                 File(item),
+                  //                 width: 68,
+                  //                 height: 68,
+                  //                 fit: BoxFit.cover,
+                  //               ),
+                  //             ),
+                  //           ),
+                  //         );
+                  //       },
+                  //     ),
+                  //   ),
+                  // )
+                  // ],
+                  SizedBox(height: 12),
+                  Text(
+                    'Tanda tangan',
+                    style: AppTextStyle.actionL.copyWith(
+                      color: AppColor.neutralDarkDarkest,
                     ),
-                    SizedBox(height: 6),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: AppColor.neutralLightDarkest),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      height: 158,
-                      child: Stack(
-                        children: [
-                          Center(
-                            child: Image.file(
-                              File(controller.viewData.value.signature),
-                              height: 138,
-                            ),
-                          ),
-                          Positioned(
-                            top: 125,
-                            left: 0,
-                            right: 0,
-                            child: Text(
-                              'Riowaldy Indrawan',
-                              textAlign: TextAlign.center,
-                              style: AppTextStyle.bodyS
-                                  .copyWith(color: AppColor.neutralDarkLight),
-                            ),
-                          ),
-                        ],
-                      ),
+                  ),
+                  SizedBox(height: 6),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: AppColor.neutralLightDarkest),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    SizedBox(height: 24),
-                  ],
-                ),
-              );
-            },
-          ),
+                    height: 158,
+                    // MENUNGGU ICHUL
+                    // TIDADK ADA FILE TTD RESPONSE
+                    // child: Stack(
+                    //   children: [
+                    //     // Center(
+                    //     //   child: Image.network(
+                    //     //     controller.viewData.value. ?? '',
+                    //     //     height: 138,
+                    //     //   ),
+                    //     // ),
+                    //     Positioned(
+                    //       top: 125,
+                    //       left: 0,
+                    //       right: 0,
+                    //       child: Text(
+                    //         'Riowaldy Indrawan',
+                    //         textAlign: TextAlign.center,
+                    //         style: AppTextStyle.bodyS
+                    //             .copyWith(color: AppColor.neutralDarkLight),
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
+                  ),
+                  SizedBox(height: 24),
+                ],
+              ),
+            );
+          }),
         ),
       ),
     );
   }
 
   List<Widget> _buildActionButtons() {
-    final status = controller.viewData.value.status;
+    final status = controller.viewData.value.docStatus;
     return [
       if (status == 'Draft')
         _buildActionButton('Ajukan', AppColor.warningDark, () => Get.back()),
       if (status == 'Draft' || status == 'Ditolak')
         _buildActionButton('Edit', AppColor.highlightDarkest, () async {
-          Get.toNamed(AppRoute.APD_RETURN_CREATE, arguments: [
-            controller.indexData.value,
-            controller.viewData.value,
-          ]);
+          Get.toNamed(
+            AppRoute.APD_RETURN_CREATE,
+            arguments: [controller.indexData.value, controller.viewData.value],
+          );
         }),
       if (status == 'Draft')
         _buildActionButton('Hapus', AppColor.errorDark, () async {
@@ -172,10 +181,7 @@ class ApdReturnViewView extends GetView<ApdReturnViewController> {
       onTap: onTap,
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 6),
-        child: Text(
-          label,
-          style: AppTextStyle.bodyM.copyWith(color: color),
-        ),
+        child: Text(label, style: AppTextStyle.bodyM.copyWith(color: color)),
       ),
     );
   }
@@ -183,16 +189,17 @@ class ApdReturnViewView extends GetView<ApdReturnViewController> {
   List<Widget> header() {
     final data = controller.viewData.value;
     return [
-      headerItem('Tanggal', data.date),
+      headerItem('Tanggal', data.docDate ?? ''),
       SizedBox(height: 9),
-      headerItem('Unit', data.unit),
+      // harusnya unit
+      headerItem('Unit', data.vendorName ?? ''),
       SizedBox(height: 9),
-      headerItem('Keterangan', data.note),
+      headerItem('Keterangan', data.description ?? ''),
       SizedBox(height: 9),
       headerItem(
         'Status',
-        data.status,
-        valueColor: controller.statusColor(data.status),
+        Utils.getDocStatusName(data.docStatus ?? ''),
+        valueColor: Utils.getDocStatusColor(data.docStatus ?? ''),
       ),
       SizedBox(height: 9),
     ];
@@ -201,20 +208,24 @@ class ApdReturnViewView extends GetView<ApdReturnViewController> {
   List<Widget> headerApdRequest() {
     final data = controller.viewData.value;
     return [
-      headerItem('Permintaan APD No', data.reqNumber),
+      // sementara code harusnya permintaan code
+      headerItem('Permintaan APD No', data.code ?? ''),
       SizedBox(height: 9),
-      headerItem('Tanggal', data.date),
+      // sememtara doc date harusnya permintaan date
+      headerItem('Tanggal', data.docDate ?? ''),
     ];
   }
 
   List<Widget> headerOutcome() {
     final data = controller.viewData.value;
     return [
-      headerItem('Pengeluaran barang No', data.expNumber),
+      // sementara code harusnya pengeluaran_code
+      headerItem('Pengeluaran barang No', data.code ?? ''),
       SizedBox(height: 9),
-      headerItem('Tanggal', data.date),
+      // sememtara doc date harusnya pengeluaran_date
+      headerItem('Tanggal', data.docDate ?? ''),
       SizedBox(height: 9),
-      headerItem('Vendor', data.vendor),
+      headerItem('Vendor', data.vendorName ?? ''),
     ];
   }
 
@@ -244,7 +255,7 @@ class ApdReturnViewView extends GetView<ApdReturnViewController> {
   }
 
   Widget list() {
-    final data = controller.viewData.value.recList;
+    final data = controller.viewData.value.daftarPengeluaran ?? [];
     return ListView.builder(
       shrinkWrap: true,
       itemCount: data.length,
@@ -256,21 +267,23 @@ class ApdReturnViewView extends GetView<ApdReturnViewController> {
             Get.back();
           },
           padding: EdgeInsets.all(6),
-          color: i % 2 == 0
-              ? AppColor.highlightLightest
-              : AppColor.neutralLightLightest,
+          color:
+              i % 2 == 0
+                  ? AppColor.highlightLightest
+                  : AppColor.neutralLightLightest,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              titleSubtitle('Kode', item.code, 3),
+              // harusnya
+              titleSubtitle('Kode', item?.apdId ?? '', 3),
               SizedBox(width: 6),
-              titleSubtitle('Nama', item.name, 4),
+              titleSubtitle('Nama', item?.apdName ?? '', 4),
               SizedBox(width: 6),
-              titleSubtitle('Jumlah', item.qty, 2),
+              titleSubtitle('Jumlah', '${item?.qty ?? 0}', 2),
               SizedBox(width: 6),
-              titleSubtitle('Sisa', item.remainingQty, 2),
+              titleSubtitle('Sisa', '${item?.qty ?? 0}', 2),
               SizedBox(width: 6),
-              titleSubtitle('Dikembalikan', item.returnQty, 2),
+              titleSubtitle('Diterima', '${item?.qty ?? 0}', 2),
             ],
           ),
         );

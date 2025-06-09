@@ -12,10 +12,11 @@ import 'package:k3_mobile/component/custom_image_picker.dart';
 import 'package:k3_mobile/component/http_request_client.dart';
 import 'package:k3_mobile/component/utils.dart';
 import 'package:k3_mobile/src/apd/apd_reception/controller/apd_reception_controller.dart';
-import 'package:k3_mobile/src/apd/apd_reception/model/apd_expenditure_select.dart';
 import 'package:k3_mobile/src/apd/apd_reception/model/apd_reception_model.dart';
 import 'package:k3_mobile/src/apd/apd_reception/model/apd_reception_param.dart';
-import 'package:k3_mobile/src/apd/apd_reception/model/apd_reception_select.dart';
+import 'package:k3_mobile/src/apd/apd_request/model/apd_request_model.dart';
+import 'package:k3_mobile/src/apd/model/apd_select_model.dart';
+import 'package:k3_mobile/src/apd/model/expenditure_select_model.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ApdReceptionCreateController extends GetxController {
@@ -44,97 +45,81 @@ class ApdReceptionCreateController extends GetxController {
   var selectedStatus = Rx<String?>(null);
 
   var apdRecListC = <TextEditingController>[];
-  var apdRecList = <ApdReceptionModel>[
-    ApdReceptionModel(
-      code: 'APD001',
-      name: 'Helm Proyek',
-      qty: '10',
-      remainingQty: '10',
-      receivedQty: '',
-    ),
-    ApdReceptionModel(
-      code: 'APD002',
-      name: 'Sepatu Safety',
-      qty: '50',
-      remainingQty: '50',
-      receivedQty: '',
-    ),
-    ApdReceptionModel(
-      code: 'APD003',
-      name: 'Sarung Tangan',
-      qty: '2',
-      remainingQty: '2',
-      receivedQty: '',
-    ),
-    ApdReceptionModel(
-      code: 'APD004',
-      name: 'Rompi',
-      qty: '15',
-      remainingQty: '15',
-      receivedQty: '',
-    ),
-  ].obs;
+  var apdRecList =
+      <ApdReceptionParamDataApdReceive>[
+        // ApdReceptionModel(
+        //   code: 'APD001',
+        //   name: 'Helm Proyek',
+        //   qty: '10',
+        //   remainingQty: '10',
+        //   receivedQty: '',
+        // ),
+        // ApdReceptionModel(
+        //   code: 'APD002',
+        //   name: 'Sepatu Safety',
+        //   qty: '50',
+        //   remainingQty: '50',
+        //   receivedQty: '',
+        // ),
+        // ApdReceptionModel(
+        //   code: 'APD003',
+        //   name: 'Sarung Tangan',
+        //   qty: '2',
+        //   remainingQty: '2',
+        //   receivedQty: '',
+        // ),
+        // ApdReceptionModel(
+        //   code: 'APD004',
+        //   name: 'Rompi',
+        //   qty: '15',
+        //   remainingQty: '15',
+        //   receivedQty: '',
+        // ),
+      ].obs;
   var indexData = 0.obs;
 
-  var viewData = ApdReceptionParam(
-    id: '',
-    unit: '',
-    date: '',
-    note: '',
-    reqNumber: '',
-    expNumber: '',
-    vendor: '',
-    recList: [],
-    images: [],
-    signature: '',
-    status: '',
-  ).obs;
+  var viewData = ApdReceptionParam().obs;
 
-  var filteredApdReqSelectList = <ApdReceptionSelect>[].obs;
-  var filteredApdExpSelectList = <ApdExpenditureSelect>[].obs;
+  var filteredApdReqSelectList = <ApdRequestModelData>[].obs;
+  var filteredApdExpSelectList = <ExpenditureSelectModelData>[].obs;
 
   var apdReqSelectList = [
-    ApdReceptionSelect(
-      date: '15/02/2025',
-      reqNumber: 'ARQ/2025/II/001',
-      note: 'Minta Helm & Rompi',
-    ),
-    ApdReceptionSelect(
-      date: '15/02/2025',
-      reqNumber: 'ARQ/2025/II/001',
-      note: 'Minta Sepatu Safety',
-    ),
-    ApdReceptionSelect(
-      date: '15/02/2025',
-      reqNumber: 'ARQ/2025/II/001',
-      note: 'Minta Lagi',
-    ),
+    // ApdSelectModel(
+    //   date: '15/02/2025',
+    //   reqNumber: 'ARQ/2025/II/001',
+    //   note: 'Minta Helm & Rompi',
+    // ),
+    // ApdSelectModel(
+    //   date: '15/02/2025',
+    //   reqNumber: 'ARQ/2025/II/001',
+    //   note: 'Minta Sepatu Safety',
+    // ),
+    // ApdSelectModel(
+    //   date: '15/02/2025',
+    //   reqNumber: 'ARQ/2025/II/001',
+    //   note: 'Minta Lagi',
+    // ),
   ];
 
   var apdExpSelectList = [
-    ApdExpenditureSelect(
-      date: '15/02/2025',
-      expNumber: 'GDI/2025/II/001',
-      vendor: 'Kantor Pusat',
-    ),
-    ApdExpenditureSelect(
-      date: '15/02/2025',
-      expNumber: 'GDI/2025/II/001',
-      vendor: 'Vendor A',
-    ),
-    ApdExpenditureSelect(
-      date: '15/02/2025',
-      expNumber: 'GDI/2025/II/001',
-      vendor: 'Vendor B',
-    ),
+    // ExpenditureSelectModel(
+    //   date: '15/02/2025',
+    //   expNumber: 'GDI/2025/II/001',
+    //   vendor: 'Kantor Pusat',
+    // ),
+    // ExpenditureSelectModel(
+    //   date: '15/02/2025',
+    //   expNumber: 'GDI/2025/II/001',
+    //   vendor: 'Vendor A',
+    // ),
+    // ExpenditureSelectModel(
+    //   date: '15/02/2025',
+    //   expNumber: 'GDI/2025/II/001',
+    //   vendor: 'Vendor B',
+    // ),
   ];
 
-  List<String> statusList = [
-    'Draft',
-    'Diajukan',
-    'Disetujui',
-    'Ditolak',
-  ];
+  List<String> statusList = ['Draft', 'Diajukan', 'Disetujui', 'Ditolak'];
 
   bool validate() {
     if (dateC.value.text.isEmpty) return false;
@@ -201,9 +186,9 @@ class ApdReceptionCreateController extends GetxController {
   }
 
   Future<void> init() async {
-    filteredApdReqSelectList.assignAll(apdReqSelectList);
+    // filteredApdReqSelectList.assignAll(apdReqSelectList);
     searchApdRequestC.value.addListener(_onSearchApdChanged);
-    filteredApdExpSelectList.assignAll(apdExpSelectList);
+    // filteredApdExpSelectList.assignAll(apdExpSelectList);
     searchExpenditureC.value.addListener(_onSearchExpChanged);
 
     // add daftar apd TextEditingController
@@ -214,19 +199,21 @@ class ApdReceptionCreateController extends GetxController {
       viewData.value = Get.arguments[1];
       indexData.value = Get.arguments[0];
       final data = viewData.value;
-      dateC.value.text = data.date;
-      apdReqNumberC.value.text = data.reqNumber;
-      expNumberC.value.text = data.expNumber;
-      vendorC.value.text = data.vendor;
-      noteC.value.text = data.note;
-      selectedStatus.value = data.status;
-      images.assignAll(data.images.map((e) => File(e)).toList());
-      for (var item in data.recList)
-        apdRecListC.assignAll(data.recList
-            .map((e) => TextEditingController(text: e.receivedQty))
-            .toList());
+      // dateC.value.text = data.date;
+      // apdReqNumberC.value.text = data.reqNumber;
+      // expNumberC.value.text = data.expNumber;
+      // vendorC.value.text = data.vendor;
+      // noteC.value.text = data.note;
+      // selectedStatus.value = data.status;
+      // images.assignAll(data.images.map((e) => File(e)).toList());
+      // for (var item in data.recList)
+      //   apdRecListC.assignAll(
+      //     data.recList
+      //         .map((e) => TextEditingController(text: e.receivedQty))
+      //         .toList(),
+      //   );
       // skip signature gabisa load
-      apdRecList.assignAll(data.recList);
+      // apdRecList.assignAll(data.recList);
       validateForm();
     }
     update();
@@ -235,26 +222,30 @@ class ApdReceptionCreateController extends GetxController {
   void _onSearchApdChanged() {
     String query = searchApdRequestC.value.text.toLowerCase();
     if (query.isEmpty) {
-      filteredApdReqSelectList.assignAll(apdReqSelectList);
+      // filteredApdReqSelectList.assignAll(apdReqSelectList);
     } else {
-      filteredApdReqSelectList.assignAll(apdReqSelectList.where((apd) {
-        return apd.date.toLowerCase().contains(query) ||
-            apd.note.toLowerCase().contains(query) ||
-            apd.reqNumber.toLowerCase().contains(query);
-      }).toList());
+      // filteredApdReqSelectList.assignAll(
+      //   apdReqSelectList.where((apd) {
+      //     return apd.date.toLowerCase().contains(query) ||
+      //         apd.note.toLowerCase().contains(query) ||
+      //         apd.reqNumber.toLowerCase().contains(query);
+      //   }).toList(),
+      // );
     }
   }
 
   void _onSearchExpChanged() {
     String query = searchExpenditureC.value.text.toLowerCase();
     if (query.isEmpty) {
-      filteredApdExpSelectList.assignAll(apdExpSelectList);
+      // filteredApdExpSelectList.assignAll(apdExpSelectList);
     } else {
-      filteredApdExpSelectList.assignAll(apdExpSelectList.where((exp) {
-        return exp.date.toLowerCase().contains(query) ||
-            exp.expNumber.toLowerCase().contains(query) ||
-            exp.vendor.toLowerCase().contains(query);
-      }).toList());
+      // filteredApdExpSelectList.assignAll(
+      //   apdExpSelectList.where((exp) {
+      //     return exp.date.toLowerCase().contains(query) ||
+      //         exp.expNumber.toLowerCase().contains(query) ||
+      //         exp.vendor.toLowerCase().contains(query);
+      //   }).toList(),
+      // );
     }
   }
 
@@ -262,22 +253,10 @@ class ApdReceptionCreateController extends GetxController {
     FocusManager.instance.primaryFocus?.unfocus();
     loadingSaveDraftApd(true);
 
-    var param = ApdReceptionParam(
-      id: 'ARQ/2025/II/001',
-      unit: 'Unit Kalimantan',
-      date: dateC.value.text,
-      note: noteC.value.text,
-      status: selectedStatus.value ?? '',
-      recList: apdRecList,
-      reqNumber: '',
-      expNumber: '',
-      vendor: '',
-      images: [],
-      signature: '',
-    );
+    var param = ApdReceptionParam();
 
     var listC = Get.find<ApdReceptionController>();
-    listC.apdRec.add(param);
+    // listC.apdRec.add(param);
     listC.filteredApdRec.assignAll(listC.apdRec);
     listC.refresh();
 
@@ -308,21 +287,21 @@ class ApdReceptionCreateController extends GetxController {
       sign.clear();
     }
     var param = ApdReceptionParam(
-      id: 'ARQ/2025/II/001',
-      unit: 'Unit Kalimantan',
-      date: dateC.value.text,
-      note: noteC.value.text,
-      status: selectedStatus.value ?? '',
-      recList: apdRecList,
-      reqNumber: apdReqNumberC.value.text,
-      expNumber: expNumberC.value.text,
-      vendor: vendorC.value.text,
-      images: images.map((e) => e.path).toList(),
-      signature: nameFile,
+      // id: 'ARQ/2025/II/001',
+      // unit: 'Unit Kalimantan',
+      // date: dateC.value.text,
+      // note: noteC.value.text,
+      // status: selectedStatus.value ?? '',
+      // recList: apdRecList,
+      // reqNumber: apdReqNumberC.value.text,
+      // expNumber: expNumberC.value.text,
+      // vendor: vendorC.value.text,
+      // images: images.map((e) => e.path).toList(),
+      // signature: nameFile,
     );
 
     var listC = Get.find<ApdReceptionController>();
-    listC.apdRec.add(param);
+    // listC.apdRec.add(param);
     listC.filteredApdRec.assignAll(listC.apdRec);
     listC.refresh();
 
@@ -354,21 +333,21 @@ class ApdReceptionCreateController extends GetxController {
       sign.clear();
     }
     var param = ApdReceptionParam(
-      id: 'ARQ/2025/II/001',
-      unit: 'Unit Kalimantan',
-      date: dateC.value.text,
-      note: noteC.value.text,
-      status: selectedStatus.value ?? '',
-      recList: apdRecList,
-      reqNumber: apdReqNumberC.value.text,
-      expNumber: expNumberC.value.text,
-      vendor: vendorC.value.text,
-      images: images.map((e) => e.path).toList(),
-      signature: nameFile,
+      // id: 'ARQ/2025/II/001',
+      // unit: 'Unit Kalimantan',
+      // date: dateC.value.text,
+      // note: noteC.value.text,
+      // status: selectedStatus.value ?? '',
+      // recList: apdRecList,
+      // reqNumber: apdReqNumberC.value.text,
+      // expNumber: expNumberC.value.text,
+      // vendor: vendorC.value.text,
+      // images: images.map((e) => e.path).toList(),
+      // signature: nameFile,
     );
 
     var listC = Get.find<ApdReceptionController>();
-    listC.apdRec.replaceRange(i, i + 1, [param]);
+    // listC.apdRec.replaceRange(i, i + 1, [param]);
     listC.filteredApdRec.assignAll(listC.apdRec);
     listC.refresh();
 

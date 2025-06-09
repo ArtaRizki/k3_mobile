@@ -44,7 +44,7 @@ class HttpRequestClient {
 
     final uri = Uri.parse('$url?$param');
     log("URI PATH : ${uri.path}");
-    log("URI COMPLETE : ${AppUrl.BASE_API_FULL3 + uri.path + '${body != null ? '?' : ''}' + param}");
+    log("URI COMPLETE : ${AppUrl.BASE_API_FULL + uri.path + '${body != null ? '?' : ''}' + param}");
 
     http.Response response = await http
         .get(

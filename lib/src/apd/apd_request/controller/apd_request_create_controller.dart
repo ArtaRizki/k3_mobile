@@ -8,7 +8,7 @@ import 'package:k3_mobile/component/utils.dart';
 import 'package:k3_mobile/src/apd/apd_request/controller/apd_request_controller.dart';
 import 'package:k3_mobile/src/apd/apd_request/model/apd_request_model.dart';
 import 'package:k3_mobile/src/apd/apd_request/model/apd_request_param.dart';
-import 'package:k3_mobile/src/apd/apd_request/model/apd_request_select.dart';
+import 'package:k3_mobile/src/apd/model/apd_select_model.dart';
 
 class ApdRequestCreateController extends GetxController {
   var req = HttpRequestClient();
@@ -30,40 +30,30 @@ class ApdRequestCreateController extends GetxController {
 
   var dateTime = Rx<DateTime?>(null);
   var selectedStatus = Rx<String?>(null);
-  var apdReqList = <ApdRequestModel>[].obs;
+  var apdReqList = <ApdRequestParamDataApd>[].obs;
   var indexData = 0.obs;
 
-  var viewData = ApdRequestParam(
-    id: '',
-    unit: '',
-    date: '',
-    note: '',
-    status: '',
-    reqList: [],
-  ).obs;
+  var viewData = ApdRequestParam().obs;
 
-  var filteredApdSelectList = <ApdRequestSelect>[].obs;
+  var filteredApdSelectList = <ApdSelectModelData>[].obs;
 
-  List<String> statusList = [
-    'Draft',
-    'Diajukan',
-    'Disetujui',
-    'Ditolak',
-  ];
+  List<String> statusList = ['Draft', 'Diajukan', 'Disetujui', 'Ditolak'];
 
-  var apdSelectList = [
-    ApdRequestSelect(code: 'APD001', category: 'Sipil', name: 'Helm Proyek'),
-    ApdRequestSelect(code: 'APD002', category: 'Sipil', name: 'Sepatu Safety'),
-    ApdRequestSelect(
-        code: 'APD003', category: 'Elektrik', name: 'Sarung Tangan'),
-    ApdRequestSelect(code: 'APD004', category: 'Sipil', name: 'Rompi'),
-    ApdRequestSelect(
-        code: 'APD005', category: 'Kesehatan', name: 'Tabung Oksigen'),
-    ApdRequestSelect(code: 'APD006', category: 'Kesehatan', name: 'Kaca mata'),
-    ApdRequestSelect(code: 'APD007', category: 'Kesehatan', name: 'Masker'),
-    ApdRequestSelect(code: 'APD008', category: 'Sipil', name: 'Sabuk pengaman'),
-    ApdRequestSelect(code: 'APD009', category: 'Kesehatan', name: 'Earloop'),
-  ];
+  // var apdSelectList = [
+  //   ApdSelectModel(code: 'APD001', category: 'Sipil', name: 'Helm Proyek'),
+  //   ApdSelectModel(code: 'APD002', category: 'Sipil', name: 'Sepatu Safety'),
+  //   ApdSelectModel(code: 'APD003', category: 'Elektrik', name: 'Sarung Tangan'),
+  //   ApdSelectModel(code: 'APD004', category: 'Sipil', name: 'Rompi'),
+  //   ApdSelectModel(
+  //     code: 'APD005',
+  //     category: 'Kesehatan',
+  //     name: 'Tabung Oksigen',
+  //   ),
+  //   ApdSelectModel(code: 'APD006', category: 'Kesehatan', name: 'Kaca mata'),
+  //   ApdSelectModel(code: 'APD007', category: 'Kesehatan', name: 'Masker'),
+  //   ApdSelectModel(code: 'APD008', category: 'Sipil', name: 'Sabuk pengaman'),
+  //   ApdSelectModel(code: 'APD009', category: 'Kesehatan', name: 'Earloop'),
+  // ];
 
   bool validate() => dateC.value.text.isNotEmpty;
 
@@ -115,7 +105,7 @@ class ApdRequestCreateController extends GetxController {
   }
 
   Future<void> init() async {
-    filteredApdSelectList.assignAll(apdSelectList);
+    // filteredApdSelectList.assignAll(apdSelectList);
     searchApdC.value.addListener(_onSearchApdChanged);
 
     if (Get.arguments != null) {
@@ -123,10 +113,10 @@ class ApdRequestCreateController extends GetxController {
       viewData.value = Get.arguments[1];
       indexData.value = Get.arguments[0];
       final data = viewData.value;
-      dateC.value.text = data.date;
-      noteC.value.text = data.note;
-      selectedStatus.value = data.status;
-      apdReqList.assignAll(data.reqList);
+      // dateC.value.text = data.date;
+      // noteC.value.text = data.note;
+      // selectedStatus.value = data.status;
+      // apdReqList.assignAll(data.reqList);
       validateForm();
     }
     update();
@@ -136,13 +126,15 @@ class ApdRequestCreateController extends GetxController {
     String query = searchApdC.value.text.toLowerCase();
 
     if (query.isEmpty) {
-      filteredApdSelectList.assignAll(apdSelectList);
+      // filteredApdSelectList.assignAll(apdSelectList);
     } else {
-      filteredApdSelectList.assignAll(apdSelectList.where((apd) {
-        return apd.code.toLowerCase().contains(query) ||
-            apd.category.toLowerCase().contains(query) ||
-            apd.name.toLowerCase().contains(query);
-      }).toList());
+      // filteredApdSelectList.assignAll(
+        // apdSelectList.where((apd) {
+        //   return apd.code.toLowerCase().contains(query) ||
+        //       apd.category.toLowerCase().contains(query) ||
+        //       apd.name.toLowerCase().contains(query);
+        // }).toList(),
+      // );
     }
   }
 
@@ -150,17 +142,17 @@ class ApdRequestCreateController extends GetxController {
     FocusManager.instance.primaryFocus?.unfocus();
     loadingSaveDraftApd(true);
 
-    var param = ApdRequestParam(
-      id: 'ARQ/2025/II/001',
-      unit: 'Unit Kalimantan',
-      date: dateC.value.text,
-      note: noteC.value.text,
-      status: selectedStatus.value ?? '',
-      reqList: apdReqList,
-    );
+    // var param = ApdRequestParam(
+    //   id: 'ARQ/2025/II/001',
+    //   unit: 'Unit Kalimantan',
+    //   date: dateC.value.text,
+    //   note: noteC.value.text,
+    //   status: selectedStatus.value ?? '',
+    //   reqList: apdReqList,
+    // );
 
     var listC = Get.find<ApdRequestController>();
-    listC.apdReq.add(param);
+    // listC.apdReq.add(param);
     listC.filteredApdReq.assignAll(listC.apdReq);
     listC.refresh();
 
@@ -175,17 +167,17 @@ class ApdRequestCreateController extends GetxController {
     FocusManager.instance.primaryFocus?.unfocus();
     loadingSendApd(true);
 
-    var param = ApdRequestParam(
-      id: 'ARQ/2025/II/001',
-      unit: 'Unit Kalimantan',
-      date: dateC.value.text,
-      note: noteC.value.text,
-      status: selectedStatus.value ?? '',
-      reqList: apdReqList,
-    );
+    // var param = ApdRequestParam(
+    //   id: 'ARQ/2025/II/001',
+    //   unit: 'Unit Kalimantan',
+    //   date: dateC.value.text,
+    //   note: noteC.value.text,
+    //   status: selectedStatus.value ?? '',
+    //   reqList: apdReqList,
+    // );
 
     var listC = Get.find<ApdRequestController>();
-    listC.apdReq.add(param);
+    // listC.apdReq.add(param);
     listC.filteredApdReq.assignAll(listC.apdReq);
     listC.refresh();
 
@@ -200,17 +192,17 @@ class ApdRequestCreateController extends GetxController {
     FocusManager.instance.primaryFocus?.unfocus();
     loadingSendApd(true);
 
-    var param = ApdRequestParam(
-      id: 'ARQ/2025/II/001',
-      unit: 'Unit Kalimantan',
-      date: dateC.value.text,
-      note: noteC.value.text,
-      status: selectedStatus.value ?? '',
-      reqList: apdReqList,
-    );
+    // var param = ApdRequestParam(
+    //   id: 'ARQ/2025/II/001',
+    //   unit: 'Unit Kalimantan',
+    //   date: dateC.value.text,
+    //   note: noteC.value.text,
+    //   status: selectedStatus.value ?? '',
+    //   reqList: apdReqList,
+    // );
 
     var listC = Get.find<ApdRequestController>();
-    listC.apdReq.replaceRange(i, i + 1, [param]);
+    // listC.apdReq.replaceRange(i, i + 1, [param]);
     listC.filteredApdReq.assignAll(listC.apdReq);
     listC.refresh();
 
@@ -225,13 +217,13 @@ class ApdRequestCreateController extends GetxController {
   Future<void> addApdRequest() async {
     loadingAddApd(true);
 
-    apdReqList.add(
-      ApdRequestModel(
-        code: searchC.value.text,
-        name: apdNameC.value.text,
-        qty: amountC.value.text,
-      ),
-    );
+    // apdReqList.add(
+    //   ApdRequestModel(
+    //     code: searchC.value.text,
+    //     name: apdNameC.value.text,
+    //     qty: amountC.value.text,
+    //   ),
+    // );
 
     searchC.value.clear();
     apdNameC.value.clear();
@@ -245,13 +237,13 @@ class ApdRequestCreateController extends GetxController {
   Future<void> editApdRequest(int i) async {
     loadingAddApd(true);
 
-    apdReqList.replaceRange(i, i + 1, [
-      ApdRequestModel(
-        code: 'APD${i + 1}',
-        name: apdNameC.value.text,
-        qty: amountC.value.text,
-      ),
-    ]);
+    // apdReqList.replaceRange(i, i + 1, [
+    //   ApdRequestModel(
+    //     code: 'APD${i + 1}',
+    //     name: apdNameC.value.text,
+    //     qty: amountC.value.text,
+    //   ),
+    // ]);
 
     searchC.value.clear();
     apdNameC.value.clear();

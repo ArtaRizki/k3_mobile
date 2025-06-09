@@ -11,6 +11,8 @@ class AppAppbar {
     bool centerTitle = true,
     TextStyle? titleStyle,
     double? titleSpacing,
+    GestureTapCallback? onBack,
+    PreferredSizeWidget? bottom,
   }) {
     return AppBar(
       surfaceTintColor: AppColor.neutralLightLightest,
@@ -18,9 +20,10 @@ class AppAppbar {
       leadingWidth: 72,
       titleSpacing: titleSpacing,
       leading: InkWell(
-        onTap: () async {
-          Get.back();
-        },
+        onTap: onBack ??
+            () async {
+              Get.back();
+            },
         child: SizedBox(
           width: 24,
           height: 24,
@@ -46,6 +49,7 @@ class AppAppbar {
             ),
       ),
       actions: action,
+      bottom: bottom,
     );
   }
 }

@@ -1,6 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:k3_mobile/const/app_appbar.dart';
 
 class PDFScreen extends StatefulWidget {
   final String path;
@@ -20,9 +20,9 @@ class _PDFScreenState extends State<PDFScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("PDF Viewer"),
-        actions: <Widget>[
+      appBar: AppAppbar.basicAppbar(
+        title: 'PDF Viewer',
+        action: <Widget>[
           IconButton(
             icon: Icon(Icons.navigate_before),
             onPressed: () {
@@ -92,9 +92,7 @@ class _PDFScreen1State extends State<PDFScreen1> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: (widget.title != "PDF View")
-          ? AppBar(
-              title: Text(widget.title ?? "PDF View"),
-              backgroundColor: Colors.white)
+          ? AppAppbar.basicAppbar(title: widget.title ?? "PDF View")
           : null,
       body: PDFView(
         filePath: widget.path,

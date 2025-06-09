@@ -11,6 +11,8 @@ import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/const/app_textfield.dart';
 import 'package:k3_mobile/generated/assets.dart';
 import 'package:k3_mobile/src/apd/apd_request/controller/apd_request_create_controller.dart';
+import 'package:k3_mobile/src/apd/apd_request/model/apd_request_param.dart';
+import 'package:k3_mobile/src/apd/model/apd_select_model.dart';
 
 class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
   ApdRequestCreateView({super.key});
@@ -23,24 +25,22 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
       body: SafeArea(
         child: Container(
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
-          child: Obx(
-            () {
-              return SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    _buildDateField(),
-                    SizedBox(height: 12),
-                    _buildNoteField(),
-                    SizedBox(height: 12),
-                    _buildStatusDropdown(),
-                    SizedBox(height: 12),
-                    _buildRequestListSection(),
-                  ],
-                ),
-              );
-            },
-          ),
+          child: Obx(() {
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  _buildDateField(),
+                  SizedBox(height: 12),
+                  _buildNoteField(),
+                  SizedBox(height: 12),
+                  _buildStatusDropdown(),
+                  SizedBox(height: 12),
+                  _buildRequestListSection(),
+                ],
+              ),
+            );
+          }),
         ),
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
@@ -98,17 +98,18 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
         FocusManager.instance.primaryFocus?.unfocus();
         controller.update();
       },
-      list: controller.statusList.map((item) {
-        return DropdownMenuItem(
-          value: item,
-          child: Text(
-            item,
-            style: AppTextStyle.bodyM.copyWith(
-              color: AppColor.neutralDarkMedium,
-            ),
-          ),
-        );
-      }).toList(),
+      list:
+          controller.statusList.map((item) {
+            return DropdownMenuItem(
+              value: item,
+              child: Text(
+                item,
+                style: AppTextStyle.bodyM.copyWith(
+                  color: AppColor.neutralDarkMedium,
+                ),
+              ),
+            );
+          }).toList(),
     );
   }
 
@@ -188,26 +189,30 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
     );
   }
 
-  Widget _buildRequestCard(item, int i) {
+  Widget _buildRequestCard(ApdRequestParamDataApd item, int i) {
     return AppCard.listCard(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 6),
-      color: i % 2 == 0
-          ? AppColor.highlightLightest
-          : AppColor.neutralLightLightest,
+      color:
+          i % 2 == 0
+              ? AppColor.highlightLightest
+              : AppColor.neutralLightLightest,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _titleSubtitle('Kode', item.code, 2),
+          _titleSubtitle('Kode', item.code ?? '', 2),
           SizedBox(width: 12),
-          _titleSubtitle('Nama', item.name, 3),
+          _titleSubtitle('Nama', item.name ?? '', 3),
           SizedBox(width: 12),
-          _titleSubtitle('Jumlah', item.qty, 1),
+          _titleSubtitle('Jumlah', '${item.qty ?? 0}', 1),
           SizedBox(width: 12),
-          _editDeleteIcons(() {
-            _showEditApdDialog(item, i);
-          }, () {
-            controller.deleteApdRequest(i);
-          }),
+          _editDeleteIcons(
+            () {
+              _showEditApdDialog(item, i);
+            },
+            () {
+              controller.deleteApdRequest(i);
+            },
+          ),
         ],
       ),
     );
@@ -226,20 +231,18 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
   }
 
   Widget _buildBottomNavigationBar() {
-    return Obx(
-      () {
-        return Padding(
-          padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
-          child: Row(
-            children: [
-              _buildSaveDraftButton(),
-              SizedBox(width: 12),
-              _buildSubmitButton(),
-            ],
-          ),
-        );
-      },
-    );
+    return Obx(() {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+        child: Row(
+          children: [
+            _buildSaveDraftButton(),
+            SizedBox(width: 12),
+            _buildSubmitButton(),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildSaveDraftButton() {
@@ -258,16 +261,21 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
         height: 55,
         radius: 12,
         padding: EdgeInsets.fromLTRB(
-            16, controller.loadingSaveDraftApd.value ? 0 : 18, 16, 0),
-        child: controller.loadingSaveDraftApd.value
-            ? _buildLoadingIndicator()
-            : Text(
-                'Simpan draft',
-                textAlign: TextAlign.center,
-                style: AppTextStyle.actionL.copyWith(
-                  color: AppColor.neutralLightLightest,
+          16,
+          controller.loadingSaveDraftApd.value ? 0 : 18,
+          16,
+          0,
+        ),
+        child:
+            controller.loadingSaveDraftApd.value
+                ? _buildLoadingIndicator()
+                : Text(
+                  'Simpan draft',
+                  textAlign: TextAlign.center,
+                  style: AppTextStyle.actionL.copyWith(
+                    color: AppColor.neutralLightLightest,
+                  ),
                 ),
-              ),
       ),
     );
   }
@@ -292,16 +300,21 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
         height: 55,
         radius: 12,
         padding: EdgeInsets.fromLTRB(
-            16, controller.loadingSendApd.value ? 0 : 18, 16, 0),
-        child: controller.loadingSendApd.value
-            ? _buildLoadingIndicator()
-            : Text(
-                'Ajukan',
-                textAlign: TextAlign.center,
-                style: AppTextStyle.actionL.copyWith(
-                  color: AppColor.neutralLightLightest,
+          16,
+          controller.loadingSendApd.value ? 0 : 18,
+          16,
+          0,
+        ),
+        child:
+            controller.loadingSendApd.value
+                ? _buildLoadingIndicator()
+                : Text(
+                  'Ajukan',
+                  textAlign: TextAlign.center,
+                  style: AppTextStyle.actionL.copyWith(
+                    color: AppColor.neutralLightLightest,
+                  ),
                 ),
-              ),
       ),
     );
   }
@@ -338,79 +351,71 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
   }
 
   Widget _editDeleteIcons(
-      GestureTapCallback onEdit, GestureTapCallback onDelete) {
+    GestureTapCallback onEdit,
+    GestureTapCallback onDelete,
+  ) {
     return Row(
       children: [
         GestureDetector(
           onTap: onEdit,
-          child: Image.asset(
-            Assets.iconsIcEdit,
-            width: 24,
-            height: 24,
-          ),
+          child: Image.asset(Assets.iconsIcEdit, width: 24, height: 24),
         ),
         SizedBox(width: 6),
         GestureDetector(
           onTap: onDelete,
-          child: Image.asset(
-            Assets.iconsIcDelete,
-            width: 24,
-            height: 24,
-          ),
+          child: Image.asset(Assets.iconsIcDelete, width: 24, height: 24),
         ),
       ],
     );
   }
 
   Widget _changeApdDialog({bool isEdit = false}) {
-    return Obx(
-      () {
-        return SizedBox(
-          width: Get.size.width * .8,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                AppTextField.basicTextField(
-                  readOnly: true,
-                  label: 'Nama APD',
-                  controller: controller.searchC.value,
-                  hintText: 'Search',
-                  suffixIconConstraints: BoxConstraints(maxHeight: 18),
-                  onTap: () async {
-                    AppDialog.showBasicDialog(
-                      title: 'Pilih APD',
-                      content: _selectApdDialog(),
-                    );
-                  },
-                  onChanged: (v) {
-                    controller.update();
-                    controller.validateAddApdForm();
-                  },
-                  suffixIcon: Padding(
-                    padding: const EdgeInsets.only(right: 16),
-                    child: Image.asset(
-                      Assets.iconsIcSearch,
-                      color: AppColor.neutralLightDarkest,
-                    ),
+    return Obx(() {
+      return SizedBox(
+        width: Get.size.width * .8,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              AppTextField.basicTextField(
+                readOnly: true,
+                label: 'Nama APD',
+                controller: controller.searchC.value,
+                hintText: 'Search',
+                suffixIconConstraints: BoxConstraints(maxHeight: 18),
+                onTap: () async {
+                  AppDialog.showBasicDialog(
+                    title: 'Pilih APD',
+                    content: _selectApdDialog(),
+                  );
+                },
+                onChanged: (v) {
+                  controller.update();
+                  controller.validateAddApdForm();
+                },
+                suffixIcon: Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: Image.asset(
+                    Assets.iconsIcSearch,
+                    color: AppColor.neutralLightDarkest,
                   ),
                 ),
-                SizedBox(height: 12),
-                AppTextField.basicTextField(
-                  controller: controller.amountC.value,
-                  label: 'Jumlah',
-                  hintText: 'Jumlah',
-                  keyboardType: TextInputType.number,
-                  onChanged: (v) {
-                    controller.validateAddApdForm();
-                    controller.update();
-                  },
-                ),
-              ],
-            ),
+              ),
+              SizedBox(height: 12),
+              AppTextField.basicTextField(
+                controller: controller.amountC.value,
+                label: 'Jumlah',
+                hintText: 'Jumlah',
+                keyboardType: TextInputType.number,
+                onChanged: (v) {
+                  controller.validateAddApdForm();
+                  controller.update();
+                },
+              ),
+            ],
           ),
-        );
-      },
-    );
+        ),
+      );
+    });
   }
 
   Widget _changeApdBtn({bool isEdit = false, int? index}) {
@@ -435,17 +440,22 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
           color: AppColor.highlightDarkest,
           height: 50,
           radius: 12,
-          padding:
-              EdgeInsets.fromLTRB(16, controller.loading.value ? 0 : 14, 16, 0),
-          child: controller.loading.value
-              ? _buildLoadingIndicator()
-              : Text(
-                  isEdit ? 'Edit' : 'Tambah',
-                  textAlign: TextAlign.center,
-                  style: AppTextStyle.actionL.copyWith(
-                    color: AppColor.neutralLightLightest,
+          padding: EdgeInsets.fromLTRB(
+            16,
+            controller.loading.value ? 0 : 14,
+            16,
+            0,
+          ),
+          child:
+              controller.loading.value
+                  ? _buildLoadingIndicator()
+                  : Text(
+                    isEdit ? 'Edit' : 'Tambah',
+                    textAlign: TextAlign.center,
+                    style: AppTextStyle.actionL.copyWith(
+                      color: AppColor.neutralLightLightest,
+                    ),
                   ),
-                ),
         );
       },
     );
@@ -463,59 +473,73 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
               AppTextField.loginTextField(
                 controller: controller.searchApdC.value,
                 hintText: 'Cari',
-                suffixIconConstraints:
-                    BoxConstraints(maxHeight: query ? 23 : 18),
+                suffixIconConstraints: BoxConstraints(
+                  maxHeight: query ? 23 : 18,
+                ),
                 onChanged: (v) {
                   controller.update();
                 },
                 suffixIcon: InkWell(
                   onTap: query ? controller.clearSearchApdField : null,
-                  child: query
-                      ? Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Icon(Icons.close,
-                              color: AppColor.neutralDarkLight),
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.only(right: 16),
-                          child: Image.asset(
-                            Assets.iconsIcSearch,
-                            color: AppColor.neutralLightDarkest,
+                  child:
+                      query
+                          ? Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Icon(
+                              Icons.close,
+                              color: AppColor.neutralDarkLight,
+                            ),
+                          )
+                          : Padding(
+                            padding: const EdgeInsets.only(right: 16),
+                            child: Image.asset(
+                              Assets.iconsIcSearch,
+                              color: AppColor.neutralLightDarkest,
+                            ),
                           ),
-                        ),
                 ),
               ),
               SizedBox(height: 24),
-              Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: controller.filteredApdSelectList.length,
-                  itemBuilder: (c, i) {
-                    final item = controller.filteredApdSelectList[i];
-                    return AppCard.listCard(
-                      onTap: () async {
-                        controller.apdNameC.value.text = item.name;
-                        controller.searchC.value.text = item.code;
-                        Get.back();
-                      },
-                      padding: EdgeInsets.all(6),
-                      color: i % 2 == 0
-                          ? AppColor.highlightLightest
-                          : AppColor.neutralLightLightest,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _titleSubtitle('Kode', item.code, 3),
-                          SizedBox(width: 12),
-                          _titleSubtitle('Kategori', item.category, 3),
-                          SizedBox(width: 12),
-                          _titleSubtitle('Nama', item.name, 4),
-                        ],
-                      ),
-                    );
+              if (controller.filteredApdSelectList.isEmpty) ...[
+                EmptyList.textEmptyListNoScroll(
+                  minHeight: Get.size.height * .25,
+                  onRefresh: () async {
+                    controller.update();
                   },
                 ),
-              ),
+              ] else ...[
+                Expanded(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: controller.filteredApdSelectList.length,
+                    itemBuilder: (c, i) {
+                      final item = controller.filteredApdSelectList[i];
+                      return AppCard.listCard(
+                        onTap: () async {
+                          controller.apdNameC.value.text = item.name ?? '';
+                          controller.searchC.value.text = item.code ?? '';
+                          Get.back();
+                        },
+                        padding: EdgeInsets.all(6),
+                        color:
+                            i % 2 == 0
+                                ? AppColor.highlightLightest
+                                : AppColor.neutralLightLightest,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _titleSubtitle('Kode', item.code ?? '', 3),
+                            SizedBox(width: 12),
+                            _titleSubtitle('Kategori', item.id ?? '', 3),
+                            SizedBox(width: 12),
+                            _titleSubtitle('Nama', item.name ?? '', 4),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ],
           ),
         );

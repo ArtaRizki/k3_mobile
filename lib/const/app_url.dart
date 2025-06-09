@@ -8,14 +8,12 @@ class AppUrl {
   /// Please be carefully to change this keys because might affect with all entire project .
   ///
   static const String MAPS_KEY = "AIzaSyDDPvYz8jGLntwWp-Nii2F7bvGADm504Ts";
-  static const String DOMAIN = "sigap-api.erdata.id";
-  static const String DOMAIN2 = "sigap-api.erdata.id";
-  static const String BASE_API_FULL = "http://${DOMAIN}";
-  static const String BASE_API_FULL2 = "http://${DOMAIN2}";
-  static const String BASE_API_FULL3 = "http://${DOMAIN}";
+  static const String DOMAIN = "10.0.2.2:8000";
+  static const String DOMAIN2 = "10.0.2.2:8000";
+  static const String BASE_API_FULL = "http://${DOMAIN}/api/";
   static const String BASE_API_FULL_IMAGE =
       "http://${DOMAIN}/GoogleCloudMobile/GetImage?file=";
-  static const String APP_NAME = "Sigap Mobile";
+  static const String APP_NAME = "K3 Mobile";
 
 //date format
   // final DateFormat xDateFormat1 = DateFormat('yyyy-MM-dd');

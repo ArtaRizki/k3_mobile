@@ -11,7 +11,7 @@ import 'package:k3_mobile/component/http_request_client.dart';
 import 'package:k3_mobile/component/multipart.dart';
 import 'package:k3_mobile/component/utils.dart';
 import 'package:k3_mobile/src/inspection/inspection_project/controller/inspection_project_controller.dart';
-import 'package:k3_mobile/src/inspection/inspection_project/model/inspection_project_create_param.dart';
+import 'package:k3_mobile/src/inspection/model/inspection_param.dart';
 
 class InspectionProjectCreateController extends GetxController {
   var req = HttpRequestClient();
@@ -35,19 +35,8 @@ class InspectionProjectCreateController extends GetxController {
   var dateTime = Rx<DateTime?>(null);
   var selectedCategory = Rx<String?>(null);
 
-  var viewData = InspectionProjectCreateParam(
-    projectName: '',
-    date: '',
-    time: '',
-    category: '',
-    risk: '',
-    location: '',
-    eventDescription: '',
-    actionTaken: true,
-    reason: '',
-    actionDetails: '',
-    image: [],
-  ).obs;
+  var viewData =
+      InspectionParam().obs;
 
   List<String> categoryList = [
     'Unsafe Action',
@@ -68,23 +57,23 @@ class InspectionProjectCreateController extends GetxController {
       isViewMode.value = true;
       viewData.value = Get.arguments;
       final data = viewData.value;
-      projectNameC.value.text = data.projectName;
-      dateC.value.text = data.date;
-      dateTime.value = DateFormat('dd/MM/yyyy').parse(data.date);
-      timeC.value.text = data.time;
-      categoryC.value.text = data.category;
-      riskC.value.text = data.risk;
-      eventLocationC.value.text = data.location;
-      eventChronologyC.value.text = data.eventDescription;
-      if (data.actionTaken) {
-        actionTakenYes.value = true;
-        actionTakenNo.value = false;
-      } else {
-        actionTakenNo.value = true;
-        actionTakenYes.value = false;
-      }
-      reasonC.value.text = data.reason;
-      actionDetailC.value.text = data.actionDetails;
+      // projectNameC.value.text = data.projectName;
+      // dateC.value.text = data.date;
+      // dateTime.value = DateFormat('dd/MM/yyyy').parse(data.date);
+      // timeC.value.text = data.time;
+      // categoryC.value.text = data.category;
+      // riskC.value.text = data.risk;
+      // eventLocationC.value.text = data.location;
+      // eventChronologyC.value.text = data.eventDescription;
+      // if (data.actionTaken) {
+      //   actionTakenYes.value = true;
+      //   actionTakenNo.value = false;
+      // } else {
+      //   actionTakenNo.value = true;
+      //   actionTakenYes.value = false;
+      // }
+      // reasonC.value.text = data.reason;
+      // actionDetailC.value.text = data.actionDetails;
     }
   }
 
@@ -164,19 +153,19 @@ class InspectionProjectCreateController extends GetxController {
 
   Future<void> sendInspectionProject() async {
     loading(true);
-    var param = InspectionProjectCreateParam(
-      projectName: projectNameC.value.text,
-      date: dateC.value.text,
-      time: timeC.value.text,
-      category: selectedCategory.value ?? '',
-      risk: riskC.value.text,
-      location: eventLocationC.value.text,
-      eventDescription: eventChronologyC.value.text,
-      actionTaken:
-          actionTakenYes.value ? actionTakenYes.value : actionTakenNo.value,
-      reason: reasonC.value.text,
-      actionDetails: actionDetailC.value.text,
-      image: pictureList.map((e) => e.path).toList(),
+    var param = InspectionParam(
+      // projectName: projectNameC.value.text,
+      // date: dateC.value.text,
+      // time: timeC.value.text,
+      // category: selectedCategory.value ?? '',
+      // risk: riskC.value.text,
+      // location: eventLocationC.value.text,
+      // eventDescription: eventChronologyC.value.text,
+      // actionTaken:
+      //     actionTakenYes.value ? actionTakenYes.value : actionTakenNo.value,
+      // reason: reasonC.value.text,
+      // actionDetails: actionDetailC.value.text,
+      // image: pictureList.map((e) => e.path).toList(),
     );
     var body = param.toJson();
 
@@ -207,7 +196,7 @@ class InspectionProjectCreateController extends GetxController {
     // }
     var listC = Get.find<InspectionProjectController>();
     // listC.inspections.add(dataForList);
-    listC.inspectionsCreate.add(param);
+    // listC.inspectionsCreate.add(param);
 
     listC.filteredInspections.assignAll(listC.inspectionsCreate);
     listC.refresh();

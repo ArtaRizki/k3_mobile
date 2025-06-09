@@ -10,7 +10,7 @@ import 'package:k3_mobile/component/http_request_client.dart';
 import 'package:k3_mobile/component/multipart.dart';
 import 'package:k3_mobile/component/utils.dart';
 import 'package:k3_mobile/src/inspection/inspection_routine/controller/inspection_routine_controller.dart';
-import 'package:k3_mobile/src/inspection/inspection_routine/model/inspection_routine_create_param.dart';
+import 'package:k3_mobile/src/inspection/model/inspection_param.dart';
 
 class InspectionRoutineCreateController extends GetxController {
   var req = HttpRequestClient();
@@ -34,19 +34,8 @@ class InspectionRoutineCreateController extends GetxController {
   var dateTime = Rx<DateTime?>(null);
   var selectedCategory = Rx<String?>(null);
 
-  var viewData = InspectionRoutineCreateParam(
-    unit: '',
-    date: '',
-    time: '',
-    category: '',
-    risk: '',
-    location: '',
-    eventDescription: '',
-    actionTaken: true,
-    reason: '',
-    actionDetails: '',
-    image: [],
-  ).obs;
+  var viewData =
+      InspectionParam().obs;
 
   List<String> categoryList = [
     'Unsafe Action',
@@ -67,23 +56,23 @@ class InspectionRoutineCreateController extends GetxController {
       isViewMode.value = true;
       viewData.value = Get.arguments;
       final data = viewData.value;
-      unitC.value.text = data.unit;
-      dateC.value.text = data.date;
-      dateTime.value = DateFormat('dd/MM/yyyy').parse(data.date);
-      timeC.value.text = data.time;
-      categoryC.value.text = data.category;
-      riskC.value.text = data.risk;
-      eventLocationC.value.text = data.location;
-      eventChronologyC.value.text = data.eventDescription;
-      if (data.actionTaken) {
-        actionTakenYes.value = true;
-        actionTakenNo.value = false;
-      } else {
-        actionTakenNo.value = true;
-        actionTakenYes.value = false;
-      }
-      reasonC.value.text = data.reason;
-      actionDetailC.value.text = data.actionDetails;
+      // unitC.value.text = data.unit;
+      // dateC.value.text = data.date;
+      // dateTime.value = DateFormat('dd/MM/yyyy').parse(data.date);
+      // timeC.value.text = data.time;
+      // categoryC.value.text = data.category;
+      // riskC.value.text = data.risk;
+      // eventLocationC.value.text = data.location;
+      // eventChronologyC.value.text = data.eventDescription;
+      // if (data.actionTaken) {
+      //   actionTakenYes.value = true;
+      //   actionTakenNo.value = false;
+      // } else {
+      //   actionTakenNo.value = true;
+      //   actionTakenYes.value = false;
+      // }
+      // reasonC.value.text = data.reason;
+      // actionDetailC.value.text = data.actionDetails;
     }
   }
 
@@ -163,20 +152,7 @@ class InspectionRoutineCreateController extends GetxController {
 
   Future<void> sendInspectionRoutine() async {
     loading(true);
-    var param = InspectionRoutineCreateParam(
-      unit: unitC.value.text,
-      date: dateC.value.text,
-      time: timeC.value.text,
-      category: selectedCategory.value ?? '',
-      risk: riskC.value.text,
-      location: eventLocationC.value.text,
-      eventDescription: eventChronologyC.value.text,
-      actionTaken:
-          actionTakenYes.value ? actionTakenYes.value : actionTakenNo.value,
-      reason: reasonC.value.text,
-      actionDetails: actionDetailC.value.text,
-      image: pictureList.map((e) => e.path).toList(),
-    );
+    var param = InspectionParam();
     var body = param.toJson();
 
     List<http.MultipartFile> files = [];
@@ -206,7 +182,7 @@ class InspectionRoutineCreateController extends GetxController {
     // }
     var listC = Get.find<InspectionRoutineController>();
     // listC.inspections.add(dataForList);
-    listC.inspectionsCreate.add(param);
+    // listC.inspectionsCreate.add(param);
 
     listC.filteredInspections.assignAll(listC.inspectionsCreate);
     listC.refresh();

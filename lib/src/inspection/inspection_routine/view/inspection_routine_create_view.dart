@@ -18,11 +18,7 @@ class InspectionRoutineCreateView
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppAppbar.basicAppbar(
-        title: controller.isViewMode.value
-            ? controller.viewData.value.unit
-            : 'Buat Inspeksi Rutin',
-      ),
+      appBar: AppAppbar.basicAppbar(title: 'Buat Inspeksi Rutin'),
       body: SafeArea(
         child: Container(
           color: AppColor.neutralLightLightest,
@@ -32,11 +28,7 @@ class InspectionRoutineCreateView
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  ...form(),
-                  ...imageList(),
-                  sendBtn(),
-                ],
+                children: <Widget>[...form(), ...imageList(), sendBtn()],
               ),
             ),
           ),
@@ -134,21 +126,18 @@ class InspectionRoutineCreateView
           FocusManager.instance.primaryFocus?.unfocus();
           controller.update();
         },
-        list: List.generate(
-          controller.categoryList.length,
-          (i) {
-            final item = controller.categoryList[i];
-            return DropdownMenuItem(
-              value: item,
-              child: Text(
-                item,
-                style: AppTextStyle.bodyM.copyWith(
-                  color: AppColor.neutralDarkMedium,
-                ),
+        list: List.generate(controller.categoryList.length, (i) {
+          final item = controller.categoryList[i];
+          return DropdownMenuItem(
+            value: item,
+            child: Text(
+              item,
+              style: AppTextStyle.bodyM.copyWith(
+                color: AppColor.neutralDarkMedium,
               ),
-            );
-          },
-        ),
+            ),
+          );
+        }),
       ),
       SizedBox(height: 12),
       AppTextField.basicTextField(
@@ -188,8 +177,9 @@ class InspectionRoutineCreateView
       SizedBox(height: 12),
       Text(
         'Dilakukan tindakan?',
-        style:
-            AppTextStyle.actionL.copyWith(color: AppColor.neutralDarkDarkest),
+        style: AppTextStyle.actionL.copyWith(
+          color: AppColor.neutralDarkDarkest,
+        ),
       ),
       SizedBox(height: 6),
       Container(
@@ -317,10 +307,7 @@ class InspectionRoutineCreateView
             child: Center(
               child: Text(
                 '+',
-                style: TextStyle(
-                  fontSize: 26,
-                  color: AppColor.highlightDark,
-                ),
+                style: TextStyle(fontSize: 26, color: AppColor.highlightDark),
               ),
             ),
           ),
@@ -335,65 +322,69 @@ class InspectionRoutineCreateView
       SizedBox(height: 12),
       Text(
         'Gambar',
-        style:
-            AppTextStyle.actionL.copyWith(color: AppColor.neutralDarkDarkest),
+        style: AppTextStyle.actionL.copyWith(
+          color: AppColor.neutralDarkDarkest,
+        ),
       ),
       SizedBox(height: 6),
       Container(
         padding: EdgeInsets.symmetric(vertical: 6),
-        child: controller.pictureList.isEmpty
-            ? addImageBtn()
-            : Wrap(
-                spacing: 10,
-                children: List.generate(
-                  controller.pictureList.isEmpty
-                      ? 1
-                      : controller.pictureList.length + 1,
-                  (i) {
-                    if (i == controller.pictureList.length)
-                      return addImageBtn();
-                    final item = controller.pictureList[i];
-                    return InkWell(
-                      onTap: () async {
-                        await Get.toNamed(AppRoute.IMAGE_PREVIEW,
-                            arguments: item.path);
-                      },
-                      child: Container(
-                        width: 68,
-                        height: 68,
-                        decoration: BoxDecoration(color: Colors.white),
-                        child: Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.file(
-                                item,
-                                width: 68,
-                                height: 68,
-                                fit: BoxFit.cover,
+        child:
+            controller.pictureList.isEmpty
+                ? addImageBtn()
+                : Wrap(
+                  spacing: 10,
+                  children: List.generate(
+                    controller.pictureList.isEmpty
+                        ? 1
+                        : controller.pictureList.length + 1,
+                    (i) {
+                      if (i == controller.pictureList.length)
+                        return addImageBtn();
+                      final item = controller.pictureList[i];
+                      return InkWell(
+                        onTap: () async {
+                          await Get.toNamed(
+                            AppRoute.IMAGE_PREVIEW,
+                            arguments: item.path,
+                          );
+                        },
+                        child: Container(
+                          width: 68,
+                          height: 68,
+                          decoration: BoxDecoration(color: Colors.white),
+                          child: Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.file(
+                                  item,
+                                  width: 68,
+                                  height: 68,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
-                            ),
-                            Positioned(
-                              right: -1,
-                              top: -1,
-                              child: GestureDetector(
-                                onTap: () => controller.removePicture(i),
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: Image.asset(
-                                    Assets.iconsIcRemoveImage,
+                              Positioned(
+                                right: -1,
+                                top: -1,
+                                child: GestureDetector(
+                                  onTap: () => controller.removePicture(i),
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: Image.asset(
+                                      Assets.iconsIcRemoveImage,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
-              ),
       ),
     ];
   }
@@ -413,28 +404,31 @@ class InspectionRoutineCreateView
         color: AppColor.highlightDarkest,
         height: 55,
         radius: 12,
-        padding:
-            EdgeInsets.fromLTRB(16, controller.loading.value ? 0 : 16, 16, 0),
-        child: controller.loading.value
-            ? Transform.scale(
-                scale: 0.5,
-                child: SizedBox(
-                  width: 16,
-                  height: 6,
-                  child: FittedBox(
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
+        padding: EdgeInsets.fromLTRB(
+          16,
+          controller.loading.value ? 0 : 16,
+          16,
+          0,
+        ),
+        child:
+            controller.loading.value
+                ? Transform.scale(
+                  scale: 0.5,
+                  child: SizedBox(
+                    width: 16,
+                    height: 6,
+                    child: FittedBox(
+                      child: CircularProgressIndicator(color: Colors.white),
                     ),
                   ),
+                )
+                : Text(
+                  'Kirim',
+                  textAlign: TextAlign.center,
+                  style: AppTextStyle.actionL.copyWith(
+                    color: AppColor.neutralLightLightest,
+                  ),
                 ),
-              )
-            : Text(
-                'Kirim',
-                textAlign: TextAlign.center,
-                style: AppTextStyle.actionL.copyWith(
-                  color: AppColor.neutralLightLightest,
-                ),
-              ),
       ),
     );
   }

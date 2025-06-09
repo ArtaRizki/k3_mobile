@@ -1,39 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:k3_mobile/src/inspection/inspection_project/model/inspection_project_create_param.dart';
+import 'package:k3_mobile/src/inspection/model/inspection_model.dart';
 
 class InspectionProjectController extends GetxController {
   final searchC = TextEditingController().obs;
-  var filteredInspections = <InspectionProjectCreateParam>[].obs;
+  var filteredInspections = <InspectionModelData>[].obs;
 
-  List<InspectionProjectCreateParam> inspectionsCreate = [
-    InspectionProjectCreateParam(
-      projectName: 'INS/2025/II/001',
-      date: '12/02/2025',
-      time: '00:00',
-      category: 'Near Miss',
-      risk: 'Risiko sedang',
-      location: 'Ruang Meeting Kantor pusat',
-      eventDescription: '',
-      actionTaken: true,
-      reason: '',
-      actionDetails: '',
-      image: [],
-    ),
-    InspectionProjectCreateParam(
-      projectName: 'INS/2025/II/001',
-      date: '12/02/2025',
-      time: '00:00',
-      category: 'Near Miss',
-      risk: 'Risiko sedang',
-      location: 'Ruang Meeting Kantor pusat',
-      eventDescription: '',
-      actionTaken: true,
-      reason: '',
-      actionDetails: '',
-      image: [],
-    ),
-  ];
+  List<InspectionModelData> inspectionsCreate = [];
 
   @override
   void onInit() async {
@@ -48,11 +21,13 @@ class InspectionProjectController extends GetxController {
     if (query.isEmpty) {
       filteredInspections.assignAll(inspectionsCreate);
     } else {
-      filteredInspections.assignAll(inspectionsCreate.where((inspection) {
-        return inspection.projectName.toLowerCase().contains(query) ||
-            inspection.location.toLowerCase().contains(query) ||
-            inspection.risk.toLowerCase().contains(query);
-      }).toList());
+      // filteredInspections.assignAll(
+      //   inspectionsCreate.where((inspection) {
+      //     return inspection.projectName.toLowerCase().contains(query) ||
+      //         inspection.location.toLowerCase().contains(query) ||
+      //         inspection.risk.toLowerCase().contains(query);
+      //   }).toList(),
+      // );
     }
   }
 

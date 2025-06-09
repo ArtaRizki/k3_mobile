@@ -1,23 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:k3_mobile/const/app_color.dart';
-import 'package:k3_mobile/src/apd/apd_return/model/apd_return_param.dart';
+import 'package:k3_mobile/src/apd/apd_return/model/apd_return_view_model.dart';
 
 class ApdReturnViewController extends GetxController {
   var loading = false.obs;
-  var viewData = ApdReturnParam(
-    id: '',
-    unit: '',
-    date: '',
-    note: '',
-    status: '',
-    reqNumber: '',
-    expNumber: '',
-    vendor: '',
-    recList: [],
-    images: [],
-    signature: '',
-  ).obs;
+  var viewData = ApdReturnViewModelData().obs;
   var indexData = 0.obs;
 
   @override
@@ -39,21 +27,6 @@ class ApdReturnViewController extends GetxController {
     if (i == 2 || i % 10 == 2) return 'Ditolak';
     if (i == 3 || i % 10 == 3) return 'Disetujui';
     return 'Status';
-  }
-
-  Color statusColor(String status) {
-    switch (status) {
-      case 'Draft':
-        return AppColor.highlightDarkest;
-      case 'Diajukan':
-        return AppColor.warningDark;
-      case 'Disetujui':
-        return AppColor.successMedium;
-      case 'Ditolak':
-        return AppColor.errorDark;
-      default:
-        return AppColor.neutralDarkDarkest;
-    }
   }
 
   @override

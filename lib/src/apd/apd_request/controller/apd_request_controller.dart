@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:k3_mobile/const/app_color.dart';
-import 'package:k3_mobile/src/apd/apd_request/model/apd_request_param.dart';
+import 'package:k3_mobile/src/apd/apd_request/model/apd_request_model.dart';
 
 class ApdRequestController extends GetxController {
   final searchC = TextEditingController().obs;
-  var apdReq = <ApdRequestParam>[].obs;
-  var filteredApdReq = <ApdRequestParam>[].obs;
+  var apdReq = <ApdRequestModelData>[].obs;
+  var filteredApdReq = <ApdRequestModelData>[].obs;
 
   @override
   void onInit() {
@@ -21,12 +21,14 @@ class ApdRequestController extends GetxController {
     if (query.isEmpty) {
       filteredApdReq.assignAll(apdReq);
     } else {
-      filteredApdReq.assignAll(apdReq.where((apd) {
-        return apd.id.toLowerCase().contains(query) ||
-            apd.date.toLowerCase().contains(query) ||
-            apd.unit.toLowerCase().contains(query) ||
-            apd.note.toLowerCase().contains(query);
-      }).toList());
+      filteredApdReq.assignAll(
+        apdReq.where((apd) {
+          return (apd.id ?? '').toLowerCase().contains(query) ||
+              (apd.docDate ?? '').toLowerCase().contains(query) ||
+              (apd.unitName ?? '').toLowerCase().contains(query) ||
+              (apd.description ?? '').toLowerCase().contains(query);
+        }).toList(),
+      );
     }
   }
 
@@ -43,22 +45,7 @@ class ApdRequestController extends GetxController {
     return 'Status';
   }
 
-  Color statusColor(String status) {
-    switch (status) {
-      case 'Draft':
-        return AppColor.highlightDarkest;
-      case 'Diajukan':
-        return AppColor.warningDark;
-      case 'Disetujui':
-        return AppColor.successMedium;
-      case 'Ditolak':
-        return AppColor.errorDark;
-      default:
-        return AppColor.neutralDarkDarkest;
-    }
-  }
-
-  Future<void> deleteApdRequestParam(int index) async {
+  Future<void> deleteApdRequestModel(int index) async {
     filteredApdReq.removeAt(index);
     update();
   }

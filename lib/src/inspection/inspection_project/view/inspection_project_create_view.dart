@@ -20,7 +20,7 @@ class InspectionProjectCreateView
     return Scaffold(
       appBar: AppAppbar.basicAppbar(
         title: controller.isViewMode.value
-            ? controller.viewData.value.projectName
+            ? controller.viewData.value.name ?? ''
             : 'Buat Inspeksi Proyek',
       ),
       body: SafeArea(

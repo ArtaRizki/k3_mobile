@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:k3_mobile/const/app_color.dart';
+import 'package:k3_mobile/src/apd/apd_return/model/apd_return_model.dart';
 import 'package:k3_mobile/src/apd/apd_return/model/apd_return_param.dart';
 
 class ApdReturnController extends GetxController {
   final searchC = TextEditingController().obs;
-  var apdRec = <ApdReturnParam>[].obs;
-  var filteredApdRec = <ApdReturnParam>[].obs;
+  var apdRec = <ApdReturnModelData>[].obs;
+  var filteredApdRet = <ApdReturnModelData>[].obs;
 
   @override
   void onInit() {
     super.onInit();
-    filteredApdRec.assignAll(apdRec);
+    filteredApdRet.assignAll(apdRec);
     searchC.value.addListener(_onSearchChanged);
   }
 
@@ -19,13 +20,14 @@ class ApdReturnController extends GetxController {
     String query = searchC.value.text.toLowerCase();
 
     if (query.isEmpty) {
-      filteredApdRec.assignAll(apdRec);
+      filteredApdRet.assignAll(apdRec);
     } else {
-      filteredApdRec.assignAll(apdRec.where((apd) {
-        return apd.id.toLowerCase().contains(query) ||
-            apd.date.toLowerCase().contains(query) ||
-            apd.unit.toLowerCase().contains(query) ||
-            apd.note.toLowerCase().contains(query);
+      filteredApdRet.assignAll(apdRec.where((apd) {
+        return (apd.id ?? '').toLowerCase().contains(query) ||
+            (apd.docDate ?? '').toLowerCase().contains(query) ||
+            // aslinya unit name di vendor ini
+            (apd.vendorName ?? '').toLowerCase().contains(query) ||
+            (apd.deskripsi ?? '').toLowerCase().contains(query);
       }).toList());
     }
   }
@@ -59,7 +61,7 @@ class ApdReturnController extends GetxController {
   }
 
   Future<void> deleteApdReturnParam(int index) async {
-    filteredApdRec.removeAt(index);
+    filteredApdRet.removeAt(index);
     update();
   }
 

@@ -6,6 +6,7 @@ import 'package:k3_mobile/const/app_page.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/generated/assets.dart';
 import 'package:k3_mobile/src/home/controller/home_controller.dart';
+import 'package:k3_mobile/src/main_home/controller/main_home_controller.dart';
 import 'package:k3_mobile/src/session/controller/session_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -18,10 +19,7 @@ class HomeView extends GetView<HomeController> {
         child: SingleChildScrollView(
           child: Container(
             color: AppColor.neutralLightLightest,
-            padding: const EdgeInsets.symmetric(
-              vertical: 12,
-              horizontal: 24,
-            ),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -70,59 +68,56 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget header() {
-    return Row(
-      children: [
-        Image.asset(
-          Assets.iconsIcAvatar,
-          width: 45,
-          height: 45,
-        ),
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Riowaldy indrawan',
-                  style: AppTextStyle.h3.copyWith(
-                    color: AppColor.highlightDarkest,
+    return InkWell(
+      onTap: () async {
+        Get.find<MainHomeController>().selectedIndex.value = 4;
+      },
+      child: Row(
+        children: [
+          Image.asset(Assets.iconsIcAvatar, width: 45, height: 45),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Riowaldy indrawan',
+                    style: AppTextStyle.h3.copyWith(
+                      color: AppColor.highlightDarkest,
+                    ),
                   ),
-                ),
-                SizedBox(height: 6),
-                Text(
-                  'Unit Kalimantan',
-                  style: AppTextStyle.bodyS.copyWith(
-                    color: AppColor.neutralDarkLightest,
+                  SizedBox(height: 6),
+                  Text(
+                    'Unit Kalimantan',
+                    style: AppTextStyle.bodyS.copyWith(
+                      color: AppColor.neutralDarkLightest,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-        InkWell(
-          onTap: () async {
-            Get.toNamed(AppRoute.NOTIFICATION);
-          },
-          child: Image.asset(
-            Assets.iconsIcNotification,
-            width: 24,
-            height: 24,
+          InkWell(
+            onTap: () async {
+              Get.toNamed(AppRoute.NOTIFICATION);
+            },
+            child: Image.asset(
+              Assets.iconsIcNotification,
+              width: 24,
+              height: 24,
+            ),
           ),
-        ),
-        SizedBox(width: 24),
-        InkWell(
-          onTap: () async {
-            await Get.find<SessionController>().logout();
-            Get.offAllNamed(AppRoute.LOGIN);
-          },
-          child: Image.asset(
-          Assets.iconsIcLogout,
-            width: 24,
-            height: 24,
+          SizedBox(width: 24),
+          InkWell(
+            onTap: () async {
+              await Get.find<SessionController>().logout();
+              Get.offAllNamed(AppRoute.LOGIN);
+            },
+            child: Image.asset(Assets.iconsIcLogout, width: 24, height: 24),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -136,9 +131,7 @@ class HomeView extends GetView<HomeController> {
             padding: EdgeInsets.all(24),
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(
-                  Assets.imagesImgOftenInspection,
-                ),
+                image: AssetImage(Assets.imagesImgOftenInspection),
               ),
             ),
             child: Column(
@@ -177,13 +170,11 @@ class HomeView extends GetView<HomeController> {
         SizedBox(width: 12),
         Expanded(
           child: Container(
-            height: 130,
             padding: EdgeInsets.all(24),
+            constraints: BoxConstraints(minHeight: 132),
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(
-                  Assets.imagesImgProjectInspection,
-                ),
+                image: AssetImage(Assets.imagesImgProjectInspection),
               ),
             ),
             child: Column(
@@ -317,7 +308,7 @@ class HomeView extends GetView<HomeController> {
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -334,11 +325,7 @@ class HomeView extends GetView<HomeController> {
           color: AppColor.neutralLightLightest,
           child: Row(
             children: [
-              Image.asset(
-                Assets.iconsIcListDashboard,
-                width: 52,
-                height: 52,
-              ),
+              Image.asset(Assets.iconsIcListDashboard, width: 52, height: 52),
               SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -360,7 +347,7 @@ class HomeView extends GetView<HomeController> {
                           style: AppTextStyle.bodyS.copyWith(
                             color: AppColor.neutralDarkMedium,
                           ),
-                        )
+                        ),
                       ],
                     ),
                     SizedBox(height: 3),

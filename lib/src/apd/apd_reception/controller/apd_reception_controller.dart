@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:k3_mobile/const/app_color.dart';
+import 'package:k3_mobile/src/apd/apd_reception/model/apd_reception_model.dart';
 import 'package:k3_mobile/src/apd/apd_reception/model/apd_reception_param.dart';
 
 class ApdReceptionController extends GetxController {
   final searchC = TextEditingController().obs;
-  var apdRec = <ApdReceptionParam>[].obs;
-  var filteredApdRec = <ApdReceptionParam>[].obs;
+  var apdRec = <ApdReceptionModelData>[].obs;
+  var filteredApdRec = <ApdReceptionModelData>[].obs;
 
   @override
   void onInit() {
@@ -22,10 +23,10 @@ class ApdReceptionController extends GetxController {
       filteredApdRec.assignAll(apdRec);
     } else {
       filteredApdRec.assignAll(apdRec.where((apd) {
-        return apd.id.toLowerCase().contains(query) ||
-            apd.date.toLowerCase().contains(query) ||
-            apd.unit.toLowerCase().contains(query) ||
-            apd.note.toLowerCase().contains(query);
+        return (apd.id ?? '').toLowerCase().contains(query) ||
+            (apd.docDate ?? '').toLowerCase().contains(query) ||
+            (apd.unit ?? '').toLowerCase().contains(query) ||
+            (apd.keterangan ?? '').toLowerCase().contains(query);
       }).toList());
     }
   }
@@ -43,22 +44,7 @@ class ApdReceptionController extends GetxController {
     return 'Status';
   }
 
-  Color statusColor(String status) {
-    switch (status) {
-      case 'Draft':
-        return AppColor.highlightDarkest;
-      case 'Diajukan':
-        return AppColor.warningDark;
-      case 'Disetujui':
-        return AppColor.successMedium;
-      case 'Ditolak':
-        return AppColor.errorDark;
-      default:
-        return AppColor.neutralDarkDarkest;
-    }
-  }
-
-  Future<void> deleteApdReceptionParam(int index) async {
+  Future<void> deleteApdReceptionModelData(int index) async {
     filteredApdRec.removeAt(index);
     update();
   }

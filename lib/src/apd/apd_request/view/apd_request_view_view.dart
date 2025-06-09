@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:k3_mobile/component/utils.dart';
 import 'package:k3_mobile/const/app_appbar.dart';
 import 'package:k3_mobile/const/app_card.dart';
 import 'package:k3_mobile/const/app_color.dart';
@@ -44,21 +45,21 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
   }
 
   List<Widget> _buildActionButtons() {
-    final status = controller.viewData.value.status;
+    final status = controller.viewData.value.data?.docStatus ?? '';
     return [
       if (status == 'Draft')
         _buildActionButton('Ajukan', AppColor.warningDark, () => Get.back()),
       if (status == 'Draft' || status == 'Ditolak')
         _buildActionButton('Edit', AppColor.highlightDarkest, () async {
-          Get.toNamed(AppRoute.APD_REQUEST_CREATE, arguments: [
-            controller.indexData.value,
-            controller.viewData.value,
-          ]);
+          Get.toNamed(
+            AppRoute.APD_REQUEST_CREATE,
+            arguments: [controller.indexData.value, controller.viewData.value],
+          );
         }),
       if (status == 'Draft')
         _buildActionButton('Hapus', AppColor.errorDark, () async {
           var c = Get.find<ApdRequestController>();
-          await c.deleteApdRequestParam(controller.indexData.value);
+          await c.deleteApdRequestModel(controller.indexData.value);
           c.update();
           Get.back();
         }),
@@ -71,29 +72,31 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
       onTap: onTap,
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 6),
-        child: Text(
-          label,
-          style: AppTextStyle.bodyM.copyWith(color: color),
-        ),
+        child: Text(label, style: AppTextStyle.bodyM.copyWith(color: color)),
       ),
     );
   }
 
   List<Widget> _buildHeader() {
-    final data = controller.viewData.value;
+    final data = controller.viewData.value.data;
     return [
       SizedBox(height: 12),
       _headerItem(
-          'Tanggal',
-          DateFormat('dd/MM/yyyy')
-              .format(DateFormat('dd-MM-yyyy').parse(data.date))),
+        'Tanggal',
+        DateFormat(
+          'dd/MM/yyyy',
+        ).format(DateFormat('dd-MM-yyyy').parse(data?.docDate ?? '')),
+      ),
       SizedBox(height: 9),
-      _headerItem('Unit', data.unit),
+      _headerItem('Unit', data?.unitName ?? ''),
       SizedBox(height: 9),
-      _headerItem('Keterangan', data.note),
+      _headerItem('Keterangan', data?.description ?? ''),
       SizedBox(height: 9),
-      _headerItem('Status', data.status,
-          valueColor: controller.statusColor(data.status)),
+      _headerItem(
+        'Status',
+        Utils.getDocStatusName(data?.docStatus ?? ''),
+        valueColor: Utils.getDocStatusColor(data?.docStatus ?? ''),
+      ),
       SizedBox(height: 31),
     ];
   }
@@ -105,16 +108,18 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
           flex: 4,
           child: Text(
             title,
-            style:
-                AppTextStyle.bodyM.copyWith(color: AppColor.neutralDarkLight),
+            style: AppTextStyle.bodyM.copyWith(
+              color: AppColor.neutralDarkLight,
+            ),
           ),
         ),
         Expanded(
           flex: 6,
           child: Text(
             value,
-            style: AppTextStyle.actionL
-                .copyWith(color: valueColor ?? AppColor.neutralDarkDarkest),
+            style: AppTextStyle.actionL.copyWith(
+              color: valueColor ?? AppColor.neutralDarkDarkest,
+            ),
           ),
         ),
       ],
@@ -122,7 +127,7 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
   }
 
   List<Widget> _buildRequestList() {
-    final data = controller.viewData.value.reqList;
+    final data = controller.viewData.value.data?.daftarPermintaan ?? [];
     return [
       Text(
         'Daftar permintaan',
@@ -137,17 +142,18 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
           final item = data[i];
           return AppCard.listCard(
             padding: EdgeInsets.symmetric(vertical: 12, horizontal: 6),
-            color: i % 2 == 0
-                ? AppColor.highlightLightest
-                : AppColor.neutralLightLightest,
+            color:
+                i % 2 == 0
+                    ? AppColor.highlightLightest
+                    : AppColor.neutralLightLightest,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _titleSubtitle('Kode', item.code, 3),
+                _titleSubtitle('Kode', item?.apdId ?? '', 3),
                 SizedBox(width: 12),
-                _titleSubtitle('Nama', item.name, 5),
+                _titleSubtitle('Nama', item?.apdName ?? '', 5),
                 SizedBox(width: 12),
-                _titleSubtitle('Jumlah', item.qty, 2),
+                _titleSubtitle('Jumlah', '${item?.qty ?? 0}', 2),
               ],
             ),
           );
@@ -164,14 +170,16 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
         children: [
           Text(
             title,
-            style: AppTextStyle.bodyS
-                .copyWith(color: AppColor.neutralDarkLightest),
+            style: AppTextStyle.bodyS.copyWith(
+              color: AppColor.neutralDarkLightest,
+            ),
           ),
           SizedBox(height: 6),
           Text(
             subtitle,
-            style:
-                AppTextStyle.bodyM.copyWith(color: AppColor.neutralDarkDarkest),
+            style: AppTextStyle.bodyM.copyWith(
+              color: AppColor.neutralDarkDarkest,
+            ),
           ),
         ],
       ),
@@ -187,8 +195,9 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
         children: [
           Text(
             'Linimasa',
-            style:
-                AppTextStyle.bodyM.copyWith(color: AppColor.neutralDarkLight),
+            style: AppTextStyle.bodyM.copyWith(
+              color: AppColor.neutralDarkLight,
+            ),
           ),
           SizedBox(height: 6),
           Padding(
@@ -196,7 +205,10 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
             child: Column(
               children: List.generate(2, (i) {
                 return _timelineItem(
-                    '14/02/2025\n14:00', 'Permintaan APD diajukan', 'Siti');
+                  '14/02/2025\n14:00',
+                  'Permintaan APD diajukan',
+                  'Siti',
+                );
               }),
             ),
           ),
@@ -214,16 +226,18 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
             flex: 3,
             child: Text(
               t1,
-              style: AppTextStyle.bodyS
-                  .copyWith(color: AppColor.neutralDarkLightest),
+              style: AppTextStyle.bodyS.copyWith(
+                color: AppColor.neutralDarkLightest,
+              ),
             ),
           ),
           Expanded(
             flex: 3,
             child: Text(
               t2,
-              style: AppTextStyle.bodyS
-                  .copyWith(color: AppColor.neutralDarkLightest),
+              style: AppTextStyle.bodyS.copyWith(
+                color: AppColor.neutralDarkLightest,
+              ),
             ),
           ),
           Expanded(
@@ -231,8 +245,9 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
             child: Text(
               'oleh: $t3',
               textAlign: TextAlign.center,
-              style: AppTextStyle.bodyS
-                  .copyWith(color: AppColor.neutralDarkLightest),
+              style: AppTextStyle.bodyS.copyWith(
+                color: AppColor.neutralDarkLightest,
+              ),
             ),
           ),
         ],

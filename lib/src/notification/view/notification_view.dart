@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:k3_mobile/const/app_appbar.dart';
 import 'package:k3_mobile/const/app_card.dart';
 import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
@@ -13,61 +14,9 @@ class NotificationView extends GetView<NotificationController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.neutralLightLightest,
-      appBar: AppBar(
-        backgroundColor: AppColor.neutralLightLightest,
-        leadingWidth: 72,
-        leading: InkWell(
-        onTap: () async {
-            Get.back();
-          },
-          child: SizedBox(
-            width: 24,
-            height: 24,
-            child: Padding(
-              padding: EdgeInsets.all(4),
-              child: Transform.scale(
-                scale: 0.5,
-                child: Image.asset(
-                  Assets.iconsIcArrowBack,
-                  width: 24,
-                  height: 24,
-                ),
-              ),
-            ),
-          ),
-        ),
-        centerTitle: true,
-        title: Text(
-          'Notifikasi',
-          style: AppTextStyle.h4.copyWith(
-            color: AppColor.neutralDarkLight,
-          ),
-        ),
-        bottom: TabBar(
-          padding: EdgeInsets.symmetric(horizontal: 24),
-          indicatorSize: TabBarIndicatorSize.tab,
-          labelStyle: AppTextStyle.bodyM.copyWith(
-            color: AppColor.highlightDarkest,
-            fontWeight: FontWeight.bold,
-          ),
-          unselectedLabelStyle: AppTextStyle.bodyM.copyWith(
-            color: AppColor.neutralLightDarkest,
-            fontWeight: FontWeight.normal,
-          ),
-          controller: controller.tabC,
-          labelColor: AppColor.highlightDarkest,
-          dividerColor: Colors.transparent,
-          indicatorColor: AppColor.highlightDarkest,
-          unselectedLabelColor: AppColor.neutralLightDarkest,
-          tabs: [
-            Tab(
-              text: 'Belum dibaca',
-            ),
-            Tab(
-              text: 'Sudah dibaca',
-            ),
-          ],
-        ),
+      appBar: AppAppbar.basicAppbar(
+        title: 'Notifikasi',
+        bottom: bottomWidget(controller),
       ),
       body: SafeArea(
         child: Container(
@@ -75,13 +24,38 @@ class NotificationView extends GetView<NotificationController> {
           padding: EdgeInsets.fromLTRB(24, 0, 24, 0),
           child: TabBarView(
             controller: controller.tabC,
-            children: [
-              NotReadTab(),
-              ReadTab(),
-            ],
+            children: [NotReadTab(), ReadTab()],
           ),
         ),
       ),
+    );
+  }
+
+  PreferredSizeWidget bottomWidget(NotificationController controller) {
+    return TabBar(
+      padding: EdgeInsets.symmetric(horizontal: 24),
+      indicatorSize: TabBarIndicatorSize.tab,
+      labelStyle: AppTextStyle.bodyM.copyWith(
+        color: AppColor.highlightDarkest,
+        fontWeight: FontWeight.bold,
+      ),
+      unselectedLabelStyle: AppTextStyle.bodyM.copyWith(
+        color: AppColor.neutralLightDarkest,
+        fontWeight: FontWeight.normal,
+      ),
+      controller: controller.tabC,
+      labelColor: AppColor.highlightDarkest,
+      dividerColor: Colors.transparent,
+      indicatorColor: AppColor.highlightDarkest,
+      unselectedLabelColor: AppColor.neutralLightDarkest,
+      tabs: [
+        Tab(
+          text: 'Belum dibaca',
+        ),
+        Tab(
+          text: 'Sudah dibaca',
+        ),
+      ],
     );
   }
 }

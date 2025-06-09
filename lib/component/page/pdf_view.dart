@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:flutter_signature_pad/flutter_signature_pad.dart';
 import 'package:k3_mobile/component/download.dart';
+import 'package:k3_mobile/const/app_appbar.dart';
 import 'package:k3_mobile/const/app_color.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
@@ -54,15 +55,9 @@ class _PdfSignatureScreenState extends State<PdfView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(widget.title),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        actions: [
+      appBar: AppAppbar.basicAppbar(
+        title: widget.title,
+        action: [
           IconButton(
             icon: Icon(Icons.download),
             onPressed: () async {
