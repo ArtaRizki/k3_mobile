@@ -75,6 +75,7 @@ class ApdReturnParam {
 } 
 */
 
+  String? id;
   String? docDate;
   String? requestId;
   String? pengeluaranId;
@@ -85,6 +86,7 @@ class ApdReturnParam {
   String? action;
 
   ApdReturnParam({
+    this.id,
     this.docDate,
     this.requestId,
     this.pengeluaranId,
@@ -95,6 +97,7 @@ class ApdReturnParam {
     this.action,
   });
   ApdReturnParam.fromJson(Map<String, dynamic> json) {
+    id = json['id']?.toString();
     docDate = json['doc_date']?.toString();
     requestId = json['request_id']?.toString();
     pengeluaranId = json['pengeluaran_id']?.toString();
@@ -113,6 +116,7 @@ class ApdReturnParam {
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
+    if (id != null) data['id'] = id;
     data['doc_date'] = docDate;
     data['request_id'] = requestId;
     data['pengeluaran_id'] = pengeluaranId;

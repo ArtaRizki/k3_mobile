@@ -127,7 +127,7 @@ class ApdReturnViewView extends GetView<ApdReturnViewController> {
                           left: 0,
                           right: 0,
                           child: Text(
-                            controller.viewData.value.data?.ttdFile ?? '',
+                            controller.viewData.value.data?.ttdName ?? '',
                             textAlign: TextAlign.center,
                             style: AppTextStyle.bodyS.copyWith(
                               color: AppColor.neutralDarkLight,
@@ -159,7 +159,7 @@ class ApdReturnViewView extends GetView<ApdReturnViewController> {
       if (status == '2' || status == '3')
         _buildActionButton('Edit', AppColor.highlightDarkest, () async {
           Get.toNamed(
-            AppRoute.APD_RECEPTION_CREATE,
+            AppRoute.APD_RETURN_CREATE,
             arguments: controller.viewData.value.data?.id ?? '',
           );
         }),

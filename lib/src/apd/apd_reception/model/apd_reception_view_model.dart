@@ -146,8 +146,10 @@ class ApdReceptionViewModelData {
 
   String? id;
   String? createdAt;
+  String? permintaanId;
   String? permintaanCode;
   String? permintaanDate;
+  String? pengeluaranId;
   String? pengeluaranCode;
   String? pengeluaranDate;
   String? unitName;
@@ -163,8 +165,10 @@ class ApdReceptionViewModelData {
   ApdReceptionViewModelData({
     this.id,
     this.createdAt,
+    this.permintaanId,
     this.permintaanCode,
     this.permintaanDate,
+    this.pengeluaranId,
     this.pengeluaranCode,
     this.pengeluaranDate,
     this.unitName,
@@ -180,8 +184,10 @@ class ApdReceptionViewModelData {
   ApdReceptionViewModelData.fromJson(Map<String, dynamic> json) {
     id = json['id']?.toString();
     createdAt = json['created_at']?.toString();
+    permintaanId = json['permintaan_id']?.toString();
     permintaanCode = json['permintaan_code']?.toString();
     permintaanDate = json['permintaan_date']?.toString();
+    pengeluaranId = json['pengeluaran_id']?.toString();
     pengeluaranCode = json['pengeluaran_code']?.toString();
     pengeluaranDate = json['pengeluaran_date']?.toString();
     unitName = json['unit_name']?.toString();
@@ -212,8 +218,10 @@ class ApdReceptionViewModelData {
     final data = <String, dynamic>{};
     data['id'] = id;
     data['created_at'] = createdAt;
+    data['permintaan_id'] = permintaanId;
     data['permintaan_code'] = permintaanCode;
     data['permintaan_date'] = permintaanDate;
+    data['pengeluaran_id'] = pengeluaranId;
     data['pengeluaran_code'] = pengeluaranCode;
     data['pengeluaran_date'] = pengeluaranDate;
     data['unit_name'] = unitName;

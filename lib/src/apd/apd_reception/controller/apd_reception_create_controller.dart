@@ -168,6 +168,17 @@ class ApdReceptionCreateController extends GetxController {
       expNumberC.value.text = data?.pengeluaranCode ?? '';
       vendorC.value.text = data?.vendorName ?? '';
       noteC.value.text = data?.keterangan ?? '';
+      selectedApdReq.value = ApdRequestModelData(
+        id: data?.permintaanId ?? '',
+        docDate: data?.permintaanDate,
+        code: data?.permintaanCode,
+      );
+      selectedExp.value = ExpenditureSelectModelData(
+        id: data?.pengeluaranId,
+        docDate: data?.pengeluaranDate,
+        code: data?.pengeluaranCode,
+      );
+      update();
       // selectedStatus.value = data.status;
       // images.assignAll(data.images.map((e) => File(e)).toList());
       apdRecList.assignAll(
@@ -347,6 +358,7 @@ class ApdReceptionCreateController extends GetxController {
   Future<void> saveDraftApdReception() async {
     FocusManager.instance.primaryFocus?.unfocus();
     loadingSaveDraftApd(true);
+    update();
     String base64Image = '';
     final sign = signKey.value.currentState!;
     final image = await sign.getData();
@@ -406,6 +418,7 @@ class ApdReceptionCreateController extends GetxController {
   Future<void> sendApdReception() async {
     FocusManager.instance.primaryFocus?.unfocus();
     loadingSendApd(true);
+    update();
     String base64Image = '';
     final sign = signKey.value.currentState!;
     final image = await sign.getData();
@@ -465,6 +478,7 @@ class ApdReceptionCreateController extends GetxController {
   Future<void> editSendApdReception() async {
     FocusManager.instance.primaryFocus?.unfocus();
     loadingSendApd(true);
+    update();
     String base64Image = '';
     final sign = signKey.value.currentState!;
     final image = await sign.getData();
@@ -488,6 +502,7 @@ class ApdReceptionCreateController extends GetxController {
       apdRecFinal[i].qtyDiterima = int.tryParse(apdRecListC[i].text) ?? 0;
     update();
     var body = ApdReceptionParam(
+      id: viewData.value.data?.id ?? '',
       docDate: DateFormat(
         'yyyy-MM-dd',
       ).format(dateTime.value ?? DateTime.now()),

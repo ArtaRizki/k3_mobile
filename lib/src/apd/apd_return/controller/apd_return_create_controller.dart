@@ -76,8 +76,9 @@ class ApdReturnCreateController extends GetxController {
     if (apdReqNumberC.value.text.isEmpty) return false;
     if (expNumberC.value.text.isEmpty) return false;
     if (vendorC.value.text.isEmpty) return false;
-    if (noteC.value.text.isEmpty) return false;
+    // if (noteC.value.text.isEmpty) return false;
     if (apdRetList.isEmpty) return false;
+    if (apdRetListC.any((e) => e.text.isEmpty)) return false;
     if (images.isEmpty) return false;
     var file = await signKey.value.currentState!.getData();
     if (file.height <= 0) return false;
@@ -166,6 +167,17 @@ class ApdReturnCreateController extends GetxController {
       expNumberC.value.text = data?.pengeluaranCode ?? '';
       vendorC.value.text = data?.vendorName ?? '';
       noteC.value.text = data?.description ?? '';
+      selectedApdReq.value = ApdRequestModelData(
+        id: data?.permintaanId ?? '',
+        docDate: data?.permintaanDate,
+        code: data?.permintaanCode,
+      );
+      selectedExp.value = ExpenditureSelectModelData(
+        id: data?.pengeluaranId,
+        docDate: data?.pengeluaranDate,
+        code: data?.pengeluaranCode,
+      );
+      update();
       // selectedStatus.value = data.status;
       // images.assignAll(data.images.map((e) => File(e)).toList());
       apdRetList.assignAll(
@@ -236,7 +248,7 @@ class ApdReturnCreateController extends GetxController {
     if (!loading.value) {
       loading(true);
       final response = await req.post(
-        '/get-data-penerimaan-by-id',
+        '/get-data-pengembalian-barang-by-id',
         body: {'id': '${Get.arguments}'},
       );
       if (response.statusCode == 200) {
@@ -343,6 +355,7 @@ class ApdReturnCreateController extends GetxController {
   Future<void> saveDraftApdReturn() async {
     FocusManager.instance.primaryFocus?.unfocus();
     loadingSaveDraftApd(true);
+    update();
     String base64Image = '';
     final sign = signKey.value.currentState!;
     final image = await sign.getData();
@@ -402,6 +415,7 @@ class ApdReturnCreateController extends GetxController {
   Future<void> sendApdReturn() async {
     FocusManager.instance.primaryFocus?.unfocus();
     loadingSendApd(true);
+    update();
     String base64Image = '';
     final sign = signKey.value.currentState!;
     final image = await sign.getData();
@@ -459,9 +473,10 @@ class ApdReturnCreateController extends GetxController {
     loadingSendApd(false);
   }
 
-  Future<void> editSendApdReturn(int i) async {
+  Future<void> editSendApdReturn() async {
     FocusManager.instance.primaryFocus?.unfocus();
     loadingSendApd(true);
+    update();
     String base64Image = '';
     final sign = signKey.value.currentState!;
     final image = await sign.getData();
@@ -485,6 +500,7 @@ class ApdReturnCreateController extends GetxController {
       apdRecFinal[i].qtyDikembalikan = int.tryParse(apdRetListC[i].text) ?? 0;
     update();
     var body = ApdReturnParam(
+      id: viewData.value.data?.id ?? '',
       docDate: DateFormat(
         'yyyy-MM-dd',
       ).format(dateTime.value ?? DateTime.now()),
@@ -505,6 +521,7 @@ class ApdReturnCreateController extends GetxController {
       update();
       loading(false);
       Get.find<ApdReturnController>().getData();
+      Get.back();
       Get.back();
       final map = jsonDecode(response.body);
       Utils.showSuccess(msg: map["message"]);
