@@ -37,6 +37,7 @@ class ApdReturnView extends GetView<ApdReturnController> {
                   ),
                   onChanged: (v) {
                     controller.update();
+                    controller.onSearchChanged();
                   },
                   suffixIcon: InkWell(
                     onTap: query ? controller.clearField : null,
@@ -65,7 +66,7 @@ class ApdReturnView extends GetView<ApdReturnController> {
                   child: Row(
                     children: [
                       Text(
-                        'Data APD',
+                        'Data Pengembalian APD',
                         textAlign: TextAlign.left,
                         style: AppTextStyle.actionL.copyWith(
                           color: AppColor.neutralDarkLight,
@@ -109,124 +110,137 @@ class ApdReturnView extends GetView<ApdReturnController> {
         return EmptyList.textEmptyList(
           minHeight: Get.size.height * .71,
           onRefresh: () async {
+            await controller.getData();
             controller.update();
           },
         );
       }
       return Expanded(
-        child: ListView.separated(
-          itemCount: data.length,
-          shrinkWrap: true,
-          separatorBuilder: (_, __) => SizedBox(height: 12),
-          itemBuilder: (c, i) {
-            final item = data[i];
-            return AppCard.listCard(
-              onTap: () async {
-                FocusManager.instance.primaryFocus?.unfocus();
-                Get.toNamed(AppRoute.APD_RETURN_VIEW, arguments: [i, item]);
-              },
-              color: AppColor.neutralLightLightest,
-              child: Row(
-                children: [
-                  Image.asset(
-                    Assets.iconsIcListApdReturn,
-                    width: 52,
-                    height: 52,
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                item.code ?? '',
-                                style: AppTextStyle.h4.copyWith(
-                                  color: AppColor.neutralDarkDarkest,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              DateFormat('dd/MM/yyyy').format(
-                                DateFormat('dd-MM-yyyy').parse(item.docDate ?? ''),
-                              ),
-                              style: AppTextStyle.bodyM.copyWith(
-                                color: AppColor.neutralDarkDarkest,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 3),
-                        Flexible(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await controller.getData();
+            controller.update();
+          },
+          child: ListView.separated(
+            itemCount: data.length,
+            shrinkWrap: true,
+            separatorBuilder: (_, __) => SizedBox(height: 12),
+            itemBuilder: (c, i) {
+              final item = data[i];
+              return AppCard.listCard(
+                onTap: () async {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  Get.toNamed(
+                    AppRoute.APD_RETURN_VIEW,
+                    arguments: item?.id ?? '',
+                  );
+                },
+                color: AppColor.neutralLightLightest,
+                child: Row(
+                  children: [
+                    Image.asset( 
+                      Assets.iconsIcListApdReturn,
+                      width: 52,
+                      height: 52,
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
                             children: [
                               Expanded(
                                 child: Text(
-                                  // aslinya unit
-                                  item.vendorName ?? '',
-                                  style: AppTextStyle.bodyS.copyWith(
+                                  item?.requestCode ?? '',
+                                  style: AppTextStyle.h4.copyWith(
                                     color: AppColor.neutralDarkDarkest,
                                   ),
                                 ),
                               ),
                               Text(
-                                Utils.getDocStatusName(item.status ?? ''),
-                                style: AppTextStyle.actionM.copyWith(
-                                  color: Utils.getDocStatusColor(
-                                    item.status ?? '',
-                                  ),
+                                DateFormat('dd/MM/yyyy').format(
+                                  DateFormat(
+                                    'dd/MM/yyyy',
+                                  ).parse(item?.docDate ?? ''),
+                                ),
+
+                                style: AppTextStyle.bodyM.copyWith(
+                                  color: AppColor.neutralDarkDarkest,
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                        SizedBox(height: 3),
-                        Text(
-                          item.deskripsi ?? '',
-                          style: AppTextStyle.bodyS.copyWith(
-                            color: AppColor.neutralDarkDarkest,
-                            fontSize: 12,
-                          ),
-                        ),
-                        SizedBox(height: 3),
-                        Flexible(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 4,
-                                child: Text(
-                                  item.requestCode ?? '',
-                                  textAlign: TextAlign.left,
-                                  style: AppTextStyle.bodyS.copyWith(
-                                    color: AppColor.neutralDarkLightest,
+                          SizedBox(height: 3),
+                          Flexible(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    item?.unitName ?? '',
+                                    style: AppTextStyle.bodyS.copyWith(
+                                      color: AppColor.neutralDarkDarkest,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Expanded(
-                                flex: 6,
-                                child: Text(
-                                  item.docDate ?? '',
-                                  textAlign: TextAlign.left,
-                                  style: AppTextStyle.bodyS.copyWith(
-                                    color: AppColor.neutralDarkLightest,
+                                Text(
+                                  item?.status ?? '',
+                                  // Utils.getDocStatusName(item?.status ?? ''),
+                                  style: AppTextStyle.actionM.copyWith(
+                                    color: Utils.getDocStatusColorByName(
+                                      item?.status ?? '',
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                          SizedBox(height: 3),
+                          Text(
+                            item?.deskripsi ?? '',
+                            style: AppTextStyle.bodyS.copyWith(
+                              color: AppColor.neutralDarkDarkest,
+                              fontSize: 12,
+                            ),
+                          ),
+                          SizedBox(height: 3),
+                          Flexible(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  flex: 4,
+                                  child: Text(
+                                    item?.pengeluaranCode ?? '',
+                                    textAlign: TextAlign.left,
+                                    style: AppTextStyle.bodyS.copyWith(
+                                      color: AppColor.neutralDarkLightest,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 6,
+                                  child: Text(
+                                    item?.docDate ?? '',
+                                    textAlign: TextAlign.left,
+                                    style: AppTextStyle.bodyS.copyWith(
+                                      color: AppColor.neutralDarkLightest,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            );
-          },
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       );
     });

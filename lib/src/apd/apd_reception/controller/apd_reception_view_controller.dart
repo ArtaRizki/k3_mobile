@@ -1,9 +1,20 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
+import 'package:k3_mobile/component/http_request_client.dart';
+import 'package:k3_mobile/component/utils.dart';
+import 'package:k3_mobile/const/app_shared_preference_key.dart';
+import 'package:k3_mobile/const/app_snackbar.dart';
+import 'package:k3_mobile/src/apd/apd_reception/controller/apd_reception_controller.dart';
 import 'package:k3_mobile/src/apd/apd_reception/model/apd_reception_view_model.dart';
+import 'package:k3_mobile/src/login/model/login_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApdReceptionViewController extends GetxController {
+  var req = HttpRequestClient();
+  var loginModel = Rxn<LoginModel>(); // Make it reactive
   var loading = false.obs;
-  var viewData = ApdReceptionViewModelData().obs;
+  var viewData = ApdReceptionViewModel().obs;
   var indexData = 0.obs;
 
   @override
@@ -13,18 +24,57 @@ class ApdReceptionViewController extends GetxController {
   }
 
   init() async {
+    var prefs = await SharedPreferences.getInstance();
+    var loginDataKey = prefs.getString(
+      AppSharedPreferenceKey.kSetPrefLoginModel,
+    );
+    if (loginDataKey != null) {
+      loginModel.value = LoginModel.fromJson(jsonDecode(loginDataKey));
+    }
     if (Get.arguments != null) {
-      viewData.value = Get.arguments[1];
-      indexData.value = Get.arguments[0];
+      await getData();
     }
   }
 
-  String statusTxt(int i) {
-    if (i == 0 || i % 10 == 0) return 'Diajukan';
-    if (i == 1 || i % 10 == 1) return 'Draft';
-    if (i == 2 || i % 10 == 2) return 'Ditolak';
-    if (i == 3 || i % 10 == 3) return 'Disetujui';
-    return 'Status';
+  Future<void> getData() async {
+    if (!loading.value) {
+      loading(true);
+      final response = await req.post(
+        '/get-data-penerimaan-by-id',
+        body: {'id': '${Get.arguments}'},
+      );
+      if (response.statusCode == 200) {
+        viewData.value = ApdReceptionViewModel.fromJson(
+          jsonDecode(response.body),
+        );
+        loading(false);
+        update();
+      } else {
+        final msg = jsonDecode(response.body)['message'];
+        if (msg == '') AppSnackbar.showSnackBar(Get.context!, msg, true);
+      }
+    }
+  }
+
+  Future<void> setApdStatus(String status) async {
+    if (!loading.value) {
+      loading(true);
+      final response = await req.post(
+        '/set-status-penerimaan',
+        body: {'id': '${Get.arguments}', 'status': status},
+        // isJsonEncode: true,
+      );
+      if (response.statusCode == 204) {
+        final msg = 'Data berhasil disimpan';
+        await Utils.showSuccess(msg: msg);
+        loading(false);
+        Get.find<ApdReceptionController>().getData();
+        update();
+      } else {
+        final msg = jsonDecode(response.body)['message'];
+        if (msg == '') AppSnackbar.showSnackBar(Get.context!, msg, true);
+      }
+    }
   }
 
   @override

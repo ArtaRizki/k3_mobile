@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -17,14 +19,19 @@ class InspectionRoutineCreateView
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppAppbar.basicAppbar(title: 'Buat Inspeksi Rutin'),
-      body: SafeArea(
-        child: Container(
-          color: AppColor.neutralLightLightest,
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
-          child: Obx(
-            () => SingleChildScrollView(
+    return Obx(
+      () => Scaffold(
+        appBar: AppAppbar.basicAppbar(
+          title:
+              controller.isViewMode.value
+                  ? controller.inspectionViewModelData.value.data?.code ?? ''
+                  : 'Buat Inspeksi Rutin',
+        ),
+        body: SafeArea(
+          child: Container(
+            color: AppColor.neutralLightLightest,
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+            child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -115,30 +122,34 @@ class InspectionRoutineCreateView
         ],
       ),
       SizedBox(height: 12),
-      AppDropdown.normalDropdown(
-        label: 'Kategori',
-        readOnly: controller.isViewMode.value,
-        hintText: 'Pilih Kategori',
-        selectedItem: controller.selectedCategory.value,
-        onChanged: (v) {
-          controller.selectedCategory.value = v;
-          controller.validateForm();
-          FocusManager.instance.primaryFocus?.unfocus();
-          controller.update();
-        },
-        list: List.generate(controller.categoryList.length, (i) {
-          final item = controller.categoryList[i];
-          return DropdownMenuItem(
-            value: item,
-            child: Text(
-              item,
-              style: AppTextStyle.bodyM.copyWith(
-                color: AppColor.neutralDarkMedium,
-              ),
-            ),
-          );
-        }),
-      ),
+      Obx(() {
+        return AppDropdown.normalDropdown(
+          label: 'Kategori',
+          readOnly: controller.isViewMode.value,
+          hintText: 'Pilih Kategori',
+          selectedItem: controller.selectedCategory.value,
+          onChanged: (v) {
+            controller.selectedCategory.value = v;
+            controller.validateForm();
+            FocusManager.instance.primaryFocus?.unfocus();
+            controller.update();
+          },
+          list:
+              controller.categoryList
+                  .map(
+                    (e) => DropdownMenuItem(
+                      value: e?.id ?? '',
+                      child: Text(
+                        e?.name ?? '',
+                        style: AppTextStyle.bodyM.copyWith(
+                          color: AppColor.neutralDarkMedium,
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
+        );
+      }),
       SizedBox(height: 12),
       AppTextField.basicTextField(
         readOnly: controller.isViewMode.value,
@@ -394,8 +405,7 @@ class InspectionRoutineCreateView
     return Padding(
       padding: EdgeInsets.only(top: 24, bottom: 24),
       child: AppButton.basicButton(
-        // enable: controller.isValidated.value,
-        enable: true,
+        enable: controller.isValidated.value,
         onTap: () async {
           if (!controller.loading.value)
             await controller.sendInspectionRoutine();

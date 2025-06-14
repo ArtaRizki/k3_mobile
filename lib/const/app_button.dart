@@ -15,9 +15,10 @@ class AppButton {
     double? height,
     Widget? child,
     bool enable = false,
+    bool loading = false,
   }) {
     return InkWell(
-      onTap: onTap,
+      onTap: enable ? onTap : null,
       child: Container(
         width: width,
         height: height,
@@ -27,7 +28,19 @@ class AppButton {
           borderRadius: BorderRadius.circular(radius),
           color: enable ? color : AppColor.neutralDarkLight,
         ),
-        child: child,
+        child:
+            loading
+                ? Transform.scale(
+                  scale: 0.5,
+                  child: SizedBox(
+                    width: 16,
+                    height: 6,
+                    child: FittedBox(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    ),
+                  ),
+                )
+                : child,
       ),
     );
   }

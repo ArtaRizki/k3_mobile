@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:k3_mobile/component/empty_list.dart';
+import 'package:k3_mobile/component/utils.dart';
 import 'package:k3_mobile/const/app_appbar.dart';
 import 'package:k3_mobile/const/app_card.dart';
 import 'package:k3_mobile/const/app_color.dart';
@@ -37,6 +38,7 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
                   ),
                   onChanged: (v) {
                     controller.update();
+                    controller.onSearchChanged();
                   },
                   suffixIcon: InkWell(
                     onTap: query ? controller.clearField : null,
@@ -110,12 +112,14 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
       return EmptyList.textEmptyList(
         minHeight: Get.size.height * .71,
         onRefresh: () async {
+          await controller.getData();
           controller.update();
         },
       );
     return Expanded(
       child: RefreshIndicator(
         onRefresh: () async {
+          await controller.getData();
           controller.update();
         },
         child: ListView.separated(
@@ -131,11 +135,14 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
     );
   }
 
-  Widget listItem(InspectionModelData item) {
+  Widget listItem(InspectionModelData? item) {
     return AppCard.listCard(
       onTap: () async {
         FocusManager.instance.primaryFocus?.unfocus();
-        Get.toNamed(AppRoute.INSPECTION_PROJECT_CREATE, arguments: item);
+        Get.toNamed(
+          AppRoute.INSPECTION_PROJECT_CREATE,
+          arguments: item?.id ?? '',
+        );
       },
       color: AppColor.neutralLightLightest,
       child: Row(
@@ -155,14 +162,14 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
                   children: [
                     Expanded(
                       child: Text(
-                        item.code ?? '',
+                        item?.code ?? '',
                         style: AppTextStyle.h4.copyWith(
                           color: AppColor.neutralDarkDarkest,
                         ),
                       ),
                     ),
                     Text(
-                      item.docDate ?? '',
+                      item?.docDate ?? '',
                       style: AppTextStyle.bodyM.copyWith(
                         color: AppColor.neutralDarkDarkest,
                       ),
@@ -176,15 +183,14 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
                     children: [
                       Expanded(
                         child: Text(
-                          'Resiko ?',
-                          // item.risk,
+                          item?.resiko ?? '',
                           style: AppTextStyle.bodyS.copyWith(
                             color: AppColor.neutralDarkDarkest,
                           ),
                         ),
                       ),
                       Text(
-                        item.kategoriName ?? '',
+                        item?.kategoriName ?? '',
                         style: AppTextStyle.bodyS.copyWith(
                           color: AppColor.neutralDarkDarkest,
                         ),
@@ -193,19 +199,25 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
                   ),
                 ),
                 SizedBox(height: 3),
-                Text(
-                  item.lokasi ?? '',
-                  style: AppTextStyle.bodyS.copyWith(
-                    color: AppColor.neutralDarkDarkest,
-                    fontSize: 12,
-                  ),
-                ),
-                SizedBox(height: 3),
-                Text(
-                  item.lokasi ?? '',
-                  style: AppTextStyle.bodyS.copyWith(
-                    color: AppColor.neutralDarkDarkest,
-                    fontSize: 12,
+                Flexible(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item?.lokasi ?? '',
+                          style: AppTextStyle.bodyS.copyWith(
+                            color: AppColor.neutralDarkDarkest,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        Utils.getDocStatusName(item?.docStatus ?? ''),
+                        style: AppTextStyle.bodyS.copyWith(
+                          color: Utils.getDocStatusColor(item?.docStatus ?? ''),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

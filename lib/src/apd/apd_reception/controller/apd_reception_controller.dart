@@ -1,33 +1,45 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:k3_mobile/const/app_color.dart';
+import 'package:k3_mobile/component/http_request_client.dart';
+import 'package:k3_mobile/component/utils.dart';
+import 'package:k3_mobile/const/app_snackbar.dart';
 import 'package:k3_mobile/src/apd/apd_reception/model/apd_reception_model.dart';
-import 'package:k3_mobile/src/apd/apd_reception/model/apd_reception_param.dart';
 
 class ApdReceptionController extends GetxController {
+  var req = HttpRequestClient();
   final searchC = TextEditingController().obs;
-  var apdRec = <ApdReceptionModelData>[].obs;
-  var filteredApdRec = <ApdReceptionModelData>[].obs;
+  var apdRecList = <ApdReceptionModelData?>[].obs;
+  var filteredApdRec = <ApdReceptionModelData?>[].obs;
+  var loading = false.obs;
 
   @override
-  void onInit() {
+  void onInit() async {
+    getData();
     super.onInit();
-    filteredApdRec.assignAll(apdRec);
-    searchC.value.addListener(_onSearchChanged);
   }
 
-  void _onSearchChanged() {
+  void onSearchChanged() {
     String query = searchC.value.text.toLowerCase();
 
     if (query.isEmpty) {
-      filteredApdRec.assignAll(apdRec);
+      filteredApdRec.assignAll(apdRecList);
     } else {
-      filteredApdRec.assignAll(apdRec.where((apd) {
-        return (apd.id ?? '').toLowerCase().contains(query) ||
-            (apd.docDate ?? '').toLowerCase().contains(query) ||
-            (apd.unit ?? '').toLowerCase().contains(query) ||
-            (apd.keterangan ?? '').toLowerCase().contains(query);
-      }).toList());
+      filteredApdRec.assignAll(
+        apdRecList.where((apdRec) {
+          return (apdRec?.pengeluaranCode ?? '').toLowerCase().contains(
+                query,
+              ) ||
+              (apdRec?.requestCode ?? '').toLowerCase().contains(query) ||
+              (apdRec?.docDate ?? '').toLowerCase().contains(query) ||
+              (apdRec?.unit ?? '').toLowerCase().contains(query) ||
+              (apdRec?.keterangan ?? '').toLowerCase().contains(query) ||
+              Utils.getDocStatusName(
+                apdRec?.status ?? '',
+              ).toLowerCase().contains(query);
+        }).toList(),
+      );
     }
   }
 
@@ -36,27 +48,43 @@ class ApdReceptionController extends GetxController {
     update();
   }
 
-  String statusTxt(int i) {
-    if (i == 0 || i % 10 == 0) return 'Diajukan';
-    if (i == 1 || i % 10 == 1) return 'Draft';
-    if (i == 2 || i % 10 == 2) return 'Ditolak';
-    if (i == 3 || i % 10 == 3) return 'Disetujui';
-    return 'Status';
-  }
-
-  Future<void> deleteApdReceptionModelData(int index) async {
-    filteredApdRec.removeAt(index);
-    update();
+  @override
+  void dispose() {
+    searchC.value.dispose();
+    super.dispose();
   }
 
   @override
-  void onReady() {
+  void onReady() async {
     super.onReady();
   }
 
   @override
-  void onClose() {
+  void onClose() async {
     searchC.value.dispose();
     super.onClose();
+  }
+
+  Future<void> getData() async {
+    if (!loading.value) {
+      loading(true);
+      final response = await req.get('/get-data-penerimaan');
+      if (response.statusCode == 200) {
+        final apdRecs = ApdReceptionModel.fromJson(jsonDecode(response.body));
+        loading(false);
+        apdRecList.value = apdRecs.data ?? [];
+        filteredApdRec.assignAll(apdRecs.data ?? []);
+        searchC.value.addListener(onSearchChanged);
+        update();
+      } else {
+        final msg = jsonDecode(response.body)['message'];
+        if (msg != '') AppSnackbar.showSnackBar(Get.context!, msg, true);
+      }
+    }
+  }
+
+  Future<void> deleteApdReceptionModel(int index) async {
+    filteredApdRec.removeAt(index);
+    update();
   }
 }

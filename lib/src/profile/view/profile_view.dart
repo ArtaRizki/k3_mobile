@@ -27,31 +27,34 @@ class ProfileView extends GetView<ProfileController> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Container(
-            color: AppColor.neutralLightLightest,
-            padding: EdgeInsets.fromLTRB(24, 12, 24, 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 32),
-                  child: Center(
-                    child: Image.asset(
-                      Assets.iconsIcAvatar,
-                      width: 88,
-                      height: 88,
+          child: Obx(() {
+            final user = controller.loginModel.value?.data;
+            return Container(
+              color: AppColor.neutralLightLightest,
+              padding: EdgeInsets.fromLTRB(24, 12, 24, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 32),
+                    child: Center(
+                      child: Image.asset(
+                        Assets.iconsIcAvatar,
+                        width: 88,
+                        height: 88,
+                      ),
                     ),
                   ),
-                ),
-                text('Nama', 'Riowaldy Indrawan'),
-                SizedBox(height: 32),
-                text('Unit', 'Unit Kalimantan'),
-                SizedBox(height: 32),
-                text('Jabatan', 'Supervisor'),
-              ],
-            ),
-          ),
+                  text('Nama', user?.name ?? ''),
+                  SizedBox(height: 32),
+                  text('Unit', user?.unitName ?? ''),
+                  SizedBox(height: 32),
+                  text('Jabatan', user?.karyawan?.jabatan ?? ''),
+                ],
+              ),
+            );
+          }),
         ),
       ),
       bottomNavigationBar: InkWell(
@@ -66,10 +69,7 @@ class ProfileView extends GetView<ProfileController> {
             padding: EdgeInsets.symmetric(vertical: 12, horizontal: 6),
             color: AppColor.neutralLightLightest,
             radius: 30,
-            border: Border.all(
-              color: AppColor.errorDark,
-              width: 1,
-            ),
+            border: Border.all(color: AppColor.errorDark, width: 1),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -81,7 +81,7 @@ class ProfileView extends GetView<ProfileController> {
                     color: AppColor.errorDark,
                     fontWeight: FontWeight.w600,
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -136,17 +136,15 @@ class _NotReadTabState extends State<NotReadTab>
       separatorBuilder: (_, __) => SizedBox(height: 12),
       itemBuilder: (c, i) {
         return Padding(
-          padding:
-              EdgeInsets.only(top: i == 0 ? 12 : 0, bottom: i == 9 ? 24 : 0),
+          padding: EdgeInsets.only(
+            top: i == 0 ? 12 : 0,
+            bottom: i == 9 ? 24 : 0,
+          ),
           child: AppCard.listCard(
             color: AppColor.neutralLightLightest,
             child: Row(
               children: [
-                Image.asset(
-                  Assets.iconsIcListDashboard,
-                  width: 52,
-                  height: 52,
-                ),
+                Image.asset(Assets.iconsIcListDashboard, width: 52, height: 52),
                 SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -168,7 +166,7 @@ class _NotReadTabState extends State<NotReadTab>
                             style: AppTextStyle.bodyS.copyWith(
                               color: AppColor.neutralDarkMedium,
                             ),
-                          )
+                          ),
                         ],
                       ),
                       SizedBox(height: 3),
@@ -250,7 +248,7 @@ class _ReadTabState extends State<ReadTab> with AutomaticKeepAliveClientMixin {
                           style: AppTextStyle.bodyS.copyWith(
                             color: AppColor.neutralDarkLightest,
                           ),
-                        )
+                        ),
                       ],
                     ),
                     SizedBox(height: 3),

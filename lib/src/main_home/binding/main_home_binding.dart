@@ -11,7 +11,7 @@ class MainHomeBinding extends Bindings {
   @override
   void dependencies() {
     Get.put(MainHomeController());
-    Get.put(SessionController());
+    Get.lazyPut(() => SessionController());
     Get.lazyPut(() => HomeController());
     Get.lazyPut(() => ProfileController());
     Get.lazyPut(() => GuideController());

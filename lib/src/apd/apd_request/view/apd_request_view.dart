@@ -49,6 +49,7 @@ class ApdRequestView extends GetView<ApdRequestController> {
       suffixIconConstraints: BoxConstraints(maxHeight: query ? 23 : 18),
       onChanged: (v) {
         controller.update();
+        controller.onSearchChanged();
       },
       suffixIcon: InkWell(
         onTap: query ? controller.clearField : null,
@@ -108,29 +109,36 @@ class ApdRequestView extends GetView<ApdRequestController> {
         return EmptyList.textEmptyList(
           minHeight: Get.size.height * .71,
           onRefresh: () async {
+          await controller.getData();
             controller.update();
           },
         );
       }
       return Expanded(
-        child: ListView.separated(
-          itemCount: data.length,
-          shrinkWrap: true,
-          separatorBuilder: (_, __) => SizedBox(height: 12),
-          itemBuilder: (c, i) {
-            final item = data[i];
-            return _buildListItem(item, i);
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await controller.getData();
+            controller.update();
           },
+          child: ListView.separated(
+            itemCount: data.length,
+            shrinkWrap: true,
+            separatorBuilder: (_, __) => SizedBox(height: 12),
+            itemBuilder: (c, i) {
+              final item = data[i];
+              return _buildListItem(item);
+            },
+          ),
         ),
       );
     });
   }
 
-  Widget _buildListItem(ApdRequestModelData item, int index) {
+  Widget _buildListItem(ApdRequestModelData? item) {
     return AppCard.listCard(
       onTap: () async {
         FocusManager.instance.primaryFocus?.unfocus();
-        Get.toNamed(AppRoute.APD_REQUEST_VIEW, arguments: [index, item]);
+        Get.toNamed(AppRoute.APD_REQUEST_VIEW, arguments: item?.id ?? '');
       },
       color: AppColor.neutralLightLightest,
       child: Row(
@@ -147,7 +155,7 @@ class ApdRequestView extends GetView<ApdRequestController> {
                 _buildListItemDetails(item),
                 SizedBox(height: 3),
                 Text(
-                  item.description ?? '',
+                  item?.description ?? '',
                   style: AppTextStyle.bodyS.copyWith(
                     color: AppColor.neutralDarkDarkest,
                     fontSize: 12,
@@ -161,19 +169,19 @@ class ApdRequestView extends GetView<ApdRequestController> {
     );
   }
 
-  Widget _buildListItemHeader(ApdRequestModelData item) {
+  Widget _buildListItemHeader(ApdRequestModelData? item) {
     return Row(
       children: [
         Expanded(
           child: Text(
-            item.id ?? '',
+            item?.code ?? '',
             style: AppTextStyle.h4.copyWith(color: AppColor.neutralDarkDarkest),
           ),
         ),
         Text(
           DateFormat(
             'dd/MM/yyyy',
-          ).format(DateFormat('dd-MM-yyyy').parse(item.docDate ?? '')),
+          ).format(DateFormat('dd/MM/yyyy HH:mm').parse(item?.docDate ?? '')),
           style: AppTextStyle.bodyM.copyWith(
             color: AppColor.neutralDarkDarkest,
           ),
@@ -182,23 +190,23 @@ class ApdRequestView extends GetView<ApdRequestController> {
     );
   }
 
-  Widget _buildListItemDetails(ApdRequestModelData item) {
+  Widget _buildListItemDetails(ApdRequestModelData? item) {
     return Flexible(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Text(
-              item.unitName ?? '',
+              item?.unitName ?? '',
               style: AppTextStyle.bodyS.copyWith(
                 color: AppColor.neutralDarkDarkest,
               ),
             ),
           ),
           Text(
-            Utils.getDocStatusName(item.docStatus ?? ''),
+            Utils.getDocStatusName(item?.docStatus ?? ''),
             style: AppTextStyle.actionM.copyWith(
-              color: Utils.getDocStatusColor(item.docStatus ?? ''),
+              color: Utils.getDocStatusColor(item?.docStatus ?? ''),
             ),
           ),
         ],

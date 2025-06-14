@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:k3_mobile/src/splash/controller/splash_controller.dart';
 
-class SplashScreen extends GetView<SplashController> {
-  const SplashScreen({super.key});
+class SplashView extends GetView<SplashController> {
+  const SplashView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,7 @@ class SplashScreen extends GetView<SplashController> {
               height: 200,
               child: SizedBox(),
               // child: Image.asset(Assets.imagesImgLogoSigap),
-            )
+            ),
           ],
         ),
       ),

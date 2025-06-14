@@ -4,14 +4,15 @@
 class ApdReturnModelData {
 /*
 {
-  "id": "01jx9mt2w7htan3tvjxgab4tns",
-  "doc_date": "21/04/2025",
-  "code": "000/GR/K3L-MKP/IV/2025",
+  "id": "01jxbz2yw90n3tg7b1xvvn6t2q",
+  "doc_date": "10/06/2025",
+  "code": "000/GR/K3L-MKP/VI/2025",
   "request_code": "001/REQ/K3L-MKP/VI/2025",
   "pengeluaran_code": "abc",
   "vendor_name": "VENDOR A",
-  "deskripsi": "wiwok",
-  "status": "Diajukan"
+  "deskripsi": "testpengembalianbaru4",
+  "status": "Diajukan",
+  "unit_name": "Kantor Pusat"
 } 
 */
 
@@ -23,6 +24,7 @@ class ApdReturnModelData {
   String? vendorName;
   String? deskripsi;
   String? status;
+  String? unitName;
 
   ApdReturnModelData({
     this.id,
@@ -33,6 +35,7 @@ class ApdReturnModelData {
     this.vendorName,
     this.deskripsi,
     this.status,
+    this.unitName,
   });
   ApdReturnModelData.fromJson(Map<String, dynamic> json) {
     id = json['id']?.toString();
@@ -43,6 +46,7 @@ class ApdReturnModelData {
     vendorName = json['vendor_name']?.toString();
     deskripsi = json['deskripsi']?.toString();
     status = json['status']?.toString();
+    unitName = json['unit_name']?.toString();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -54,6 +58,7 @@ class ApdReturnModelData {
     data['vendor_name'] = vendorName;
     data['deskripsi'] = deskripsi;
     data['status'] = status;
+    data['unit_name'] = unitName;
     return data;
   }
 }
@@ -63,14 +68,15 @@ class ApdReturnModel {
 {
   "data": [
     {
-      "id": "01jx9mt2w7htan3tvjxgab4tns",
-      "doc_date": "21/04/2025",
-      "code": "000/GR/K3L-MKP/IV/2025",
+      "id": "01jxbz2yw90n3tg7b1xvvn6t2q",
+      "doc_date": "10/06/2025",
+      "code": "000/GR/K3L-MKP/VI/2025",
       "request_code": "001/REQ/K3L-MKP/VI/2025",
       "pengeluaran_code": "abc",
       "vendor_name": "VENDOR A",
-      "deskripsi": "wiwok",
-      "status": "Diajukan"
+      "deskripsi": "testpengembalianbaru4",
+      "status": "Diajukan",
+      "unit_name": "Kantor Pusat"
     }
   ],
   "message": "Data berhasil diambil",

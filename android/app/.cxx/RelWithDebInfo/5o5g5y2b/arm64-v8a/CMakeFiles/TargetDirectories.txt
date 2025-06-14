@@ -1,0 +1,2 @@
+D:/INFORMATICS/FREELANCE/k3_mobile/android/app/.cxx/RelWithDebInfo/5o5g5y2b/arm64-v8a/CMakeFiles/edit_cache.dir
+D:/INFORMATICS/FREELANCE/k3_mobile/android/app/.cxx/RelWithDebInfo/5o5g5y2b/arm64-v8a/CMakeFiles/rebuild_cache.dir

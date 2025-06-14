@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:k3_mobile/component/empty_list.dart';
 import 'package:k3_mobile/const/app_appbar.dart';
 import 'package:k3_mobile/const/app_card.dart';
 import 'package:k3_mobile/const/app_color.dart';
@@ -17,46 +18,45 @@ class GuideView extends GetView<GuideController> {
     return Scaffold(
       appBar: AppAppbar.basicAppbar(title: 'Pedoman K3'),
       body: SafeArea(
-        child: Container(
-          color: AppColor.neutralLightLightest,
-          padding: const EdgeInsets.symmetric(
-            vertical: 12,
-            horizontal: 24,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              AppTextField.loginTextField(
-                controller: controller.searchC.value,
-                hintText: 'Search',
-                suffixIconConstraints: BoxConstraints(maxHeight: 18),
-                onChanged: (v) {
-                  controller.update();
-                },
-                suffixIcon: GestureDetector(
-                  onTap: null,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 16),
-                    child: Image.asset(
-                      Assets.iconsIcSearch,
-                      color: AppColor.neutralLightDarkest,
+        child: Obx(
+          () => Container(
+            color: AppColor.neutralLightLightest,
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                AppTextField.loginTextField(
+                  controller: controller.searchC.value,
+                  hintText: 'Search',
+                  suffixIconConstraints: BoxConstraints(maxHeight: 18),
+                  onChanged: (v) {
+                    controller.update();
+                  },
+                  suffixIcon: GestureDetector(
+                    onTap: null,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 16),
+                      child: Image.asset(
+                        Assets.iconsIcSearch,
+                        color: AppColor.neutralLightDarkest,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 12, bottom: 12),
-                child: Text(
-                  'Daftar pedoman K3',
-                  textAlign: TextAlign.left,
-                  style: AppTextStyle.actionL.copyWith(
-                    color: AppColor.neutralDarkLight,
+                Padding(
+                  padding: const EdgeInsets.only(top: 12, bottom: 12),
+                  child: Text(
+                    'Daftar pedoman K3',
+                    textAlign: TextAlign.left,
+                    style: AppTextStyle.actionL.copyWith(
+                      color: AppColor.neutralDarkLight,
+                    ),
                   ),
                 ),
-              ),
-              list(),
-            ],
+                list(),
+              ],
+            ),
           ),
         ),
       ),
@@ -64,27 +64,34 @@ class GuideView extends GetView<GuideController> {
   }
 
   Widget list() {
+    final data = controller.filteredGuides;
+    if (data.isEmpty)
+      return EmptyList.textEmptyList(
+        minHeight: Get.size.height * .71,
+        onRefresh: () async {
+          controller.update();
+        },
+      );
     return Expanded(
       child: ListView.separated(
-        itemCount: 10,
+        itemCount: data.length,
         shrinkWrap: true,
         separatorBuilder: (_, __) => SizedBox(height: 12),
         itemBuilder: (c, i) {
+          final item = data[i];
           return AppCard.listCard(
             onTap: () async {
               FocusManager.instance.primaryFocus?.unfocus();
-              Get.toNamed(AppRoute.GUIDE_PREVIEW,
-                  arguments:
-                      'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf');
+              if (item?.file != null)
+                Get.toNamed(
+                  AppRoute.GUIDE_PREVIEW,
+                  arguments: item?.file ?? '',
+                );
             },
             color: AppColor.neutralLightLightest,
             child: Row(
               children: [
-                Image.asset(
-                  Assets.iconsIcListGuide,
-                  width: 52,
-                  height: 52,
-                ),
+                Image.asset(Assets.iconsIcListGuide, width: 52, height: 52),
                 SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -95,14 +102,14 @@ class GuideView extends GetView<GuideController> {
                         children: [
                           Expanded(
                             child: Text(
-                              'PD/001/2025/001',
+                              item?.nomor ?? '',
                               style: AppTextStyle.bodyS.copyWith(
                                 color: AppColor.neutralDarkDarkest,
                               ),
                             ),
                           ),
                           Text(
-                            '12/02/2025',
+                            item?.tanggal ?? '',
                             style: AppTextStyle.bodyS.copyWith(
                               color: AppColor.neutralDarkDarkest,
                             ),
@@ -116,7 +123,7 @@ class GuideView extends GetView<GuideController> {
                           children: [
                             Expanded(
                               child: Text(
-                                'Tata cara pelaksanaan K3 di lingkungan proyek',
+                                item?.judul ?? '',
                                 style: AppTextStyle.h5.copyWith(
                                   color: AppColor.neutralDarkDarkest,
                                   fontSize: 12,
@@ -127,7 +134,7 @@ class GuideView extends GetView<GuideController> {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  'Aturan',
+                                  item?.kategoriName ?? '',
                                   style: AppTextStyle.bodyS.copyWith(
                                     color: AppColor.neutralDarkDarkest,
                                   ),

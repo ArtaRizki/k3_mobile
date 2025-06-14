@@ -1,4 +1,5 @@
 {
     "java.configuration.updateBuildConfiguration": "interactive",
-    "dart.flutterSdkPath": "D:\\flutter_windows_3.29.3-stable\\flutter"
+    "dart.flutterSdkPath": "D:\\flutter_windows_3.29.3-stable\\flutter",
+    "cmake.sourceDirectory": "D:/INFORMATICS/FREELANCE/k3_mobile/linux"
 }

@@ -1,32 +1,39 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:k3_mobile/const/app_color.dart';
+import 'package:k3_mobile/component/http_request_client.dart';
+import 'package:k3_mobile/component/utils.dart';
+import 'package:k3_mobile/const/app_snackbar.dart';
 import 'package:k3_mobile/src/apd/apd_request/model/apd_request_model.dart';
 
 class ApdRequestController extends GetxController {
   final searchC = TextEditingController().obs;
-  var apdReq = <ApdRequestModelData>[].obs;
-  var filteredApdReq = <ApdRequestModelData>[].obs;
+  var apdReqList = <ApdRequestModelData?>[].obs;
+  var filteredApdReq = <ApdRequestModelData?>[].obs;
+  var loading = false.obs;
 
   @override
-  void onInit() {
+  void onInit() async {
+    getData();
     super.onInit();
-    filteredApdReq.assignAll(apdReq);
-    searchC.value.addListener(_onSearchChanged);
   }
 
-  void _onSearchChanged() {
+  void onSearchChanged() {
     String query = searchC.value.text.toLowerCase();
 
     if (query.isEmpty) {
-      filteredApdReq.assignAll(apdReq);
+      filteredApdReq.assignAll(apdReqList);
     } else {
       filteredApdReq.assignAll(
-        apdReq.where((apd) {
-          return (apd.id ?? '').toLowerCase().contains(query) ||
-              (apd.docDate ?? '').toLowerCase().contains(query) ||
-              (apd.unitName ?? '').toLowerCase().contains(query) ||
-              (apd.description ?? '').toLowerCase().contains(query);
+        apdReqList.where((apdReq) {
+          return (apdReq?.code ?? '').toLowerCase().contains(query) ||
+              (apdReq?.docDate ?? '').toLowerCase().contains(query) ||
+              (apdReq?.unitName ?? '').toLowerCase().contains(query) ||
+              (apdReq?.description ?? '').toLowerCase().contains(query) ||
+              Utils.getDocStatusName(
+                apdReq?.docStatus ?? '',
+              ).toLowerCase().contains(query);
         }).toList(),
       );
     }
@@ -37,27 +44,44 @@ class ApdRequestController extends GetxController {
     update();
   }
 
-  String statusTxt(int i) {
-    if (i == 0 || i % 10 == 0) return 'Diajukan';
-    if (i == 1 || i % 10 == 1) return 'Draft';
-    if (i == 2 || i % 10 == 2) return 'Ditolak';
-    if (i == 3 || i % 10 == 3) return 'Disetujui';
-    return 'Status';
+  @override
+  void dispose() {
+    searchC.value.dispose();
+    super.dispose();
+  }
+
+  @override
+  void onReady() async {
+    super.onReady();
+  }
+
+  @override
+  void onClose() async {
+    searchC.value.dispose();
+    super.onClose();
+  }
+
+  Future<void> getData() async {
+    if (!loading.value) {
+      loading(true);
+      final httpClient = HttpRequestClient();
+      final response = await httpClient.get('/get-data-permintaan');
+      if (response.statusCode == 200) {
+        final apdReqs = ApdRequestModel.fromJson(jsonDecode(response.body));
+        loading(false);
+        apdReqList.value = apdReqs.data ?? [];
+        filteredApdReq.assignAll(apdReqs.data ?? []);
+        searchC.value.addListener(onSearchChanged);
+        update();
+      } else {
+        final msg = jsonDecode(response.body)['message'];
+        if (msg != '') AppSnackbar.showSnackBar(Get.context!, msg, true);
+      }
+    }
   }
 
   Future<void> deleteApdRequestModel(int index) async {
     filteredApdReq.removeAt(index);
     update();
-  }
-
-  @override
-  void onReady() {
-    super.onReady();
-  }
-
-  @override
-  void onClose() {
-    searchC.value.dispose();
-    super.onClose();
   }
 }

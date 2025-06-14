@@ -72,7 +72,7 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
                       controller.searchApdRequestC.value.clear();
                       AppDialog.showBasicDialog(
                         title: 'Pilih Permintaan APD',
-                        content: selectApdReceptionDialog(),
+                        content: selectApdRequestDialog(),
                       );
                     },
                     onChanged: (v) {
@@ -100,7 +100,7 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
                     hintText: 'Pilih',
                     onTap: () async {
                       controller.searchExpenditureC.value.clear();
-                      AppDialog.showBasicDialog(
+                      await AppDialog.showBasicDialog(
                         title: 'Pilih Pengeluaran Barang',
                         content: selectOutcomeDialog(),
                       );
@@ -156,30 +156,30 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
                     maxLines: 4,
                   ),
                   SizedBox(height: 12),
-                  AppDropdown.normalDropdown(
-                    label: 'Status',
-                    hintText: 'Pilih Kategori',
-                    selectedItem: controller.selectedStatus.value,
-                    onChanged: (v) {
-                      controller.selectedStatus.value = v;
-                      controller.validateForm();
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      controller.update();
-                    },
-                    list:
-                        controller.statusList.map((item) {
-                          return DropdownMenuItem(
-                            value: item,
-                            child: Text(
-                              item,
-                              style: AppTextStyle.bodyM.copyWith(
-                                color: AppColor.neutralDarkMedium,
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                  ),
-                  SizedBox(height: 12),
+                  // AppDropdown.normalDropdown(
+                  //   label: 'Status',
+                  //   hintText: 'Pilih Kategori',
+                  //   selectedItem: controller.selectedStatus.value,
+                  //   onChanged: (v) {
+                  //     controller.selectedStatus.value = v;
+                  //     controller.validateForm();
+                  //     FocusManager.instance.primaryFocus?.unfocus();
+                  //     controller.update();
+                  //   },
+                  //   list:
+                  //       controller.statusList.map((item) {
+                  //         return DropdownMenuItem(
+                  //           value: item,
+                  //           child: Text(
+                  //             item,
+                  //             style: AppTextStyle.bodyM.copyWith(
+                  //               color: AppColor.neutralDarkMedium,
+                  //             ),
+                  //           ),
+                  //         );
+                  //       }).toList(),
+                  // ),
+                  // SizedBox(height: 12),
                   Text(
                     'Daftar APD',
                     style: AppTextStyle.actionL.copyWith(
@@ -302,7 +302,7 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
                             left: 0,
                             right: 0,
                             child: Text(
-                              'Riowaldy Indrawan',
+                              controller.loginModel.value?.data?.name ?? '',
                               textAlign: TextAlign.center,
                               style: AppTextStyle.bodyS.copyWith(
                                 color: AppColor.neutralDarkLight,
@@ -346,18 +346,38 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
               i % 2 == 0
                   ? AppColor.highlightLightest
                   : AppColor.neutralLightLightest,
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              titleSubtitle('Kode', item.code ?? '', 3),
-              SizedBox(width: 6),
-              titleSubtitle('Nama', item.name ?? '', 3),
-              SizedBox(width: 6),
-              titleSubtitle('Jumlah', '${item.qty ?? 0}', 2),
-              SizedBox(width: 6),
-              titleSubtitle('Sisa', '${item.qty ?? 0}', 1),
-              SizedBox(width: 6),
-              receive(() {}, i),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  titleSubtitle('Kode', item.code ?? '', 3),
+                  SizedBox(width: 6),
+                  titleSubtitle('Nama', item.name ?? '', 3),
+                  SizedBox(width: 6),
+                  titleSubtitle('Jumlah', '${item.qtyJumlah ?? 0}', 2),
+                  SizedBox(width: 6),
+                  titleSubtitle('Sisa', '${item.qtySisa ?? 0}', 1),
+                  SizedBox(width: 6),
+                  receive(() {}, i),
+                ],
+              ),
+              SizedBox(height: 10),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  titleSubtitle('Warna', item.warna ?? '-', 5),
+                  SizedBox(width: 12),
+                  titleSubtitle('Baju', item.ukuranBaju ?? '-', 4),
+                  SizedBox(width: 12),
+                  titleSubtitle('Celana', item.ukuranCelana ?? '-', 5),
+                  SizedBox(width: 12),
+                  titleSubtitle('Jenis', '${item.jenisSepatu ?? '-'}', 5),
+                  SizedBox(width: 12),
+                  titleSubtitle('Ukuran', '${item.ukuranSepatu ?? '-'}', 5),
+                ],
+              ),
             ],
           ),
         );
@@ -389,7 +409,7 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
             contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 0),
             onTap: () async {},
             onChanged: (v) {
-              controller.apdRecList[i].receivedQty = int.tryParse(v) ?? 0;
+              controller.apdRecList[i].qtyDiterima = int.tryParse(v) ?? 0;
               controller.update();
             },
           ),
@@ -398,7 +418,7 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
     );
   }
 
-  Widget selectApdReceptionDialog() {
+  Widget selectApdRequestDialog() {
     return GetBuilder<ApdReceptionCreateController>(
       builder: (controller) {
         final query = controller.searchApdRequestC.value.text.isNotEmpty;
@@ -454,7 +474,10 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
                       final item = controller.filteredApdReqSelectList[i];
                       return AppCard.listCard(
                         onTap: () async {
-                          controller.apdReqNumberC.value.text = item.code ?? '';
+                          await controller.getApdPermintaanById(item?.id ?? '');
+                          controller.apdReqNumberC.value.text =
+                              item?.code ?? '';
+                          controller.selectedApdReq.value = item;
                           Get.back();
                         },
                         padding: EdgeInsets.all(6),
@@ -467,19 +490,19 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
                           children: [
                             titleSubtitleSelect(
                               'Tanggal',
-                              item.docDate ?? '',
+                              item?.docDate ?? '',
                               3,
                             ),
                             SizedBox(width: 12),
                             titleSubtitleSelect(
                               'Permintaan No',
-                              item.code ?? '',
+                              item?.code ?? '',
                               3,
                             ),
                             SizedBox(width: 12),
                             titleSubtitleSelect(
                               'Keterangan',
-                              item.description ?? '',
+                              item?.description ?? '',
                               4,
                             ),
                           ],
@@ -539,13 +562,14 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
               Expanded(
                 child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount: controller.filteredApdExpSelectList.length,
+                  itemCount: controller.filteredExpSelectList.length,
                   itemBuilder: (c, i) {
-                    final item = controller.filteredApdExpSelectList[i];
+                    final item = controller.filteredExpSelectList[i];
                     return AppCard.listCard(
                       onTap: () async {
-                        controller.expNumberC.value.text = item.code ?? '';
-                        controller.vendorC.value.text = item.vendorName ?? '';
+                        controller.expNumberC.value.text = item?.code ?? '';
+                        controller.vendorC.value.text = item?.vendorName ?? '';
+                        controller.selectedExp.value = item;
                         Get.back();
                       },
                       padding: EdgeInsets.all(6),
@@ -556,17 +580,21 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          titleSubtitleSelect('Tanggal', item.docDate ?? '', 3),
+                          titleSubtitleSelect(
+                            'Tanggal',
+                            item?.docDate ?? '',
+                            3,
+                          ),
                           SizedBox(width: 12),
                           titleSubtitleSelect(
                             'Pengeluaran barang No',
-                            item.code ?? '',
+                            item?.code ?? '',
                             3,
                           ),
                           SizedBox(width: 12),
                           titleSubtitleSelect(
                             'Vendor',
-                            item.vendorName ?? '',
+                            item?.vendorName ?? '',
                             4,
                           ),
                         ],
@@ -744,12 +772,13 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
 
   Widget _buildBottomNavigationBar() {
     return Obx(() {
+      final data = controller.viewData.value.data;
       return Padding(
         padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
         child: Row(
           children: [
-            _buildSaveDraftButton(),
-            SizedBox(width: 12),
+            if (data == null) _buildSaveDraftButton(),
+            if (data == null) SizedBox(width: 12),
             _buildSubmitButton(),
           ],
         ),

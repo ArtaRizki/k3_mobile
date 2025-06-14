@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer' as d;
 import 'dart:io';
 import 'dart:math';
@@ -11,15 +12,21 @@ import 'package:k3_mobile/component/custom_date_picker.dart';
 import 'package:k3_mobile/component/custom_image_picker.dart';
 import 'package:k3_mobile/component/http_request_client.dart';
 import 'package:k3_mobile/component/utils.dart';
-import 'package:k3_mobile/src/apd/apd_request/model/apd_request_model.dart';
+import 'package:k3_mobile/const/app_shared_preference_key.dart';
+import 'package:k3_mobile/const/app_snackbar.dart';
 import 'package:k3_mobile/src/apd/apd_return/controller/apd_return_controller.dart';
-import 'package:k3_mobile/src/apd/apd_return/model/apd_return_model.dart';
 import 'package:k3_mobile/src/apd/apd_return/model/apd_return_param.dart';
+import 'package:k3_mobile/src/apd/apd_return/model/apd_return_view_model.dart';
+import 'package:k3_mobile/src/apd/apd_request/model/apd_request_model.dart';
+import 'package:k3_mobile/src/apd/apd_request/model/apd_request_view_model.dart';
 import 'package:k3_mobile/src/apd/model/expenditure_select_model.dart';
+import 'package:k3_mobile/src/login/model/login_model.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApdReturnCreateController extends GetxController {
   var req = HttpRequestClient();
+  var loginModel = Rxn<LoginModel>(); // Make it reactive
   var loading = false.obs;
   var loadingSendApd = false.obs;
   var loadingSaveDraftApd = false.obs;
@@ -44,98 +51,41 @@ class ApdReturnCreateController extends GetxController {
   var selectedStatus = Rx<String?>(null);
 
   var apdRetListC = <TextEditingController>[];
-  var apdRetList =
-      <ApdReturnParamDataApdRtn>[
-        // ApdReturnModel(
-        //   code: 'APD001',
-        //   name: 'Helm Proyek',
-        //   qty: '10',
-        //   remainingQty: '10',
-        //   returnQty: '',
-        // ),
-        // ApdReturnModel(
-        //   code: 'APD002',
-        //   name: 'Sepatu Safety',
-        //   qty: '50',
-        //   remainingQty: '50',
-        //   returnQty: '',
-        // ),
-        // ApdReturnModel(
-        //   code: 'APD003',
-        //   name: 'Sarung Tangan',
-        //   qty: '2',
-        //   remainingQty: '2',
-        //   returnQty: '',
-        // ),
-        // ApdReturnModel(
-        //   code: 'APD004',
-        //   name: 'Rompi',
-        //   qty: '15',
-        //   remainingQty: '15',
-        //   returnQty: '',
-        // ),
-      ].obs;
+
+  // for create
+  var apdRequestViewModel = ApdRequestViewModel().obs;
+  // for send and edit
+  var apdRetList = <ApdReturnParamDataApdRtn>[].obs;
   var indexData = 0.obs;
 
-  var viewData =
-      ApdReturnParam().obs;
+  var viewData = ApdReturnViewModel().obs;
 
-  var filteredApdReqSelectList = <ApdRequestModelData>[].obs;
-  var filteredApdExpSelectList = <ExpenditureSelectModelData>[].obs;
+  var filteredApdReqSelectList = <ApdRequestModelData?>[].obs;
+  var filteredExpSelectList = <ExpenditureSelectModelData?>[].obs;
 
-  var apdReqSelectList = [
-    // ApdSelect(
-    //   date: '15/02/2025',
-    //   reqNumber: 'ARQ/2025/II/001',
-    //   note: 'Minta Helm & Rompi',
-    // ),
-    // ApdSelect(
-    //   date: '15/02/2025',
-    //   reqNumber: 'ARQ/2025/II/001',
-    //   note: 'Minta Sepatu Safety',
-    // ),
-    // ApdSelect(
-    //   date: '15/02/2025',
-    //   reqNumber: 'ARQ/2025/II/001',
-    //   note: 'Minta Lagi',
-    // ),
-  ];
+  var apdReqSelectList = <ApdRequestModelData?>[].obs;
+  var expSelectList = <ExpenditureSelectModelData?>[].obs;
 
-  var apdExpSelectList = [
-    // ExpenditureSelectModel(
-    //   date: '15/02/2025',
-    //   expNumber: 'GDI/2025/II/001',
-    //   vendor: 'Kantor Pusat',
-    // ),
-    // ExpenditureSelectModel(
-    //   date: '15/02/2025',
-    //   expNumber: 'GDI/2025/II/001',
-    //   vendor: 'Vendor A',
-    // ),
-    // ExpenditureSelectModel(
-    //   date: '15/02/2025',
-    //   expNumber: 'GDI/2025/II/001',
-    //   vendor: 'Vendor B',
-    // ),
-  ];
+  var selectedApdReq = Rx<ApdRequestModelData?>(null);
+  var selectedExp = Rx<ExpenditureSelectModelData?>(null);
 
   List<String> statusList = ['Draft', 'Diajukan', 'Disetujui', 'Ditolak'];
 
-  bool validate() {
+  Future<bool> validate() async {
     if (dateC.value.text.isEmpty) return false;
     if (apdReqNumberC.value.text.isEmpty) return false;
     if (expNumberC.value.text.isEmpty) return false;
     if (vendorC.value.text.isEmpty) return false;
-    // if (noteC.value.text.isEmpty) return false;
-    // if (apdRetList.isEmpty) return false;
-    // if (images.isEmpty) return false;
-    // var file = await signKey.value.currentState!.getData();
-    // if (file.height <= 0) return false;
+    if (noteC.value.text.isEmpty) return false;
+    if (apdRetList.isEmpty) return false;
+    if (images.isEmpty) return false;
+    var file = await signKey.value.currentState!.getData();
+    if (file.height <= 0) return false;
     return true;
   }
 
-  validateForm() {
-    isValidated.value = validate();
+  validateForm() async {
+    isValidated.value = await validate();
     d.log("IS VALIDATED : ${isValidated.value}");
     update();
   }
@@ -186,177 +136,398 @@ class ApdReturnCreateController extends GetxController {
   }
 
   Future<void> init() async {
+    var prefs = await SharedPreferences.getInstance();
+    var loginDataKey = prefs.getString(
+      AppSharedPreferenceKey.kSetPrefLoginModel,
+    );
+    if (loginDataKey != null) {
+      loginModel.value = LoginModel.fromJson(jsonDecode(loginDataKey));
+    }
+    await getSelectApdRequest();
+    await getSelectExpenditure();
     // filteredApdReqSelectList.assignAll(apdReqSelectList);
     searchApdRequestC.value.addListener(_onSearchApdChanged);
-    // filteredApdExpSelectList.assignAll(apdExpSelectList);
+    // filteredExpSelectList.assignAll(expSelectList);
     searchExpenditureC.value.addListener(_onSearchExpChanged);
 
     // add daftar apd TextEditingController
-    for (var item in apdRetList) apdRetListC.add(TextEditingController());
+    // for (var item in apdReqList) apdRetListC.add(TextEditingController());
     // jika edit mode
     if (Get.arguments != null) {
+      await getData();
       isEditMode.value = true;
-      viewData.value = Get.arguments[1];
-      indexData.value = Get.arguments[0];
-      final data = viewData.value;
-      // dateC.value.text = data.date;
-      // apdReqNumberC.value.text = data.reqNumber;
-      // expNumberC.value.text = data.expNumber;
-      // vendorC.value.text = data.vendor;
-      // noteC.value.text = data.note;
+      final data = viewData.value.data;
+      String formattedDate = data?.docDate ?? '';
+      dateC.value.text = DateFormat(
+        'dd-MM-yyyy',
+      ).format(DateFormat('dd/MM/yyyy').parse(formattedDate));
+      dateTime.value = DateFormat('dd-MM-yyyy').parse(dateC.value.text);
+      apdReqNumberC.value.text = data?.permintaanCode ?? '';
+      expNumberC.value.text = data?.pengeluaranCode ?? '';
+      vendorC.value.text = data?.vendorName ?? '';
+      noteC.value.text = data?.description ?? '';
       // selectedStatus.value = data.status;
       // images.assignAll(data.images.map((e) => File(e)).toList());
-      // for (var item in data.recList)
-      //   apdRetListC.assignAll(
-      //     data.recList
-      //         .map((e) => TextEditingController(text: e.returnQty))
-      //         .toList(),
-      //   );
+      apdRetList.assignAll(
+        data?.daftarPengeluaran?.map((e) {
+              return ApdReturnParamDataApdRtn(
+                id: e?.apdId ?? '',
+                name: e?.apdName ?? '',
+                qtyDikembalikan: e?.qtyDikembalikan ?? 0,
+                code: e?.code ?? '',
+                warna: e?.warna ?? '',
+                ukuranBaju: e?.ukuranBaju ?? '',
+                ukuranCelana: e?.ukuranCelana ?? '',
+                ukuranSepatu: e?.ukuranSepatu ?? '',
+                jenisSepatu: e?.jenisSepatu ?? '',
+              );
+            }).toList() ??
+            [],
+      );
+      apdRetListC.assignAll(
+        (data?.daftarPengeluaran ?? []).map(
+          (e) => TextEditingController(text: '${e?.qtyDikembalikan ?? 0}'),
+        ),
+      );
+
       // skip signature gabisa load
-      // apdRetList.assignAll(data.recList);
+      // apdReqList.assignAll(data.recList);
       validateForm();
     }
     update();
   }
 
+  Future<void> getSelectApdRequest() async {
+    if (!loading.value) {
+      loading(true);
+      final response = await req.get('/get-data-permintaan');
+      if (response.statusCode == 200) {
+        apdReqSelectList.value =
+            ApdRequestModel.fromJson(jsonDecode(response.body)).data ?? [];
+        filteredApdReqSelectList.assignAll(apdReqSelectList);
+        loading(false);
+        update();
+      } else {
+        final msg = jsonDecode(response.body)['message'];
+        if (msg == '') AppSnackbar.showSnackBar(Get.context!, msg, true);
+      }
+    }
+  }
+
+  Future<void> getSelectExpenditure() async {
+    if (!loading.value) {
+      loading(true);
+      final response = await req.get('/get-data-pengeluaran-barang');
+      if (response.statusCode == 200) {
+        expSelectList.value =
+            ExpenditureSelectModel.fromJson(jsonDecode(response.body)).data ??
+            [];
+        filteredExpSelectList.assignAll(expSelectList);
+        loading(false);
+        update();
+      } else {
+        final msg = jsonDecode(response.body)['message'];
+        if (msg == '') AppSnackbar.showSnackBar(Get.context!, msg, true);
+      }
+    }
+  }
+
+  Future<void> getData() async {
+    if (!loading.value) {
+      loading(true);
+      final response = await req.post(
+        '/get-data-penerimaan-by-id',
+        body: {'id': '${Get.arguments}'},
+      );
+      if (response.statusCode == 200) {
+        viewData.value = ApdReturnViewModel.fromJson(jsonDecode(response.body));
+        loading(false);
+        update();
+      } else {
+        final msg = jsonDecode(response.body)['message'];
+        if (msg == '') AppSnackbar.showSnackBar(Get.context!, msg, true);
+      }
+    }
+  }
+
+  Future<void> getApdPermintaanById(String id) async {
+    if (!loading.value) {
+      loading(true);
+      final response = await req.post(
+        '/get-data-permintaan-by-id',
+        body: {'id': '$id'},
+      );
+      if (response.statusCode == 200) {
+        apdRequestViewModel.value = ApdRequestViewModel.fromJson(
+          jsonDecode(response.body),
+        );
+        final daftarPermintaan =
+            apdRequestViewModel.value.data?.daftarPermintaan ?? [];
+        for (var item in daftarPermintaan) {
+          apdRetListC.add(TextEditingController(text: '${item?.qty}'));
+          apdRetList.add(
+            ApdReturnParamDataApdRtn(
+              id: item?.apdId,
+              code: item?.code,
+              name: item?.apdName,
+              qtyDikembalikan: item?.qty,
+              qtyJumlah: item?.qty,
+              qtySisa: '${item?.qty ?? 0}',
+            ),
+          );
+          update();
+        }
+        loading(false);
+        update();
+      } else {
+        final msg = jsonDecode(response.body)['message'];
+        if (msg == '') AppSnackbar.showSnackBar(Get.context!, msg, true);
+        loading(false);
+      }
+    }
+  }
+
   void _onSearchApdChanged() {
     String query = searchApdRequestC.value.text.toLowerCase();
+
     if (query.isEmpty) {
-      // filteredApdReqSelectList.assignAll(apdReqSelectList);
+      filteredApdReqSelectList.assignAll(apdReqSelectList);
     } else {
-      // filteredApdReqSelectList.assignAll(
-      //   apdReqSelectList.where((apd) {
-      //     return apd.date.toLowerCase().contains(query) ||
-      //         apd.note.toLowerCase().contains(query) ||
-      //         apd.reqNumber.toLowerCase().contains(query);
-      //   }).toList(),
-      // );
+      filteredApdReqSelectList.assignAll(
+        apdReqSelectList.where((apd) {
+          return (apd?.createdAt ?? '').toLowerCase().contains(query) ||
+              (apd?.code ?? '').toLowerCase().contains(query) ||
+              (apd?.unitName ?? '').toLowerCase().contains(query) ||
+              (apd?.description ?? '').toLowerCase().contains(query) ||
+              (apd?.docDate ?? '').toLowerCase().contains(query) ||
+              Utils.getDocStatusName(
+                (apd?.docStatus ?? ''),
+              ).toLowerCase().contains(query);
+        }).toList(),
+      );
     }
   }
 
   void _onSearchExpChanged() {
     String query = searchExpenditureC.value.text.toLowerCase();
     if (query.isEmpty) {
-      // filteredApdExpSelectList.assignAll(apdExpSelectList);
+      filteredExpSelectList.assignAll(expSelectList);
     } else {
-      // filteredApdExpSelectList.assignAll(
-      //   apdExpSelectList.where((exp) {
-      //     return exp.date.toLowerCase().contains(query) ||
-      //         exp.expNumber.toLowerCase().contains(query) ||
-      //         exp.vendor.toLowerCase().contains(query);
-      //   }).toList(),
-      // );
+      filteredExpSelectList.assignAll(
+        expSelectList.where((exp) {
+          return (exp?.code ?? '').toLowerCase().contains(query) ||
+              (exp?.deskripsi ?? '').toLowerCase().contains(query) ||
+              (exp?.docDate ?? '').toLowerCase().contains(query) ||
+              (exp?.requestCode ?? '').toLowerCase().contains(query) ||
+              (exp?.vendorName ?? '').toLowerCase().contains(query) ||
+              (exp?.status ?? '').toLowerCase().contains(query);
+        }).toList(),
+      );
     }
+  }
+
+  Future<List<String>> generateBase64Photo() async {
+    if (images.isNotEmpty) {
+      List<String> list = [];
+      for (int i = 0; i < images.length; i++) {
+        final item = images[i];
+        final byteImage = await item.readAsBytesSync();
+        final base64Image = base64Encode(byteImage);
+        list.add('data:image/jpeg;base64,${base64Image}');
+      }
+      return list;
+    }
+    return [];
   }
 
   Future<void> saveDraftApdReturn() async {
     FocusManager.instance.primaryFocus?.unfocus();
     loadingSaveDraftApd(true);
+    String base64Image = '';
+    final sign = signKey.value.currentState!;
+    final image = await sign.getData();
+    var data = await image.toByteData(format: ImageByteFormat.png);
+    final dir = await getTemporaryDirectory();
+    final nameFile = '${dir.path}/signature${Random().nextInt(100)}.png';
+    if (data != null) {
+      base64Image = base64Encode(data.buffer.asUint8List());
+      final file = File(nameFile);
+      if (file.existsSync()) {
+        file.deleteSync();
+      }
+      file.writeAsBytesSync(data.buffer.asUint8List(), flush: true);
+      // sign.clear();
+    } else {
+      // sign.clear();
+    }
 
-    var param = ApdReturnParam();
+    var apdRecFinal = apdRetList;
+    for (int i = 0; i < apdRecFinal.length; i++)
+      apdRecFinal[i].qtyDikembalikan = int.tryParse(apdRetListC[i].text) ?? 0;
+    update();
+    var body = ApdReturnParam(
+      docDate: DateFormat(
+        'yyyy-MM-dd',
+      ).format(dateTime.value ?? DateTime.now()),
+      requestId: selectedApdReq.value?.id ?? '',
+      pengeluaranId: selectedExp.value?.id ?? '',
+      description: noteC.value.text,
+      dataApdRtn: apdRecFinal,
+      buktiFoto: jsonEncode(await generateBase64Photo()),
+      ttdFoto: 'data:image/jpeg;base64,${base64Image}',
+      action: 'draft',
+    );
+    final response = await req.post(
+      '/save-data-pengembalian-barang',
+      body: body.toJson(),
+    );
 
-    var listC = Get.find<ApdReturnController>();
-    // listC.apdRet.add(param);
-    // listC.filteredapdRet.assignAll(listC.apdRet);
-    listC.refresh();
-
-    // d.log("LIST LENGTH : ${listC.apdRet.length}");
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      update();
+      loading(false);
+      Get.find<ApdReturnController>().getData();
+      Get.back();
+      final map = jsonDecode(response.body);
+      Utils.showSuccess(msg: map["message"]);
+    } else {
+      final mapError = jsonDecode(response.body);
+      final message = mapError["message"] + '' + mapError["error"];
+      AppSnackbar.showSnackBar(Get.context!, message, true);
+      loading(false);
+      throw Exception(message);
+    }
     loadingSaveDraftApd(false);
-    Get.back();
-    listC.update();
-    Utils.showSuccess(msg: '');
   }
 
   Future<void> sendApdReturn() async {
     FocusManager.instance.primaryFocus?.unfocus();
     loadingSendApd(true);
-    // get signature
+    String base64Image = '';
     final sign = signKey.value.currentState!;
     final image = await sign.getData();
     var data = await image.toByteData(format: ImageByteFormat.png);
     final dir = await getTemporaryDirectory();
     final nameFile = '${dir.path}/signature${Random().nextInt(100)}.png';
     if (data != null) {
+      base64Image = base64Encode(data.buffer.asUint8List());
       final file = File(nameFile);
       if (file.existsSync()) {
         file.deleteSync();
       }
       file.writeAsBytesSync(data.buffer.asUint8List(), flush: true);
-      sign.clear();
+      // sign.clear();
     } else {
-      sign.clear();
+      // sign.clear();
     }
-    var param = ApdReturnParam(
-      // id: 'ARQ/2025/II/001',
-      // unit: 'Unit Kalimantan',
-      // date: dateC.value.text,
-      // note: noteC.value.text,
-      // status: selectedStatus.value ?? '',
-      // recList: apdRetList,
-      // reqNumber: apdReqNumberC.value.text,
-      // expNumber: expNumberC.value.text,
-      // vendor: vendorC.value.text,
-      // images: images.map((e) => e.path).toList(),
-      // signature: nameFile,
+
+    var apdRecFinal = apdRetList;
+    for (int i = 0; i < apdRecFinal.length; i++)
+      apdRecFinal[i].qtyDikembalikan = int.tryParse(apdRetListC[i].text) ?? 0;
+    update();
+    var body = ApdReturnParam(
+      docDate: DateFormat(
+        'yyyy-MM-dd',
+      ).format(dateTime.value ?? DateTime.now()),
+      requestId: selectedApdReq.value?.id ?? '',
+      pengeluaranId: selectedExp.value?.id ?? '',
+      description: noteC.value.text,
+      dataApdRtn: apdRecFinal,
+      buktiFoto: jsonEncode(await generateBase64Photo()),
+      ttdFoto: 'data:image/jpeg;base64,${base64Image}',
+      action: null,
+    );
+    final response = await req.post(
+      '/save-data-pengembalian-barang',
+      body: body.toJson(),
     );
 
-    var listC = Get.find<ApdReturnController>();
-    // listC.apdRet.add(param);
-    // listC.filteredapdRet.assignAll(listC.apdRet);
-    listC.refresh();
-
-    // d.log("LIST LENGTH : ${listC.apdRet.length}");
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      update();
+      loading(false);
+      Get.find<ApdReturnController>().getData();
+      Get.back();
+      final map = jsonDecode(response.body);
+      Utils.showSuccess(msg: map["message"]);
+    } else {
+      final mapError = jsonDecode(response.body);
+      final message = mapError["message"] + '' + mapError["error"];
+      AppSnackbar.showSnackBar(Get.context!, message, true);
+      loading(false);
+      loadingSendApd(false);
+      throw Exception(message);
+    }
     loadingSendApd(false);
-    Get.back();
-    listC.update();
-    Utils.showSuccess(msg: '');
-    Utils.showSuccess(msg: '');
   }
 
   Future<void> editSendApdReturn(int i) async {
     FocusManager.instance.primaryFocus?.unfocus();
     loadingSendApd(true);
-    // get signature
+    String base64Image = '';
     final sign = signKey.value.currentState!;
     final image = await sign.getData();
     var data = await image.toByteData(format: ImageByteFormat.png);
     final dir = await getTemporaryDirectory();
     final nameFile = '${dir.path}/signature${Random().nextInt(100)}.png';
     if (data != null) {
+      base64Image = base64Encode(data.buffer.asUint8List());
       final file = File(nameFile);
       if (file.existsSync()) {
         file.deleteSync();
       }
       file.writeAsBytesSync(data.buffer.asUint8List(), flush: true);
-      sign.clear();
+      // sign.clear();
     } else {
-      sign.clear();
+      // sign.clear();
     }
-    var param = ApdReturnParam(
-      // id: 'ARQ/2025/II/001',
-      // unit: 'Unit Kalimantan',
-      // date: dateC.value.text,
-      // note: noteC.value.text,
-      // status: selectedStatus.value ?? '',
-      // recList: apdRetList,
-      // reqNumber: apdReqNumberC.value.text,
-      // expNumber: expNumberC.value.text,
-      // vendor: vendorC.value.text,
-      // images: images.map((e) => e.path).toList(),
-      // signature: nameFile,
+
+    var apdRecFinal = apdRetList;
+    for (int i = 0; i < apdRecFinal.length; i++)
+      apdRecFinal[i].qtyDikembalikan = int.tryParse(apdRetListC[i].text) ?? 0;
+    update();
+    var body = ApdReturnParam(
+      docDate: DateFormat(
+        'yyyy-MM-dd',
+      ).format(dateTime.value ?? DateTime.now()),
+      requestId: selectedApdReq.value?.id ?? '',
+      pengeluaranId: selectedExp.value?.id ?? '',
+      description: noteC.value.text,
+      dataApdRtn: apdRecFinal,
+      buktiFoto: jsonEncode(await generateBase64Photo()),
+      ttdFoto: 'data:image/jpeg;base64,${base64Image}',
+      action: null,
+    );
+    final response = await req.post(
+      '/save-data-pengembalian-barang',
+      body: body.toJson(),
     );
 
-    var listC = Get.find<ApdReturnController>();
-    // listC.apdRet.replaceRange(i, i + 1, [param]);
-    // listC.filteredapdRet.assignAll(listC.apdRet);
-    listC.refresh();
-
-    // d.log("LIST LENGTH : ${listC.apdRet.length}");
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      update();
+      loading(false);
+      Get.find<ApdReturnController>().getData();
+      Get.back();
+      final map = jsonDecode(response.body);
+      Utils.showSuccess(msg: map["message"]);
+    } else {
+      final mapError = jsonDecode(response.body);
+      final message = mapError["message"] + '' + mapError["error"];
+      AppSnackbar.showSnackBar(Get.context!, message, true);
+      loading(false);
+      throw Exception(message);
+    }
     loadingSendApd(false);
-    Get.back();
-    Get.back();
-    listC.update();
-    Utils.showSuccess(msg: '');
+
+    // var listC = Get.find<ApdReturnController>();
+    // // listC.apdReqList.add(param);
+    // listC.filteredApdRec.assignAll(listC.apdRecList);
+    // listC.refresh();
+
+    // d.log("LIST LENGTH : ${listC.apdRecList.length}");
+    // loadingSendApd(false);
+    // Get.back();
+    // listC.update();
+    // Utils.showSuccess(msg: '');
+    // Utils.showSuccess(msg: '');
   }
 
   void clearSearchApdField() {

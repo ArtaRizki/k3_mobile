@@ -44,20 +44,14 @@ class LoginView extends GetView<LoginController> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Image.asset(
-              Assets.imagesImgMkp,
-              width: 78,
-              height: 32,
-            ),
+            child: Image.asset(Assets.imagesImgMkp, width: 78, height: 32),
           ),
           SizedBox(height: 24),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 30),
             child: Text(
               'K3L Corporate',
-              style: AppTextStyle.h1.copyWith(
-                color: AppColor.neutralDarkLight,
-              ),
+              style: AppTextStyle.h1.copyWith(color: AppColor.neutralDarkLight),
             ),
           ),
           SizedBox(height: 24),
@@ -71,66 +65,67 @@ class LoginView extends GetView<LoginController> {
   }
 
   formAndButton() {
-    return Obx(
-      () {
-        bool pwVisible = controller.passwordVisible.value;
-        bool isLoading = controller.loading.value;
-        return Container(
-          padding: EdgeInsets.symmetric(vertical: 24),
-          child: Column(
-            children: [
-              AppTextField.loginTextField(
-                controller: controller.nameC,
-                hintText: 'Nama pengguna',
-                onChanged: (v) {
-                  controller.checkLoginBtnStatus();
-                  controller.update();
+    return Obx(() {
+      bool pwVisible = controller.passwordVisible.value;
+      bool isLoading = controller.loading.value;
+      return Container(
+        padding: EdgeInsets.symmetric(vertical: 24),
+        child: Column(
+          children: [
+            AppTextField.loginTextField(
+              controller: controller.nidC,
+              hintText: 'Nama pengguna',
+              onChanged: (v) {
+                controller.checkLoginBtnStatus();
+                controller.update();
+              },
+            ),
+            SizedBox(height: 16),
+            AppTextField.loginTextField(
+              controller: controller.passwordC,
+              hintText: 'Kata sandi',
+              isPassword: !pwVisible,
+              suffixIconConstraints: BoxConstraints(maxHeight: 18),
+              onChanged: (v) {
+                controller.checkLoginBtnStatus();
+                controller.update();
+              },
+              suffixIcon: GestureDetector(
+                onTap: () async {
+                  controller.passwordVisible.value = !pwVisible;
                 },
-              ),
-              SizedBox(height: 16),
-              AppTextField.loginTextField(
-                controller: controller.passwordC,
-                hintText: 'Kata sandi',
-                isPassword: !pwVisible,
-                suffixIconConstraints: BoxConstraints(maxHeight: 18),
-                onChanged: (v) {
-                  controller.checkLoginBtnStatus();
-                  controller.update();
-                },
-                suffixIcon: GestureDetector(
-                  onTap: () async {
-                    controller.passwordVisible.value = !pwVisible;
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 16),
-                    child: Image.asset(
-                      pwVisible
-                          ? Assets.iconsIcPassVisible
-                          : Assets.iconsIcPassNonVisible,
-                      color: pwVisible
-                          ? AppColor.highlightDarkest
-                          : AppColor.neutralDarkLightest,
-                    ),
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: Image.asset(
+                    pwVisible
+                        ? Assets.iconsIcPassVisible
+                        : Assets.iconsIcPassNonVisible,
+                    color:
+                        pwVisible
+                            ? AppColor.highlightDarkest
+                            : AppColor.neutralDarkLightest,
                   ),
                 ),
               ),
-              SizedBox(height: 30),
-              AppButton.basicButton(
-                width: double.infinity,
-                // enable: controller.enableLoginBtn.value,
-                enable: true,
-                onTap: () async {
-                  if (!isLoading) {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    await controller.login();
-                  }
-                },
-                color: AppColor.highlightDarkest,
-                height: 48,
-                radius: 30,
-                padding: EdgeInsets.fromLTRB(16, isLoading ? 0 : 14, 16, 0),
-                child: isLoading
-                    ? Transform.scale(
+            ),
+            SizedBox(height: 30),
+            AppButton.basicButton(
+              width: double.infinity,
+              // enable: controller.enableLoginBtn.value,
+              enable: true,
+              onTap: () async {
+                if (!isLoading) {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  await controller.login();
+                }
+              },
+              color: AppColor.highlightDarkest,
+              height: 48,
+              radius: 30,
+              padding: EdgeInsets.fromLTRB(16, isLoading ? 0 : 14, 16, 0),
+              child:
+                  isLoading
+                      ? Transform.scale(
                         scale: 0.5,
                         child: SizedBox(
                           width: 16,
@@ -142,21 +137,20 @@ class LoginView extends GetView<LoginController> {
                           ),
                         ),
                       )
-                    : Text(
+                      : Text(
                         'Masuk',
                         textAlign: TextAlign.center,
                         style: AppTextStyle.actionL.copyWith(
                           color: AppColor.neutralLightLightest,
                         ),
                       ),
-              ),
-              SizedBox(height: 30),
-              copyright(),
-            ],
-          ),
-        );
-      },
-    );
+            ),
+            SizedBox(height: 30),
+            copyright(),
+          ],
+        ),
+      );
+    });
   }
 
   copyright() {
@@ -164,10 +158,7 @@ class LoginView extends GetView<LoginController> {
       padding: EdgeInsets.symmetric(vertical: 12),
       child: Column(
         children: [
-          Divider(
-            thickness: 0.5,
-            color: AppColor.neutralLightDark,
-          ),
+          Divider(thickness: 0.5, color: AppColor.neutralLightDark),
           SizedBox(height: 15),
           Text(
             'PT Mitra Karya Prima',

@@ -4,616 +4,414 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:k3_mobile/const/app_page.dart';
 import 'package:k3_mobile/const/app_shared_preference_key.dart';
 import 'package:k3_mobile/const/app_url.dart';
+import 'package:k3_mobile/src/login/model/login_model.dart';
+import 'package:k3_mobile/src/session/controller/session_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HttpRequestClient {
+  static const int _timeoutSeconds = 30;
   SharedPreferences? _preferences;
 
-  Future<SharedPreferences?> preferences() async {
-    if (_preferences == null)
-      _preferences = await SharedPreferences.getInstance();
-    return _preferences;
+  // Singleton pattern for better performance
+  static final HttpRequestClient _instance = HttpRequestClient._internal();
+  factory HttpRequestClient() => _instance;
+  HttpRequestClient._internal();
+
+  /// Get shared preferences instance
+  Future<SharedPreferences> get preferences async {
+    _preferences ??= await SharedPreferences.getInstance();
+    return _preferences!;
   }
 
+  /// Get authentication token from shared preferences
   Future<String?> getToken() async {
-    return (await preferences())!
-        .getString(AppSharedPreferenceKey.kSetPrefToken);
+    final prefs = await preferences;
+    return prefs.getString(AppSharedPreferenceKey.kSetPrefToken);
   }
 
-  Future<http.Response> get(String url,
-      {Map? headers, Map<String, String?>? body}) async {
-    Map<String, String> h = Map<String, String>();
-    h.putIfAbsent('Connection', () => 'Keep-Alive');
-    h.putIfAbsent('accept', () => 'application/json');
-    // final ipv4 = await IpAddress().getIpv4();
-    // h.putIfAbsent('X-Real-IP', () => ipv4);
-    var token = await getToken();
-    if (token != null) h.putIfAbsent('Authorization', () => 'Bearer ' + token);
-    if (headers != null) h.addAll(headers as Map<String, String>);
+  /// Build common headers for requests
+  Future<Map<String, String>> _buildHeaders({
+    Map<String, String>? additionalHeaders,
+    bool isMultipart = false,
+  }) async {
+    final headers = <String, String>{
+      'Connection': 'Keep-Alive',
+      'Accept': 'application/json',
+    };
 
-    log("==== PARAMETERS ====");
-    // log("IP PUBLIC : $ipv4");
-    log("URL : $url");
-    log("BODY : $body");
-    // log("HEADERS : ${h}");
-
-    String param = Uri(queryParameters: body).query;
-    log("PARAM : ${param}");
-
-    final uri = Uri.parse('$url?$param');
-    log("URI PATH : ${uri.path}");
-    log("URI COMPLETE : ${AppUrl.BASE_API_FULL + uri.path + '${body != null ? '?' : ''}' + param}");
-
-    http.Response response = await http
-        .get(
-            Uri.parse(
-              url +
-                  '${body != null ? '?' : ''}' +
-                  '${body == null ? '' : param}',
-            ),
-            headers: h)
-        .timeout(
-          Duration(seconds: 30),
-          onTimeout: () => http.Response("Timeout", 504),
-        );
-    log("RESPONSE GET $url STATUS CODE ${response.statusCode} : ${response.body}");
-    log("====================");
-
-    String log2 = "Log : " +
-        "==== PARAMETERS ===="
-            '\r\n' +
-        "URL : $url"
-            '\r\n' +
-        "HEADERS : $headers"
-            '\r\n' +
-        "BODY : $body"
-            '\r\n' +
-        "RESPONSE GET $url : ${response.body}"
-            '\r\n' +
-        "===================="
-            '\r\n';
-    // if (kDebugMode) {
-    // // XenoLog("GET").save(log2, alwaysLog: true);
-    // }
-    // Utils.dismissLoading();
-    // if (response.body.contains("Timeout")) {
-    //   BuildContext? context = Get.context;
-    //   if (context != null) {
-    //     // CustomAlert.showSnackBar(context, 'Timeout', true);
-    //     throw 'Timeout';
-    //   }
-    // }
-    // if (response.statusCode == 401 &&
-    //     !(response.body.contains("invalid token") ||
-    //         response.body.contains("expired token"))) {
-    //   _preferences!.clear();
-    //   BuildContext? context = Get.context;
-    //   if (context != null)
-    //     Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-    // }
-    // if (response.body.contains("Unauthorized") ||
-    //     response.body.contains("missing authorization header")) {
-    //   _preferences!.clear();
-    //   BuildContext? context = Get.context;
-    //   if (context != null) {
-    //     // CustomAlert.showSnackBar(context, 'Harap Login Ulang', true);
-    //     Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-    //   }
-    // }
-    // if (response.body.contains("refresh token tidak valid") ||
-    //     response.body.contains("refresh token kedaluarsa")) {
-    //   BuildContext? context = Get.context;
-    //   _preferences!.clear();
-    //   if (context != null) {
-    //     // CustomAlert.showSnackBar(context, 'Harap Login Ulang', true);
-    //     Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-    //   }
-    // }
-    // if (response.body.contains("invalid token") ||
-    //     response.body.contains("expired token")) {
-    //   BuildContext? context = Get.context;
-    //   if (context != null) {
-    //     // await context.read<AuthProvider>().refreshToken();
-    //     if (url != 'http://103.59.94.19/turbines') await get(url, body: body);
-    //     // Utils.dismissLoading();
-    //   }
-    // }
-    // if (response.body.contains("Gateway time") ||
-    //     response.body
-    //         .toString()
-    //         .toLowerCase()
-    //         .contains("Internal Server Error")) {
-    //   return response;
-    //   // return response.body;
-    // }
-
-    return response;
-  }
-
-  Future<http.Response> post(String url,
-      {Map<String, String>? headers,
-      Map<String, dynamic>? body,
-      List<http.MultipartFile>? files}) async {
-    // print(body);
-    Map<String, String> h = Map<String, String>();
-    h.putIfAbsent('Connection', () => 'keep-alive');
-    h.putIfAbsent('Accept', () => 'application/json');
-    // final ipv4 = await IpAddress().getIpv4();
-    // h.putIfAbsent('X-Real-IP', () => ipv4);
-    var token = await getToken();
-    if (token != null) h.putIfAbsent('Authorization', () => 'Bearer ' + token);
-    if (headers != null) h.addAll(headers);
-
-    if (files == null) {
-      log("==== PARAMETERS ====");
-      // log("IP PUBLIC : $ipv4");
-      log("URL : $url");
-      log("BODY : $body");
-      // log("HEADERS : ${h}");
-      final uri = Uri.parse(url);
-      // final bodyUri = Uri.https(uri.authority, uri.path, body);
-      http.Response response = await http
-          .post(Uri.parse(url),
-              headers: h,
-              body: jsonEncode(body),
-              encoding: Encoding.getByName("utf-8"))
-          .timeout(Duration(seconds: 30),
-              onTimeout: () => http.Response("Timeout", 504));
-      log("RESPONSE POST $url STATUS CODE : ${response.statusCode}");
-      log("RESPONSE POST $url : ${response.body}");
-      log("====================");
-      String log2 = "Log : " +
-          "==== PARAMETERS ===="
-              '\r\n' +
-          "URL : $url"
-              '\r\n' +
-          "HEADERS : $headers"
-              '\r\n' +
-          "BODY : $body"
-              '\r\n' +
-          "FILES : $files"
-              '\r\n' +
-          "RESPONSE POST $url : ${response.body}"
-              '\r\n' +
-          "===================="
-              '\r\n';
-      // if (kDebugMode) {
-      // // XenoLog("POST").save(log2, alwaysLog: true);
-      // }
-      // Utils.dismissLoading();
-      if (response.body.contains("Timeout")) {
-        BuildContext? context = Get.context;
-        if (context != null) {
-          // // CustomAlert.showSnackBar(context, 'Timeout', true);
-          throw 'Timeout';
-        }
-      }
-      if (response.statusCode == 401 &&
-          !(response.body.contains("invalid token") ||
-              response.body.contains("expired token"))) {
-        _preferences!.clear();
-        BuildContext? context = Get.context;
-        if (context != null)
-          Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-      }
-      if (response.body.contains("Unauthorized") ||
-          response.body.contains("missing authorization header")) {
-        _preferences!.clear();
-        BuildContext? context = Get.context;
-        if (context != null) {
-          // CustomAlert.showSnackBar(context, 'Harap Login Ulang', true);
-          Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-        }
-      }
-      if (response.body.contains("refresh token tidak valid") ||
-          response.body.contains("refresh token kedaluarsa")) {
-        BuildContext? context = Get.context;
-        _preferences!.clear();
-        if (context != null) {
-          // CustomAlert.showSnackBar(context, 'Harap Login Ulang', true);
-          Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-        }
-      }
-      if (response.body.contains("invalid token") ||
-          response.body.contains("expired token")) {
-        BuildContext? context = Get.context;
-        if (context != null) {
-          // await context.read<AuthProvider>().refreshToken();
-          await post(url, body: body);
-          // Utils.dismissLoading();
-        }
-      }
-      if (response.body.contains("Gateway time") ||
-          response.body
-              .toString()
-              .toLowerCase()
-              .contains("Internal Server Error")) {
-        return response;
-        // return response.body;
-      }
-      return response;
-    } else {
-      var req = http.MultipartRequest("POST", Uri.parse(url));
-      h.putIfAbsent("Content-Type", () => 'multipart/form-data');
-      // final ipv4 = await IpAddress().getIpv4();
-      // h.putIfAbsent('X-Real-IP', () => ipv4);
-      req.headers.addAll(h);
-      if (body != null)
-        req.fields
-            .addAll(body.map((key, value) => MapEntry(key, value.toString())));
-      req.files.addAll(files);
-      log("==== PARAMETERS ====");
-      // log("IP PUBLIC : $ipv4");
-      log("URL : $url");
-      log("BODY : $body");
-      log("FILES : $files");
-      http.Response response = await http.Response.fromStream(await req.send())
-          .timeout(Duration(seconds: 30),
-              onTimeout: () => http.Response("Timeout", 504));
-      log("RESPONSE POST FILE $url : ${response.body}");
-      log("====================");
-      String log2 = "Log : " +
-          "==== PARAMETERS ===="
-              '\r\n' +
-          "URL : $url"
-              '\r\n' +
-          "HEADERS : $headers"
-              '\r\n' +
-          "BODY : $body"
-              '\r\n' +
-          "FILES : $files"
-              '\r\n' +
-          "RESPONSE POST $url : ${response.body}"
-              '\r\n' +
-          "===================="
-              '\r\n';
-      // if (kDebugMode) {
-      // XenoLog("POST").save(log2, alwaysLog: true);
-      // }
-      // Utils.dismissLoading();
-      if (response.body.contains("Timeout")) {
-        BuildContext? context = Get.context;
-        if (context != null) {
-          // CustomAlert.showSnackBar(context, 'Timeout', true);
-          throw 'Timeout';
-        }
-      }
-      if (response.statusCode == 401 &&
-          !(response.body.contains("invalid token") ||
-              response.body.contains("expired token"))) {
-        _preferences!.clear();
-        BuildContext? context = Get.context;
-        if (context != null)
-          Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-      }
-      if (response.body.contains("Unauthorized") ||
-          response.body.contains("missing authorization header")) {
-        _preferences!.clear();
-        BuildContext? context = Get.context;
-        if (context != null) {
-          // CustomAlert.showSnackBar(context, 'Harap Login Ulang', true);
-          Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-        }
-      }
-      if (response.body.contains("refresh token tidak valid") ||
-          response.body.contains("refresh token kedaluarsa")) {
-        BuildContext? context = Get.context;
-        _preferences!.clear();
-        if (context != null) {
-          // CustomAlert.showSnackBar(context, 'Harap Login Ulang', true);
-          Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-        }
-      }
-      if (response.body.contains("invalid token") ||
-          response.body.contains("expired token")) {
-        BuildContext? context = Get.context;
-        if (context != null) {
-          // await context.read<AuthProvider>().refreshToken();
-          await post(url, body: body, files: files);
-          // Utils.dismissLoading();
-        }
-      }
-      if (response.body.contains("Gateway time") ||
-          response.body
-              .toString()
-              .toLowerCase()
-              .contains("Internal Server Error")) {
-        return response;
-        // return response.body;
-      }
-      return response;
+    if (isMultipart) {
+      headers['Content-Type'] = 'multipart/form-data';
     }
-  }
 
-  Future<http.Response> put(String url,
-      {Map<String, String>? headers,
-      Map<String, dynamic>? body,
-      List<http.MultipartFile>? files}) async {
-    // print(body);
-    Map<String, String> h = Map<String, String>();
-    h.putIfAbsent('Connection', () => 'Keep-Alive');
-    h.putIfAbsent('accept', () => 'application/json');
-    // final ipv4 = await IpAddress().getIpv4();
-    // h.putIfAbsent('X-Real-IP', () => ipv4);
-    var token = await getToken();
-    if (token != null) h.putIfAbsent('Authorization', () => 'Bearer ' + token);
-    if (headers != null) h.addAll(headers);
-
-    if (files == null) {
-      log("==== PARAMETERS ====");
-      // log("IP PUBLIC : $ipv4");
-      log("URL : $url");
-      log("BODY : $body");
-      http.Response response = await http
-          .put(Uri.parse(url),
-              headers: h, body: body, encoding: Encoding.getByName("utf-8"))
-          .timeout(Duration(seconds: 30),
-              onTimeout: () => http.Response("Timeout", 504));
-      log("RESPONSE PUT $url : ${response.body}");
-      log("====================");
-      String log2 = "Log : " +
-          "==== PARAMETERS ===="
-              '\r\n' +
-          "URL : $url"
-              '\r\n' +
-          "HEADERS : $headers"
-              '\r\n' +
-          "BODY : $body"
-              '\r\n' +
-          "FILES : $files"
-              '\r\n' +
-          "RESPONSE PUT $url : ${response.body}"
-              '\r\n' +
-          "===================="
-              '\r\n';
-      // if (kDebugMode) {
-      // XenoLog("PUT").save(log2, alwaysLog: true);
-      // }
-      // Utils.dismissLoading();
-      if (response.body.contains("Timeout")) {
-        BuildContext? context = Get.context;
-        if (context != null) {
-          // CustomAlert.showSnackBar(context, 'Timeout', true);
-          throw 'Timeout';
-        }
-      }
-      if (response.statusCode == 401 &&
-          !(response.body.contains("invalid token") ||
-              response.body.contains("expired token"))) {
-        _preferences!.clear();
-        BuildContext? context = Get.context;
-        if (context != null)
-          Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-      }
-      if (response.body.contains("Unauthorized") ||
-          response.body.contains("missing authorization header")) {
-        _preferences!.clear();
-        BuildContext? context = Get.context;
-        if (context != null) {
-          // CustomAlert.showSnackBar(context, 'Harap Login Ulang', true);
-          Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-        }
-      }
-      if (response.body.contains("refresh token tidak valid") ||
-          response.body.contains("refresh token kedaluarsa")) {
-        BuildContext? context = Get.context;
-        _preferences!.clear();
-        if (context != null) {
-          // CustomAlert.showSnackBar(context, 'Harap Login Ulang', true);
-          Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-        }
-      }
-      if (response.body.contains("invalid token") ||
-          response.body.contains("expired token")) {
-        BuildContext? context = Get.context;
-        if (context != null) {
-          // await context.read<AuthProvider>().refreshToken();
-          await put(url, body: body);
-          // Utils.dismissLoading();
-        }
-      }
-      if (response.body.contains("Gateway time") ||
-          response.body
-              .toString()
-              .toLowerCase()
-              .contains("Internal Server Error")) {
-        return response;
-        // return response.body;
-      }
-      return response;
-    } else {
-      var req = http.MultipartRequest("POST", Uri.parse(url));
-      h.putIfAbsent("Content-Type", () => 'multipart/form-data');
-      req.headers.addAll(h);
-      if (body != null)
-        req.fields
-            .addAll(body.map((key, value) => MapEntry(key, value.toString())));
-      req.files.addAll(files);
-      log("==== PARAMETERS ====");
-      // log("IP PUBLIC : $ipv4");
-      log("URL : $url");
-      log("BODY : $body");
-      log("FILES : $files");
-      http.Response response = await http.Response.fromStream(await req.send())
-          .timeout(Duration(seconds: 30),
-              onTimeout: () => http.Response("Timeout", 504));
-      log("RESPONSE PUT FILE $url : ${response.body}");
-      log("====================");
-      String log2 = "Log : " +
-          "==== PARAMETERS ===="
-              '\r\n' +
-          "URL : $url"
-              '\r\n' +
-          "HEADERS : $headers"
-              '\r\n' +
-          "BODY : $body"
-              '\r\n' +
-          "FILES : $files"
-              '\r\n' +
-          "RESPONSE PUT $url : ${response.body}"
-              '\r\n' +
-          "===================="
-              '\r\n';
-      // if (kDebugMode) {
-      // XenoLog("PUT").save(log2, alwaysLog: true);
-      // }
-      // Utils.dismissLoading();
-      if (response.body.contains("Timeout")) {
-        BuildContext? context = Get.context;
-        if (context != null) {
-          // CustomAlert.showSnackBar(context, 'Timeout', true);
-          throw 'Timeout';
-        }
-      }
-      if (response.statusCode == 401 &&
-          !(response.body.contains("invalid token") ||
-              response.body.contains("expired token"))) {
-        _preferences!.clear();
-        BuildContext? context = Get.context;
-        if (context != null)
-          Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-      }
-      if (response.body.contains("Unauthorized") ||
-          response.body.contains("missing authorization header")) {
-        _preferences!.clear();
-        BuildContext? context = Get.context;
-        if (context != null) {
-          // CustomAlert.showSnackBar(context, 'Harap Login Ulang', true);
-          Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-        }
-      }
-      if (response.body.contains("refresh token tidak valid") ||
-          response.body.contains("refresh token kedaluarsa")) {
-        BuildContext? context = Get.context;
-        _preferences!.clear();
-        if (context != null) {
-          // CustomAlert.showSnackBar(context, 'Harap Login Ulang', true);
-          Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-        }
-      }
-      if (response.body.contains("invalid token") ||
-          response.body.contains("expired token")) {
-        BuildContext? context = Get.context;
-        if (context != null) {
-          // await context.read<AuthProvider>().refreshToken();
-          await post(url, body: body, files: files);
-          // Utils.dismissLoading();
-        }
-      }
-      if (response.body.contains("Gateway time") ||
-          response.body
-              .toString()
-              .toLowerCase()
-              .contains("Internal Server Error")) {
-        return response;
-        // return response.body;
-      }
-      return response;
+    // Add authorization token if available
+    final token = await getToken();
+    if (token != null) {
+      headers['Authorization'] = 'Bearer $token';
     }
+
+    // Add additional headers if provided
+    if (additionalHeaders != null) {
+      headers.addAll(additionalHeaders);
+    }
+
+    return headers;
   }
 
-  Future<http.Response> delete(String url,
-      {Map? headers, Map<String, String?>? body}) async {
-    Map<String, String> h = Map<String, String>();
-    h.putIfAbsent('Connection', () => 'Keep-Alive');
-    h.putIfAbsent('accept', () => 'application/json');
-    // final ipv4 = await IpAddress().getIpv4();
-    // h.putIfAbsent('X-Real-IP', () => ipv4);
-    var token = await getToken();
-    if (token != null) h.putIfAbsent('Authorization', () => 'Bearer ' + token);
-    if (headers != null) h.addAll(headers as Map<String, String>);
+  /// Log request details
+  void _logRequest({
+    required String method,
+    required String url,
+    Map<String, dynamic>? body,
+    List<http.MultipartFile>? files,
+  }) {
+    log("==== $method REQUEST ====");
+    log("URL: ${AppUrl.BASE_API_FULL}$url");
+    if (body != null) log("BODY: ${jsonEncode(body)}");
+    if (files != null) log("FILES: $files");
+  }
 
-    final uri = Uri.parse(url);
-    final bodyUri = Uri.https(uri.authority, uri.path, body);
+  /// Log response details
+  void _logResponse({
+    required String method,
+    required String url,
+    required http.Response response,
+  }) {
+    log("RESPONSE $method $url STATUS: ${response.statusCode}");
+    log("RESPONSE BODY: ${response.body}");
+    log("========================");
+  }
 
-    log("==== PARAMETERS ====");
-    // log("IP PUBLIC : $ipv4");
-    log("URL : $url");
-    log("BODY : $bodyUri");
-    http.Response response = await http
-        .delete(Uri.parse(url), headers: h)
-        .timeout(Duration(seconds: 30),
-            onTimeout: () => http.Response("Timeout", 504));
-    log("RESPONSE DELETE $url : ${response.body}");
-    log("====================");
-
-    String log2 = "Log : " +
-        "==== PARAMETERS ===="
-            '\r\n' +
-        "URL : $url"
-            '\r\n' +
-        "HEADERS : $headers"
-            '\r\n' +
-        "BODY : $body"
-            '\r\n' +
-        "RESPONSE DELETE $url : ${response.body}"
-            '\r\n' +
-        "===================="
-            '\r\n';
-    // if (kDebugMode) {
-    // XenoLog("DELETE").save(log2, alwaysLog: true);
-    // }
-    // Utils.dismissLoading();
+  /// Handle common response scenarios
+  Future<http.Response> _handleResponse(
+    http.Response response,
+    String url, {
+    Map<String, dynamic>? body,
+    List<http.MultipartFile>? files,
+    required String method,
+  }) async {
+    // Handle timeout
     if (response.body.contains("Timeout")) {
-      BuildContext? context = Get.context;
+      log("TIMEOUT");
+      final context = Get.context;
       if (context != null) {
-        // CustomAlert.showSnackBar(context, 'Timeout', true);
         throw 'Timeout';
       }
     }
-    if (response.statusCode == 401 &&
-        !(response.body.contains("invalid token") ||
-            response.body.contains("expired token"))) {
-      _preferences!.clear();
-      BuildContext? context = Get.context;
-      if (context != null)
-        Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-    }
-    if (response.body.contains("Unauthorized") ||
-        response.body.contains("missing authorization header")) {
-      // _preferences!.clear();
-      BuildContext? context = Get.context;
-      if (context != null) {
-        // CustomAlert.showSnackBar(context, 'Harap Login Ulang', true);
-        Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-      }
-    }
-    if (response.body.contains("refresh token tidak valid") ||
-        response.body.contains("refresh token kedaluarsa")) {
-      BuildContext? context = Get.context;
-      _preferences!.clear();
-      if (context != null) {
-        // CustomAlert.showSnackBar(context, 'Harap Login Ulang', true);
-        Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-      }
-    }
-    if (response.body.contains("invalid token") ||
-        response.body.contains("expired token")) {
-      BuildContext? context = Get.context;
-      if (context != null) {
-        // await context.read<AuthProvider>().refreshToken();
-        await delete(url, body: body);
-        // Utils.dismissLoading();
-      }
-    }
-    if (response.body.contains("Gateway time") ||
-        response.body
-            .toString()
-            .toLowerCase()
-            .contains("Internal Server Error")) {
+
+    // Handle unauthorized access
+    if (_isUnauthorized(response)) {
+      log("UNAUTHORIZED");
+      await _handleUnauthorizedAccess();
       return response;
-      // return response.body;
     }
+
+    // Handle token refresh scenarios
+    // if (_needsTokenRefresh(response)) {
+    //   final context = Get.context;
+    //   if (context != null) {
+    //     // Retry the request after token refresh
+    //     switch (method.toUpperCase()) {
+    //       case 'GET':
+    //         return await get(url, body: body as Map<String, String?>?);
+    //       case 'POST':
+    //         return await post(url, body: body, files: files);
+    //       case 'PUT':
+    //         return await put(url, body: body, files: files);
+    //       case 'DELETE':
+    //         return await delete(url, body: body as Map<String, String?>?);
+    //     }
+    //   }
+    // }
+
     return response;
   }
 
-  loading(bool show) async {
-    // if (show)
+  /// Check if response indicates unauthorized access
+  bool _isUnauthorized(http.Response response) {
+    return (response.statusCode == 401 && !_isTokenError(response.body)) ||
+        response.body.contains("Unauthenticated");
+  }
+
+  /// Check if response indicates token error
+  bool _isTokenError(String responseBody) {
+    return responseBody.contains("invalid token") ||
+        responseBody.contains("expired token");
+  }
+
+  /// Check if token needs refresh
+  bool _needsTokenRefresh(http.Response response) {
+    return _isTokenError(response.body);
+  }
+
+  /// Handle unauthorized access by clearing preferences and redirecting
+  Future<void> _handleUnauthorizedAccess() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    final session = Get.find<SessionController>();
+    session.loginModel.value = LoginModel();
+    session.logout();
+
+    final context = Get.context;
+    if (context != null) {
+      log("CONTEXT NOT NULL");
+      Get.offAndToNamed(AppRoute.LOGIN);
+    }
+  }
+
+  /// Perform GET request
+  Future<http.Response> get(
+    String url, {
+    Map<String, String>? headers,
+    Map<String, String?>? body,
+  }) async {
+    try {
+      final requestHeaders = await _buildHeaders(additionalHeaders: headers);
+
+      // Build URL with query parameters
+      final uri = Uri.parse(AppUrl.BASE_API_FULL + url);
+      final finalUri = body != null ? uri.replace(queryParameters: body) : uri;
+
+      _logRequest(method: 'GET', url: finalUri.toString(), body: body);
+
+      final response = await http
+          .get(finalUri, headers: requestHeaders)
+          .timeout(
+            const Duration(seconds: _timeoutSeconds),
+            onTimeout: () => http.Response("Timeout", 504),
+          );
+
+      _logResponse(method: 'GET', url: url, response: response);
+
+      return await _handleResponse(response, url, body: body, method: 'GET');
+    } catch (e) {
+      log("GET request error: $e");
+      rethrow;
+    }
+  }
+
+  /// Perform POST request
+  Future<http.Response> post(
+    String url, {
+    Map<String, String>? headers,
+    Map<String, dynamic>? body,
+    List<http.MultipartFile>? files,
+    bool isJsonEncode = false,
+  }) async {
+    // try {
+    _logRequest(method: 'POST', url: url, body: body, files: files);
+
+    if (files == null) {
+      return await _performSimplePost(
+        url,
+        headers,
+        body,
+        isJsonEncode: isJsonEncode,
+      );
+    } else {
+      return await _performMultipartPost(url, headers, body, files);
+    }
+    // } catch (e) {
+    //   log("POST request error: $e");
+    //   rethrow;
+    // }
+  }
+
+  /// Perform simple POST request without files
+  Future<http.Response> _performSimplePost(
+    String url,
+    Map<String, String>? headers,
+    Map<String, dynamic>? body, {
+    bool isJsonEncode = false,
+  }) async {
+    final requestHeaders = await _buildHeaders(additionalHeaders: headers);
+
+    final response = await http
+        .post(
+          Uri.parse(AppUrl.BASE_API_FULL + url),
+          headers: requestHeaders,
+          body: isJsonEncode ? jsonEncode(body) : body,
+          encoding: Encoding.getByName("utf-8"),
+        )
+        .timeout(
+          const Duration(seconds: _timeoutSeconds),
+          onTimeout: () => http.Response("Timeout", 504),
+        );
+
+    _logResponse(method: 'POST', url: url, response: response);
+    return await _handleResponse(response, url, body: body, method: 'POST');
+  }
+
+  /// Perform multipart POST request with files
+  Future<http.Response> _performMultipartPost(
+    String url,
+    Map<String, String>? headers,
+    Map<String, dynamic>? body,
+    List<http.MultipartFile> files,
+  ) async {
+    final requestHeaders = await _buildHeaders(
+      additionalHeaders: headers,
+      isMultipart: true,
+    );
+
+    final request = http.MultipartRequest(
+      "POST",
+      Uri.parse(AppUrl.BASE_API_FULL + url),
+    );
+    request.headers.addAll(requestHeaders);
+
+    if (body != null) {
+      request.fields.addAll(
+        body.map((key, value) => MapEntry(key, value.toString())),
+      );
+    }
+
+    request.files.addAll(files);
+
+    final response = await http.Response.fromStream(
+      await request.send(),
+    ).timeout(
+      const Duration(seconds: _timeoutSeconds),
+      onTimeout: () => http.Response("Timeout", 504),
+    );
+
+    _logResponse(method: 'POST', url: url, response: response);
+    return await _handleResponse(
+      response,
+      url,
+      body: body,
+      files: files,
+      method: 'POST',
+    );
+  }
+
+  /// Perform PUT request
+  Future<http.Response> put(
+    String url, {
+    Map<String, String>? headers,
+    Map<String, dynamic>? body,
+    List<http.MultipartFile>? files,
+  }) async {
+    try {
+      _logRequest(method: 'PUT', url: url, body: body, files: files);
+
+      if (files == null) {
+        return await _performSimplePut(url, headers, body);
+      } else {
+        return await _performMultipartPut(url, headers, body, files);
+      }
+    } catch (e) {
+      log("PUT request error: $e");
+      rethrow;
+    }
+  }
+
+  /// Perform simple PUT request without files
+  Future<http.Response> _performSimplePut(
+    String url,
+    Map<String, String>? headers,
+    Map<String, dynamic>? body,
+  ) async {
+    final requestHeaders = await _buildHeaders(additionalHeaders: headers);
+
+    final response = await http
+        .put(
+          Uri.parse(AppUrl.BASE_API_FULL + url),
+          headers: requestHeaders,
+          body: body,
+          encoding: Encoding.getByName("utf-8"),
+        )
+        .timeout(
+          const Duration(seconds: _timeoutSeconds),
+          onTimeout: () => http.Response("Timeout", 504),
+        );
+
+    _logResponse(method: 'PUT', url: url, response: response);
+    return await _handleResponse(response, url, body: body, method: 'PUT');
+  }
+
+  /// Perform multipart PUT request with files
+  Future<http.Response> _performMultipartPut(
+    String url,
+    Map<String, String>? headers,
+    Map<String, dynamic>? body,
+    List<http.MultipartFile> files,
+  ) async {
+    final requestHeaders = await _buildHeaders(
+      additionalHeaders: headers,
+      isMultipart: true,
+    );
+
+    // Note: Using POST for multipart PUT as HTTP doesn't support multipart PUT directly
+    final request = http.MultipartRequest(
+      "PUT",
+      Uri.parse(AppUrl.BASE_API_FULL + url),
+    );
+    request.headers.addAll(requestHeaders);
+
+    if (body != null) {
+      request.fields.addAll(
+        body.map((key, value) => MapEntry(key, value.toString())),
+      );
+    }
+
+    request.files.addAll(files);
+
+    final response = await http.Response.fromStream(
+      await request.send(),
+    ).timeout(
+      const Duration(seconds: _timeoutSeconds),
+      onTimeout: () => http.Response("Timeout", 504),
+    );
+
+    _logResponse(method: 'PUT', url: url, response: response);
+    return await _handleResponse(
+      response,
+      url,
+      body: body,
+      files: files,
+      method: 'PUT',
+    );
+  }
+
+  /// Perform DELETE request
+  Future<http.Response> delete(
+    String url, {
+    Map<String, String>? headers,
+    Map<String, String?>? body,
+  }) async {
+    try {
+      final requestHeaders = await _buildHeaders(additionalHeaders: headers);
+
+      _logRequest(method: 'DELETE', url: url, body: body);
+
+      final response = await http
+          .delete(
+            Uri.parse(AppUrl.BASE_API_FULL + url),
+            headers: requestHeaders,
+          )
+          .timeout(
+            const Duration(seconds: _timeoutSeconds),
+            onTimeout: () => http.Response("Timeout", 504),
+          );
+
+      _logResponse(method: 'DELETE', url: url, response: response);
+      return await _handleResponse(response, url, body: body, method: 'DELETE');
+    } catch (e) {
+      log("DELETE request error: $e");
+      rethrow;
+    }
+  }
+
+  /// Show/hide loading indicator
+  Future<void> loading(bool show) async {
+    // Implement loading logic here
+    // if (show) {
     //   await Utils.showLoading();
-    // else
-    // await
-    // Utils.dismissLoading();
+    // } else {
+    //   await Utils.dismissLoading();
+    // }
   }
 }

@@ -16,50 +16,60 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            color: AppColor.neutralLightLightest,
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                SizedBox(height: 16),
-                header(),
-                Padding(
-                  padding: const EdgeInsets.only(top: 24, bottom: 12),
-                  child: Text(
-                    'Inspeksi',
-                    textAlign: TextAlign.left,
-                    style: AppTextStyle.actionL.copyWith(
-                      color: AppColor.neutralDarkLight,
-                    ),
-                  ),
+        child: RefreshIndicator(
+          onRefresh: () async {
+            controller.getData();
+          },
+          child: SingleChildScrollView(
+            child: Obx(
+              () => Container(
+                color: AppColor.neutralLightLightest,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 24,
                 ),
-                inspectionCard(),
-                Padding(
-                  padding: const EdgeInsets.only(top: 24, bottom: 12),
-                  child: Text(
-                    'Manajemen APD',
-                    textAlign: TextAlign.left,
-                    style: AppTextStyle.actionL.copyWith(
-                      color: AppColor.neutralDarkLight,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    SizedBox(height: 16),
+                    header(),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 24, bottom: 12),
+                      child: Text(
+                        'Inspeksi',
+                        textAlign: TextAlign.left,
+                        style: AppTextStyle.actionL.copyWith(
+                          color: AppColor.neutralDarkLight,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                apdManagementCard(),
-                Padding(
-                  padding: const EdgeInsets.only(top: 24, bottom: 12),
-                  child: Text(
-                    'Linimasa',
-                    textAlign: TextAlign.left,
-                    style: AppTextStyle.actionL.copyWith(
-                      color: AppColor.neutralDarkLight,
+                    inspectionCard(),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 24, bottom: 12),
+                      child: Text(
+                        'Manajemen APD',
+                        textAlign: TextAlign.left,
+                        style: AppTextStyle.actionL.copyWith(
+                          color: AppColor.neutralDarkLight,
+                        ),
+                      ),
                     ),
-                  ),
+                    apdManagementCard(),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 24, bottom: 12),
+                      child: Text(
+                        'Linimasa',
+                        textAlign: TextAlign.left,
+                        style: AppTextStyle.actionL.copyWith(
+                          color: AppColor.neutralDarkLight,
+                        ),
+                      ),
+                    ),
+                    timeline(),
+                  ],
                 ),
-                timeline(),
-              ],
+              ),
             ),
           ),
         ),
@@ -68,6 +78,7 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget header() {
+    final user = controller.loginModel.value?.data;
     return InkWell(
       onTap: () async {
         Get.find<MainHomeController>().selectedIndex.value = 4;
@@ -82,14 +93,14 @@ class HomeView extends GetView<HomeController> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Riowaldy indrawan',
+                    user?.name ?? '',
                     style: AppTextStyle.h3.copyWith(
                       color: AppColor.highlightDarkest,
                     ),
                   ),
                   SizedBox(height: 6),
                   Text(
-                    'Unit Kalimantan',
+                    user?.unitName ?? '',
                     style: AppTextStyle.bodyS.copyWith(
                       color: AppColor.neutralDarkLightest,
                     ),
@@ -122,6 +133,7 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget inspectionCard() {
+    final inspeksi = controller.homeModel.value.data?.inspeksi;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -149,7 +161,7 @@ class HomeView extends GetView<HomeController> {
                     ),
                     SizedBox(width: 10),
                     Text(
-                      '321',
+                      inspeksi?.rutin ?? '',
                       style: AppTextStyle.h1.copyWith(
                         color: AppColor.successMedium,
                       ),
@@ -192,7 +204,7 @@ class HomeView extends GetView<HomeController> {
                     ),
                     SizedBox(width: 10),
                     Text(
-                      '112',
+                      inspeksi?.proyek ?? '',
                       style: AppTextStyle.h1.copyWith(
                         color: AppColor.errorMedium,
                       ),
@@ -215,6 +227,7 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget apdManagementCard() {
+    final apd = controller.homeModel.value.data?.manajemenApd;
     return SizedBox(
       height: 126,
       child: Row(
@@ -238,7 +251,7 @@ class HomeView extends GetView<HomeController> {
                   SizedBox(height: 12),
                   Expanded(
                     child: Text(
-                      '10',
+                      apd?.permintaan ?? '',
                       textAlign: TextAlign.center,
                       style: AppTextStyle.h1.copyWith(
                         color: AppColor.highlightDarkest,
@@ -268,7 +281,7 @@ class HomeView extends GetView<HomeController> {
                   SizedBox(height: 12),
                   Expanded(
                     child: Text(
-                      '8',
+                      apd?.penerimaan ?? '',
                       textAlign: TextAlign.center,
                       style: AppTextStyle.h1.copyWith(
                         color: AppColor.warningDark,
@@ -298,7 +311,7 @@ class HomeView extends GetView<HomeController> {
                   SizedBox(height: 12),
                   Expanded(
                     child: Text(
-                      '2',
+                      apd?.pengembalian ?? '',
                       textAlign: TextAlign.center,
                       style: AppTextStyle.h1.copyWith(
                         color: AppColor.neutralDarkLight,
@@ -315,12 +328,15 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget timeline() {
+    final linimasa = controller.homeModel.value.data?.linimasa ?? [];
+    if (linimasa.isEmpty) return Center(child: Text('Tidak ada data'));
     return ListView.separated(
-      itemCount: 10,
+      itemCount: linimasa.length,
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       separatorBuilder: (_, __) => SizedBox(height: 12),
       itemBuilder: (c, i) {
+        final item = controller.homeModel.value.data?.linimasa?[i];
         return AppCard.listCard(
           color: AppColor.neutralLightLightest,
           child: Row(
@@ -336,14 +352,14 @@ class HomeView extends GetView<HomeController> {
                       children: [
                         Expanded(
                           child: Text(
-                            '12/02/2025',
+                            item?.createdDate ?? '',
                             style: AppTextStyle.bodyS.copyWith(
                               color: AppColor.neutralDarkMedium,
                             ),
                           ),
                         ),
                         Text(
-                          '15.51',
+                          item?.createdTime ?? '',
                           style: AppTextStyle.bodyS.copyWith(
                             color: AppColor.neutralDarkMedium,
                           ),
@@ -353,7 +369,7 @@ class HomeView extends GetView<HomeController> {
                     SizedBox(height: 3),
                     Flexible(
                       child: Text(
-                        'Permintaan APD : ARQ/2025/II/001',
+                        item?.code ?? '',
                         style: AppTextStyle.h4.copyWith(
                           color: AppColor.highlightDarkest,
                         ),
@@ -361,7 +377,7 @@ class HomeView extends GetView<HomeController> {
                     ),
                     Flexible(
                       child: Text(
-                        'Pengeluaran barang telah disetujui oleh SigidSigidSigidSigidSigid',
+                        item?.description ?? '',
                         style: AppTextStyle.bodyS.copyWith(
                           color: AppColor.neutralDarkDarkest,
                         ),

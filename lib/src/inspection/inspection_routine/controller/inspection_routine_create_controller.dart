@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -9,16 +10,24 @@ import 'package:k3_mobile/component/custom_image_picker.dart';
 import 'package:k3_mobile/component/http_request_client.dart';
 import 'package:k3_mobile/component/multipart.dart';
 import 'package:k3_mobile/component/utils.dart';
+import 'package:k3_mobile/const/app_shared_preference_key.dart';
+import 'package:k3_mobile/const/app_snackbar.dart';
 import 'package:k3_mobile/src/inspection/inspection_routine/controller/inspection_routine_controller.dart';
+import 'package:k3_mobile/src/inspection/model/inspection_category_model.dart';
 import 'package:k3_mobile/src/inspection/model/inspection_param.dart';
+import 'package:k3_mobile/src/inspection/model/inspection_view_model.dart';
+import 'package:k3_mobile/src/login/model/login_model.dart';
+import 'package:k3_mobile/src/session/controller/session_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class InspectionRoutineCreateController extends GetxController {
   var req = HttpRequestClient();
+  var loginModel = LoginModel().obs;
   var loading = false.obs;
   var isValidated = false.obs;
   var isViewMode = false.obs;
 
-  final unitC = TextEditingController(text: 'INS/2025/II/002').obs,
+  final unitC = TextEditingController().obs,
       dateC = TextEditingController().obs,
       timeC = TextEditingController().obs,
       categoryC = TextEditingController().obs,
@@ -28,22 +37,25 @@ class InspectionRoutineCreateController extends GetxController {
       reasonC = TextEditingController().obs,
       actionDetailC = TextEditingController().obs,
       givenRecommendationC = TextEditingController().obs;
+  var unitId = '0'.obs;
+  var categoryId = '0'.obs;
   var actionTakenYes = true.obs;
   var actionTakenNo = false.obs;
   var pictureList = <File>[].obs;
   var dateTime = Rx<DateTime?>(null);
   var selectedCategory = Rx<String?>(null);
 
-  var viewData =
-      InspectionParam().obs;
+  var viewData = InspectionParam().obs;
+  var inspectionViewModelData = InspectionViewModel().obs;
 
-  List<String> categoryList = [
-    'Unsafe Action',
-    'Unsafe Condition',
-    'Near Miss',
-    'Safety Suggestion',
-    'Positive Action',
-  ];
+  var categoryList = <InspectionCategoryModelData?>[].obs;
+  // List<String> categoryList = [
+  //   'Unsafe Action',
+  //   'Unsafe Condition',
+  //   'Near Miss',
+  //   'Safety Suggestion',
+  //   'Positive Action',
+  // ];
 
   @override
   void onInit() async {
@@ -52,27 +64,89 @@ class InspectionRoutineCreateController extends GetxController {
   }
 
   init() async {
+    await getKategori();
     if (Get.arguments != null) {
+      await getData();
       isViewMode.value = true;
-      viewData.value = Get.arguments;
-      final data = viewData.value;
-      // unitC.value.text = data.unit;
-      // dateC.value.text = data.date;
-      // dateTime.value = DateFormat('dd/MM/yyyy').parse(data.date);
-      // timeC.value.text = data.time;
-      // categoryC.value.text = data.category;
-      // riskC.value.text = data.risk;
-      // eventLocationC.value.text = data.location;
-      // eventChronologyC.value.text = data.eventDescription;
-      // if (data.actionTaken) {
-      //   actionTakenYes.value = true;
-      //   actionTakenNo.value = false;
-      // } else {
-      //   actionTakenNo.value = true;
-      //   actionTakenYes.value = false;
-      // }
-      // reasonC.value.text = data.reason;
-      // actionDetailC.value.text = data.actionDetails;
+      // viewData.value = Get.arguments;
+      final data = inspectionViewModelData.value.data;
+      unitC.value.text = data?.unit ?? '';
+      unitId.value = data?.unitId ?? '';
+      dateC.value.text = data?.docDate ?? '';
+      dateTime.value = DateFormat('dd/MM/yyyy').parse(data?.docDate ?? '');
+      timeC.value.text = DateFormat('HH:mm').format(dateTime.value!);
+      categoryC.value.text = data?.kategoriName ?? '';
+      categoryId.value = data?.kategoriId ?? '';
+      if (data?.kategoriId != null)
+        selectedCategory.value = data?.kategoriId ?? '';
+      update();
+      refresh();
+      log("selectedCategory: ${selectedCategory.value}");
+      log("categoryList: ${categoryList.map((e) => e?.id).toList()}");
+
+      // sementara
+      riskC.value.text = data?.resiko ?? '';
+      eventLocationC.value.text = data?.lokasi ?? '';
+      eventChronologyC.value.text = data?.kronologi ?? '';
+      if (data?.dilakukanTindakan == '1') {
+        actionTakenYes.value = true;
+        actionTakenNo.value = false;
+      } else {
+        actionTakenNo.value = true;
+        actionTakenYes.value = false;
+      }
+      reasonC.value.text = data?.alasan ?? '';
+      actionDetailC.value.text = data?.rincianTindakan ?? '';
+      givenRecommendationC.value.text = data?.saran ?? '';
+    } else {
+      final prefs = await SharedPreferences.getInstance();
+      final data = prefs.getString(AppSharedPreferenceKey.kSetPrefLoginModel);
+      if (data != null) {
+        loginModel.value = LoginModel.fromJson(jsonDecode(data));
+        final user = loginModel.value.data;
+        log("USER NAME : ${user?.name ?? ''}");
+        log("USER UNIT : ${user?.unitName ?? ''}");
+        unitC.value.text = user?.unitName ?? '';
+        unitId.value = user?.unitId ?? '';
+        update();
+      }
+    }
+  }
+
+  Future<void> getData() async {
+    if (!loading.value) {
+      loading(true);
+      final response = await req.post(
+        '/get-data-inspeksi-by-id',
+        body: {'id': '${Get.arguments}'},
+      );
+      if (response.statusCode == 200) {
+        inspectionViewModelData.value = InspectionViewModel.fromJson(
+          jsonDecode(response.body),
+        );
+        loading(false);
+        update();
+      } else {
+        final msg = jsonDecode(response.body)['message'];
+        if (msg == '') AppSnackbar.showSnackBar(Get.context!, msg, true);
+      }
+    }
+  }
+
+  Future<void> getKategori() async {
+    if (!loading.value) {
+      loading(true);
+      final response = await req.get('/get-data-kategori-inspeksi');
+      if (response.statusCode == 200) {
+        categoryList.value =
+            InspectionCategoryModel.fromJson(jsonDecode(response.body)).data ??
+            [];
+        loading(false);
+        update();
+      } else {
+        final msg = jsonDecode(response.body)['message'];
+        if (msg == '') AppSnackbar.showSnackBar(Get.context!, msg, true);
+      }
     }
   }
 
@@ -140,7 +214,9 @@ class InspectionRoutineCreateController extends GetxController {
     if (Get.context != null && dateTime.value != null) {
       var time = await CustomDatePicker.pickTime(Get.context!);
       if (time != null) {
-        dateTime.value?.add(Duration(hours: time.hour, minutes: time.minute));
+        dateTime.value = dateTime.value?.add(
+          Duration(hours: time.hour, minutes: time.minute),
+        );
         timeC.value.text =
             '${time.hour < 10 ? '0${time.hour}' : time.hour}:${time.minute < 10 ? '0${time.minute}' : time.minute}';
       }
@@ -150,48 +226,76 @@ class InspectionRoutineCreateController extends GetxController {
     update();
   }
 
-  Future<void> sendInspectionRoutine() async {
-    loading(true);
-    var param = InspectionParam();
-    var body = param.toJson();
-
-    List<http.MultipartFile> files = [];
+  Future<List<String>> initFoto() async {
     if (pictureList.isNotEmpty) {
+      List<String> list = [];
       for (int i = 0; i < pictureList.length; i++) {
         final item = pictureList[i];
-        files.add(await getMultipart('upload[$i]', File(item.path)));
+        final byteImage = await item.readAsBytesSync();
+        final base64Image = base64Encode(byteImage);
+        list.add('data:image/jpeg;base64,${base64Image}');
       }
+      return list;
     }
-    // menunggu api
-    // --------
-    // final response = await req.post(
-    //     // Constant.BASE_API_FULL + '/${isEdit ? 'edit' : 'create'}produkseller',
-    //     'create',
-    //     body: body,
-    //     files: files.isEmpty ? null : files);
+    return [];
+  }
 
-    // if (response.statusCode == 201 || response.statusCode == 200) {
-    //   // productDetailSellerModel =
-    //   //     ProdukDetailSellerModel.fromJson(jsonDecode(response.body));
-    //   update();
-    //   loading(false);
-    // } else {
-    //   final message = jsonDecode(response.body)["messages"]["error"];
-    //   loading(false);
-    //   throw Exception(message);
-    // }
-    var listC = Get.find<InspectionRoutineController>();
-    // listC.inspections.add(dataForList);
-    // listC.inspectionsCreate.add(param);
+  Future<void> sendInspectionRoutine() async {
+    loading(true);
+    final user = loginModel.value.data;
+    var param = InspectionParam(
+      name: user?.name ?? '',
+      type: '0',
+      proyekName: '',
+      karyawanId: user?.karyawan?.id ?? '',
+      unitId: user?.unitId ?? '',
+      docDate: DateFormat(
+        'dd/MM/yyyy',
+      ).format(dateTime.value ?? DateTime.now()),
+      docTime: DateFormat('HH:mm').format(dateTime.value ?? DateTime.now()),
+      kategori: selectedCategory.value,
+      resiko: riskC.value.text,
+      lokasi: eventLocationC.value.text,
+      kronologi: eventChronologyC.value.text,
+      action: actionTakenYes.value ? '1' : '0',
+      alasan: reasonC.value.text,
+      saran: givenRecommendationC.value.text,
+      rincianTindakan: actionDetailC.value.text,
+      foto: await initFoto(),
+    );
+    var body = param.toJson();
+    final response = await req.post(
+      '/create-inspeksi',
+      body: body,
+      // isJsonEncode: true,
+    );
 
-    listC.filteredInspections.assignAll(listC.inspectionsCreate);
-    listC.refresh();
-    log("LIST LENGTH : ${listC.inspectionsCreate.length}");
-    await Future.delayed((Duration(seconds: 3)));
-    loading(false);
-    Get.back();
-    listC.update();
-    Utils.showSuccess(msg: '');
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      // productDetailSellerModel =
+      //     ProdukDetailSellerModel.fromJson(jsonDecode(response.body));
+      update();
+      loading(false);
+      Get.find<InspectionRoutineController>().getData();
+      Get.back();
+      final map = jsonDecode(response.body);
+      Utils.showSuccess(msg: map["message"]);
+    } else {
+      final mapError = jsonDecode(response.body);
+      final message = mapError["message"] + '' + mapError["error"];
+      AppSnackbar.showSnackBar(Get.context!, message, true);
+      loading(false);
+      throw Exception(message);
+    }
+    // var listC = Get.find<InspectionRoutineController>();
+    // listC.inspection.add(dataForList);
+    // listC.inspection.add(param);
+
+    // listC.filteredInspections.assignAll(listC.inspections);
+    // listC.refresh();
+    // log("LIST LENGTH : ${listC.inspections.length}");
+    // await Future.delayed((Duration(seconds: 3)));
+
+    // listC.update();
   }
 
   @override

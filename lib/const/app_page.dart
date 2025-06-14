@@ -40,24 +40,27 @@ import 'package:k3_mobile/src/notification/binding/notification_binding.dart';
 import 'package:k3_mobile/src/notification/view/notification_view.dart';
 import 'package:k3_mobile/src/profile/binding/profile_binding.dart';
 import 'package:k3_mobile/src/profile/view/profile_view.dart';
+import 'package:k3_mobile/src/splash/binding/splash_binding.dart';
+import 'package:k3_mobile/src/splash/view/splash_view.dart';
 
 part 'app_route.dart';
 
 class AppPage {
   AppPage._();
-  static const INITIAL = AppRoute.LOGIN;
+  static const INITIAL = AppRoute.SPLASH;
 
   static final Routes = [
+    GetPage(
+      name: _Path.SPLASH,
+      page: () => SplashView(),
+      binding: SplashBinding(),
+    ),
     GetPage(
       name: _Path.MAIN_HOME,
       page: () => MainHomeView(),
       binding: MainHomeBinding(),
     ),
-    GetPage(
-      name: _Path.HOME,
-      page: () => HomeView(),
-      binding: HomeBinding(),
-    ),
+    GetPage(name: _Path.HOME, page: () => HomeView(), binding: HomeBinding()),
     GetPage(
       name: _Path.LOGIN,
       page: () => LoginView(),

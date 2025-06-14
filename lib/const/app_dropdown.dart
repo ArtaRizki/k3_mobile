@@ -19,21 +19,25 @@ class AppDropdown {
         if (label != '')
           Text(
             label,
-            style: AppTextStyle.actionL
-                .copyWith(color: AppColor.neutralDarkDarkest),
+            style: AppTextStyle.actionL.copyWith(
+              color: AppColor.neutralDarkDarkest,
+            ),
           ),
         if (label != '') const SizedBox(height: 8),
         DropdownButtonFormField(
           dropdownColor: AppColor.neutralLightLightest,
-          items: readOnly ? null : list,
+          items: list,
           onTap: onTap,
           style: AppTextStyle.bodyM.copyWith(color: AppColor.neutralDarkMedium),
           onChanged: onChanged,
           onSaved: (val) => FocusManager.instance.primaryFocus?.unfocus(),
           icon: Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 0, 64),
-            child: Icon(Icons.keyboard_arrow_down,
-                color: AppColor.neutralLightDarkest, size: 24),
+            child: Icon(
+              Icons.keyboard_arrow_down,
+              color: AppColor.neutralLightDarkest,
+              size: 24,
+            ),
           ),
           // style: Constant.primaryTextStyle,
           isExpanded: true,
@@ -41,8 +45,9 @@ class AppDropdown {
             filled: true,
             fillColor: readOnly ? AppColor.neutralLightLight : Colors.white,
             hintText: hintText,
-            hintStyle: AppTextStyle.bodyM
-                .copyWith(color: AppColor.neutralLightDarkest),
+            hintStyle: AppTextStyle.bodyM.copyWith(
+              color: AppColor.neutralLightDarkest,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: AppColor.neutralLightDarkest),
@@ -63,8 +68,10 @@ class AppDropdown {
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: AppColor.errorDark),
             ),
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 14,
+              horizontal: 16,
+            ),
           ),
           hint: Text(
             hintText,
@@ -107,8 +114,9 @@ class AppDropdown {
           if (label != '')
             Text(
               label,
-              style: AppTextStyle.actionL
-                  .copyWith(color: AppColor.neutralDarkDarkest),
+              style: AppTextStyle.actionL.copyWith(
+                color: AppColor.neutralDarkDarkest,
+              ),
             ),
           if (label != '') const SizedBox(height: 8),
           CustomDropdownSearch().dropdownFilter(

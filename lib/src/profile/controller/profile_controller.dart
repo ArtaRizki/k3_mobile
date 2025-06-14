@@ -1,23 +1,32 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:k3_mobile/const/app_shared_preference_key.dart';
+import 'package:k3_mobile/src/login/model/login_model.dart';
+import 'package:k3_mobile/src/session/controller/session_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ProfileController extends GetxController
-    with GetSingleTickerProviderStateMixin {
-  late TabController tabC;
+class ProfileController extends GetxController {
+  var loading = false.obs;
+  var loginModel = Rxn<LoginModel>(); // Make it reactive
+
   @override
   void onInit() async {
+    // Initialize from SessionController if available
+    final sessionController = Get.find<SessionController>();
+    loginModel.value = sessionController.loginModel.value;
+    await getData();
     super.onInit();
-    tabC = TabController(length: 2, vsync: this);
   }
 
-  @override
-  void onReady() async {
-    super.onReady();
-  }
-
-  @override
-  void onClose() async {
-    tabC.dispose();
-    super.onClose();
+  Future<void> getData() async {
+    var prefs = await SharedPreferences.getInstance();
+    var loginDataKey = prefs.getString(
+      AppSharedPreferenceKey.kSetPrefLoginModel,
+    );
+    if (loginDataKey != null) {
+      loginModel.value = LoginModel.fromJson(jsonDecode(loginDataKey));
+    }
   }
 }

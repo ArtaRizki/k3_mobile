@@ -2,6 +2,7 @@ part of 'app_page.dart';
 
 abstract class AppRoute {
   AppRoute._();
+  static const SPLASH = _Path.SPLASH;
   static const MAIN_HOME = _Path.MAIN_HOME;
   static const HOME = _Path.HOME;
   static const LOGIN = _Path.LOGIN;
@@ -27,6 +28,7 @@ abstract class AppRoute {
 
 abstract class _Path {
   _Path._();
+  static const SPLASH = '/';
   static const MAIN_HOME = '/mainHome';
   static const HOME = '/home';
   static const LOGIN = '/login';

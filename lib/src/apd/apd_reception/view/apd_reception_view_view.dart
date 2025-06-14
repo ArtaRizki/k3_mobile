@@ -16,23 +16,25 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppAppbar.basicAppbar(
-        // harusnya penerimaanCode atau code saja
-        title: controller.viewData.value.permintaanCode ?? '',
-        centerTitle: false,
-        titleSpacing: 0,
-        titleStyle: AppTextStyle.h4.copyWith(
-          color: AppColor.neutralDarkDarkest,
+    return Obx(() {
+      final buktiFoto =
+          (controller.viewData.value.data?.gambarPenerimaan ?? []);
+      return Scaffold(
+        appBar: AppAppbar.basicAppbar(
+          // harusnya penerimaanCode atau code saja
+          title: controller.viewData.value.data?.permintaanCode ?? '',
+          centerTitle: false,
+          titleSpacing: 0,
+          titleStyle: AppTextStyle.h4.copyWith(
+            color: AppColor.neutralDarkDarkest,
+          ),
+          action: _buildActionButtons(),
         ),
-        action: _buildActionButtons(),
-      ),
-      body: SafeArea(
-        child: Container(
-          color: AppColor.neutralLightLightest,
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
-          child: Obx(() {
-            return SingleChildScrollView(
+        body: SafeArea(
+          child: Container(
+            color: AppColor.neutralLightLightest,
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+            child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -59,52 +61,45 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
                     ),
                   ),
                   SizedBox(height: 6),
-                  //
-                  //
-                  // MENUNGGGU MAS ICHUL
-                  //
-                  //
-                  // if (controller.viewData.value.buktiFoto?.isEmpty ?? false) ...[
-                  //   Center(child: Text('Tidak ada gambar')),
-                  // ] else ...[
-                  //   Container(
-                  //     padding: EdgeInsets.symmetric(vertical: 6),
-                  //     child: Wrap(
-                  //       spacing: 10,
-                  //       children: List.generate(
-                  //         controller.viewData.value.buktiFoto?.isEmpty ?? false
-                  //             ? 1
-                  //             : controller.viewData.value.buktiFoto?.length ?? 0,
-                  //         (i) {
-                  //           final item = controller.viewData.value.buktiFoto?[i];
-                  //           return InkWell(
-                  //             onTap: () async {
-                  //               await Get.toNamed(
-                  //                 AppRoute.IMAGE_PREVIEW,
-                  //                 arguments: item,
-                  //               );
-                  //             },
-                  //             child: Container(
-                  //               width: 68,
-                  //               height: 68,
-                  //               decoration:
-                  //                   BoxDecoration(color: Colors.white),
-                  //               child: ClipRRect(
-                  //                 borderRadius: BorderRadius.circular(12),
-                  //                 child: Image.file(
-                  //                   File(item),
-                  //                   width: 68,
-                  //                   height: 68,
-                  //                   fit: BoxFit.cover,
-                  //                 ),
-                  //               ),
-                  //             ),
-                  //           );
-                  //         },
-                  //       ),
-                  //     ),
-                  //   )
-                  // ],
+                  if (buktiFoto.isEmpty) ...[
+                    Center(child: Text('Tidak ada gambar')),
+                  ] else ...[
+                    Container(
+                      padding: EdgeInsets.symmetric(vertical: 6),
+                      child: Wrap(
+                        spacing: 10,
+                        children: List.generate(
+                          buktiFoto.isEmpty ? 1 : buktiFoto.length,
+                          (i) {
+                            final item = buktiFoto[i];
+                            return InkWell(
+                              onTap: () async {
+                                await Get.toNamed(
+                                  AppRoute.IMAGE_PREVIEW,
+                                  arguments: item,
+                                );
+                              },
+                              child: Container(
+                                width: 68,
+                                height: 68,
+                                decoration: BoxDecoration(color: Colors.white),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.network(
+                                    // File(item),
+                                    item?.file ?? '',
+                                    width: 68,
+                                    height: 68,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                   SizedBox(height: 12),
                   Text(
                     'Tanda tangan',
@@ -124,7 +119,7 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
                       children: [
                         Center(
                           child: Image.network(
-                            controller.viewData.value.fileTtd ?? '',
+                            controller.viewData.value.data?.fileTtd ?? '',
                             height: 138,
                           ),
                         ),
@@ -133,7 +128,7 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
                           left: 0,
                           right: 0,
                           child: Text(
-                            'Riowaldy Indrawan',
+                            controller.viewData.value.data?.filenameTtd ?? '',
                             textAlign: TextAlign.center,
                             style: AppTextStyle.bodyS.copyWith(
                               color: AppColor.neutralDarkLight,
@@ -146,29 +141,33 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
                   SizedBox(height: 24),
                 ],
               ),
-            );
-          }),
+            ),
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   List<Widget> _buildActionButtons() {
-    final status = controller.viewData.value.docStatus;
+    final status = controller.viewData.value.data?.docStatus ?? '';
     return [
-      if (status == 'Draft')
-        _buildActionButton('Ajukan', AppColor.warningDark, () => Get.back()),
-      if (status == 'Draft' || status == 'Ditolak')
+      if (status == '2')
+        _buildActionButton('Ajukan', AppColor.warningDark, () async {
+          // ajukan
+          await controller.setApdStatus('0');
+          Get.back();
+        }),
+      if (status == '2' || status == '3')
         _buildActionButton('Edit', AppColor.highlightDarkest, () async {
           Get.toNamed(
-            AppRoute.APD_REQUEST_CREATE,
-            arguments: [controller.indexData.value, controller.viewData.value],
+            AppRoute.APD_RECEPTION_CREATE,
+            arguments: controller.viewData.value.data?.id ?? '',
           );
         }),
-      if (status == 'Draft')
+      if (status == '2')
         _buildActionButton('Hapus', AppColor.errorDark, () async {
           var c = Get.find<ApdReceptionController>();
-          await c.deleteApdReceptionModelData(controller.indexData.value);
+          await c.deleteApdReceptionModel(controller.indexData.value);
           c.update();
           Get.back();
         }),
@@ -187,40 +186,40 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
   }
 
   List<Widget> header() {
-    final data = controller.viewData.value;
+    final data = controller.viewData.value.data;
     return [
-      headerItem('Tanggal', data.docDate ?? ''),
+      headerItem('Tanggal', data?.docDate ?? ''),
       SizedBox(height: 9),
-      headerItem('Unit', data.unitName ?? ''),
+      headerItem('Unit', data?.unitName ?? ''),
       SizedBox(height: 9),
-      headerItem('Keterangan', data.keterangan ?? ''),
+      headerItem('Keterangan', data?.keterangan ?? ''),
       SizedBox(height: 9),
       headerItem(
         'Status',
-        Utils.getDocStatusName(data.docStatus ?? ''),
-        valueColor: Utils.getDocStatusColor(data.docStatus ?? ''),
+        Utils.getDocStatusName(data?.docStatus ?? ''),
+        valueColor: Utils.getDocStatusColor(data?.docStatus ?? ''),
       ),
       SizedBox(height: 9),
     ];
   }
 
   List<Widget> headerApdRequest() {
-    final data = controller.viewData.value;
+    final data = controller.viewData.value.data;
     return [
-      headerItem('Permintaan APD No', data.permintaanCode ?? ''),
+      headerItem('Permintaan APD No', data?.permintaanCode ?? ''),
       SizedBox(height: 9),
-      headerItem('Tanggal', data.permintaanDate ?? ''),
+      headerItem('Tanggal', data?.permintaanDate ?? ''),
     ];
   }
 
   List<Widget> headerOutcome() {
-    final data = controller.viewData.value;
+    final data = controller.viewData.value.data;
     return [
-      headerItem('Pengeluaran barang No', data.pengeluaranCode ?? ''),
+      headerItem('Pengeluaran barang No', data?.pengeluaranCode ?? ''),
       SizedBox(height: 9),
-      headerItem('Tanggal', data.docDate ?? ''),
+      headerItem('Tanggal', data?.docDate ?? ''),
       SizedBox(height: 9),
-      headerItem('Vendor', data.vendorName ?? ''),
+      headerItem('Vendor', data?.vendorName ?? ''),
     ];
   }
 
@@ -250,7 +249,7 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
   }
 
   Widget list() {
-    final data = controller.viewData.value.daftarPenerimaan ?? [];
+    final data = controller.viewData.value.data?.daftarPenerimaan ?? [];
     return ListView.builder(
       shrinkWrap: true,
       itemCount: data.length,
@@ -266,19 +265,39 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
               i % 2 == 0
                   ? AppColor.highlightLightest
                   : AppColor.neutralLightLightest,
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // harusnya kode
-              titleSubtitle('Kode', item?.apdId ?? '', 3),
-              SizedBox(width: 6),
-              titleSubtitle('Nama', item?.apdName ?? '', 4),
-              SizedBox(width: 6),
-              titleSubtitle('Jumlah', '${item?.qty ?? 0}', 2),
-              SizedBox(width: 6),
-              titleSubtitle('Sisa', '${item?.qty ?? 0}', 2),
-              SizedBox(width: 6),
-              titleSubtitle('Diterima', '${item?.qty ?? 0}', 2),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // harusnya kode
+                  titleSubtitle('Kode', item?.code ?? '', 3),
+                  SizedBox(width: 6),
+                  titleSubtitle('Nama', item?.apdName ?? '', 4),
+                  SizedBox(width: 6),
+                  titleSubtitle('Jumlah', '${item?.qtyJumlah ?? 0}', 2),
+                  SizedBox(width: 6),
+                  titleSubtitle('Sisa', '${item?.qtySisa ?? 0}', 2),
+                  SizedBox(width: 6),
+                  titleSubtitle('Diterima', '${item?.qtyDiterima ?? 0}', 2),
+                ],
+              ),
+              SizedBox(height: 10),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  titleSubtitle('Warna', item?.warna ?? '-', 5),
+                  SizedBox(width: 12),
+                  titleSubtitle('Baju', item?.ukuranBaju ?? '-', 4),
+                  SizedBox(width: 12),
+                  titleSubtitle('Celana', item?.ukuranCelana ?? '-', 5),
+                  SizedBox(width: 12),
+                  titleSubtitle('Jenis', '${item?.jenisSepatu ?? '-'}', 5),
+                  SizedBox(width: 12),
+                  titleSubtitle('Ukuran', '${item?.ukuranSepatu ?? '-'}', 5),
+                ],
+              ),
             ],
           ),
         );

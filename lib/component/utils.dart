@@ -760,17 +760,16 @@ class Utils {
   }
 
   static String getDocStatusName(String n) {
-    switch (n) {
-      case '1':
-        return 'Disetujui';
-      case '2':
-        return 'Draft';
-      case '3':
-        return 'Ditolak';
-      case '4':
-        return 'Dikirim';
-      default:
-        return 'Diajukan';
+    if (n == '1') {
+      return 'Disetujui';
+    } else if (n == '2') {
+      return 'Draft';
+    } else if (n == '3') {
+      return 'Ditolak';
+    } else if (n == '4') {
+      return 'Dikirim';
+    } else {
+      return 'Diajukan';
     }
   }
 
@@ -783,6 +782,21 @@ class Utils {
       case '3':
         return AppColor.errorDark;
       case '4':
+        return AppColor.neutralDarkDarkest;
+      default:
+        return AppColor.warningDark;
+    }
+  }
+
+  static Color getDocStatusColorByName(String status) {
+    switch (status) {
+      case 'Disetujui':
+        return AppColor.successMedium;
+      case 'Draft':
+        return AppColor.highlightDarkest;
+      case 'Ditolak':
+        return AppColor.errorDark;
+      case 'Dikirim':
         return AppColor.neutralDarkDarkest;
       default:
         return AppColor.warningDark;

@@ -15,28 +15,30 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppAppbar.basicAppbar(
-        title: 'ARQ/2025/II/001',
-        centerTitle: false,
-        titleSpacing: 0,
-        titleStyle: AppTextStyle.h4.copyWith(
-          color: AppColor.neutralDarkDarkest,
+    return Obx(
+      () => Scaffold(
+        appBar: AppAppbar.basicAppbar(
+          title: controller.viewData.value.data?.code ?? '',
+          centerTitle: false,
+          titleSpacing: 0,
+          titleStyle: AppTextStyle.h4.copyWith(
+            color: AppColor.neutralDarkDarkest,
+          ),
+          action: _buildActionButtons(),
         ),
-        action: _buildActionButtons(),
-      ),
-      body: SafeArea(
-        child: Container(
-          color: AppColor.neutralLightLightest,
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ..._buildHeader(),
-                ..._buildRequestList(),
-                _buildTimeline(),
-              ],
+        body: SafeArea(
+          child: Container(
+            color: AppColor.neutralLightLightest,
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ..._buildHeader(),
+                  ..._buildRequestList(),
+                  _buildTimeline(),
+                ],
+              ),
             ),
           ),
         ),
@@ -47,16 +49,20 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
   List<Widget> _buildActionButtons() {
     final status = controller.viewData.value.data?.docStatus ?? '';
     return [
-      if (status == 'Draft')
-        _buildActionButton('Ajukan', AppColor.warningDark, () => Get.back()),
-      if (status == 'Draft' || status == 'Ditolak')
+      if (status == '2')
+        _buildActionButton('Ajukan', AppColor.warningDark, () async {
+          // ajukan
+          await controller.setApdStatus('0');
+          Get.back();
+        }),
+      if (status == '2' || status == '3')
         _buildActionButton('Edit', AppColor.highlightDarkest, () async {
           Get.toNamed(
             AppRoute.APD_REQUEST_CREATE,
-            arguments: [controller.indexData.value, controller.viewData.value],
+            arguments: controller.viewData.value.data?.id ?? '',
           );
         }),
-      if (status == 'Draft')
+      if (status == '2')
         _buildActionButton('Hapus', AppColor.errorDark, () async {
           var c = Get.find<ApdRequestController>();
           await c.deleteApdRequestModel(controller.indexData.value);
@@ -81,12 +87,7 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
     final data = controller.viewData.value.data;
     return [
       SizedBox(height: 12),
-      _headerItem(
-        'Tanggal',
-        DateFormat(
-          'dd/MM/yyyy',
-        ).format(DateFormat('dd-MM-yyyy').parse(data?.docDate ?? '')),
-      ),
+      _headerItem('Tanggal', data?.docDate ?? ''),
       SizedBox(height: 9),
       _headerItem('Unit', data?.unitName ?? ''),
       SizedBox(height: 9),
@@ -146,14 +147,36 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
                 i % 2 == 0
                     ? AppColor.highlightLightest
                     : AppColor.neutralLightLightest,
-            child: Row(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _titleSubtitle('Kode', item?.apdId ?? '', 3),
-                SizedBox(width: 12),
-                _titleSubtitle('Nama', item?.apdName ?? '', 5),
-                SizedBox(width: 12),
-                _titleSubtitle('Jumlah', '${item?.qty ?? 0}', 2),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _titleSubtitle('Kode', item?.code ?? '', 3),
+                    SizedBox(width: 12),
+                    _titleSubtitle('Nama', item?.apdName ?? '', 6),
+                    SizedBox(width: 12),
+                    _titleSubtitle('Kategori', 'Dummy', 3),
+                    SizedBox(width: 12),
+                    _titleSubtitle('Jumlah', '${item?.qty ?? 0}', 3),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _titleSubtitle('Warna', item?.warna ?? '-', 5),
+                    SizedBox(width: 12),
+                    _titleSubtitle('Baju', item?.ukuranBaju ?? '-', 4),
+                    SizedBox(width: 12),
+                    _titleSubtitle('Celana', item?.ukuranCelana ?? '-', 5),
+                    SizedBox(width: 12),
+                    _titleSubtitle('Jenis', '${item?.jenisSepatu ?? '-'}', 5),
+                    SizedBox(width: 12),
+                    _titleSubtitle('Ukuran', '${item?.ukuranSepatu ?? '-'}', 5),
+                  ],
+                ),
               ],
             ),
           );
@@ -187,6 +210,7 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
   }
 
   Widget _buildTimeline() {
+    final list = controller.viewData.value.data?.linimasa ?? [];
     return Container(
       margin: EdgeInsets.symmetric(vertical: 24),
       padding: EdgeInsets.symmetric(vertical: 24),
@@ -203,11 +227,12 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 12),
             child: Column(
-              children: List.generate(2, (i) {
+              children: List.generate(list.length, (i) {
+                final item = list[i];
                 return _timelineItem(
-                  '14/02/2025\n14:00',
-                  'Permintaan APD diajukan',
-                  'Siti',
+                  item?.tanggalAction ?? '',
+                  item?.keterangan ?? '',
+                  item?.userName ?? '',
                 );
               }),
             ),
@@ -221,9 +246,10 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            flex: 3,
+            flex: 2,
             child: Text(
               t1,
               style: AppTextStyle.bodyS.copyWith(
@@ -232,7 +258,7 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
             ),
           ),
           Expanded(
-            flex: 3,
+            flex: 4,
             child: Text(
               t2,
               style: AppTextStyle.bodyS.copyWith(

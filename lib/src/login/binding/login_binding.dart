@@ -5,7 +5,6 @@ import 'package:k3_mobile/src/main_home/controller/main_home_controller.dart';
 class LoginBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put(MainHomeController());
     Get.put(LoginController());
   }
 }

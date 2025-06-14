@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -5,13 +6,18 @@ import 'package:intl/intl.dart';
 import 'package:k3_mobile/component/custom_date_picker.dart';
 import 'package:k3_mobile/component/http_request_client.dart';
 import 'package:k3_mobile/component/utils.dart';
+import 'package:k3_mobile/const/app_shared_preference_key.dart';
+import 'package:k3_mobile/const/app_snackbar.dart';
 import 'package:k3_mobile/src/apd/apd_request/controller/apd_request_controller.dart';
-import 'package:k3_mobile/src/apd/apd_request/model/apd_request_model.dart';
 import 'package:k3_mobile/src/apd/apd_request/model/apd_request_param.dart';
+import 'package:k3_mobile/src/apd/apd_request/model/apd_request_view_model.dart';
 import 'package:k3_mobile/src/apd/model/apd_select_model.dart';
+import 'package:k3_mobile/src/login/model/login_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApdRequestCreateController extends GetxController {
   var req = HttpRequestClient();
+  var loginModel = LoginModel().obs;
   var loading = false.obs;
   var loadingSendApd = false.obs;
   var loadingSaveDraftApd = false.obs;
@@ -33,29 +39,15 @@ class ApdRequestCreateController extends GetxController {
   var apdReqList = <ApdRequestParamDataApd>[].obs;
   var indexData = 0.obs;
 
-  var viewData = ApdRequestParam().obs;
+  var viewData = ApdRequestViewModel().obs;
 
-  var filteredApdSelectList = <ApdSelectModelData>[].obs;
+  var filteredApdSelectList = <ApdSelectModelData?>[].obs;
 
   List<String> statusList = ['Draft', 'Diajukan', 'Disetujui', 'Ditolak'];
 
-  // var apdSelectList = [
-  //   ApdSelectModel(code: 'APD001', category: 'Sipil', name: 'Helm Proyek'),
-  //   ApdSelectModel(code: 'APD002', category: 'Sipil', name: 'Sepatu Safety'),
-  //   ApdSelectModel(code: 'APD003', category: 'Elektrik', name: 'Sarung Tangan'),
-  //   ApdSelectModel(code: 'APD004', category: 'Sipil', name: 'Rompi'),
-  //   ApdSelectModel(
-  //     code: 'APD005',
-  //     category: 'Kesehatan',
-  //     name: 'Tabung Oksigen',
-  //   ),
-  //   ApdSelectModel(code: 'APD006', category: 'Kesehatan', name: 'Kaca mata'),
-  //   ApdSelectModel(code: 'APD007', category: 'Kesehatan', name: 'Masker'),
-  //   ApdSelectModel(code: 'APD008', category: 'Sipil', name: 'Sabuk pengaman'),
-  //   ApdSelectModel(code: 'APD009', category: 'Kesehatan', name: 'Earloop'),
-  // ];
+  var apdSelectList = <ApdSelectModelData?>[].obs;
 
-  bool validate() => dateC.value.text.isNotEmpty;
+  bool validate() => dateC.value.text.isNotEmpty && apdReqList.isNotEmpty;
 
   void validateForm() {
     isValidated.value = validate();
@@ -105,125 +97,245 @@ class ApdRequestCreateController extends GetxController {
   }
 
   Future<void> init() async {
+    await getSelectApd();
     // filteredApdSelectList.assignAll(apdSelectList);
     searchApdC.value.addListener(_onSearchApdChanged);
-
+    final prefs = await SharedPreferences.getInstance();
+    final data = prefs.getString(AppSharedPreferenceKey.kSetPrefLoginModel);
+    if (data != null) {
+      loginModel.value = LoginModel.fromJson(jsonDecode(data));
+      final user = loginModel.value.data;
+      log("USER NAME : ${user?.name ?? ''}");
+      log("USER UNIT : ${user?.unitName ?? ''}");
+      update();
+    }
     if (Get.arguments != null) {
+      await getData();
       isEditMode.value = true;
-      viewData.value = Get.arguments[1];
-      indexData.value = Get.arguments[0];
-      final data = viewData.value;
-      // dateC.value.text = data.date;
-      // noteC.value.text = data.note;
-      // selectedStatus.value = data.status;
-      // apdReqList.assignAll(data.reqList);
+      final data = viewData.value.data;
+      String formattedDate = data?.docDate ?? '';
+      dateC.value.text = DateFormat(
+        'dd-MM-yyyy',
+      ).format(DateFormat('dd/MM/yyyy').parse(formattedDate));
+      dateTime.value = DateFormat('dd-MM-yyyy').parse(dateC.value.text);
+      noteC.value.text = data?.description ?? '';
+      // selectedStatus.value = data?.docStatus;
+      apdReqList.assignAll(
+        data?.daftarPermintaan
+                ?.map(
+                  (e) => ApdRequestParamDataApd(
+                    id: e?.id ?? '',
+                    apdId: e?.apdId ?? '',
+                    apdName: e?.apdName ?? '',
+                    qty: e?.qty ?? 0,
+                    code: e?.code ?? '',
+                    warna: e?.warna ?? '',
+                    ukuranBaju: e?.ukuranBaju ?? '',
+                    ukuranCelana: e?.ukuranCelana ?? '',
+                    ukuranSepatu: e?.ukuranSepatu ?? '',
+                    jenisSepatu: e?.jenisSepatu ?? '',
+                  ),
+                )
+                .toList() ??
+            [],
+      );
       validateForm();
     }
     update();
+  }
+
+  Future<void> getSelectApd() async {
+    if (!loading.value) {
+      loading(true);
+      final response = await req.get('/get-data-select-apd');
+      if (response.statusCode == 200) {
+        apdSelectList.value =
+            ApdSelectModel.fromJson(jsonDecode(response.body)).data ?? [];
+        filteredApdSelectList.assignAll(apdSelectList);
+        loading(false);
+        update();
+      } else {
+        final msg = jsonDecode(response.body)['message'];
+        if (msg == '') AppSnackbar.showSnackBar(Get.context!, msg, true);
+      }
+    }
+  }
+
+  Future<void> getData() async {
+    if (!loading.value) {
+      loading(true);
+      final response = await req.post(
+        '/get-data-permintaan-by-id',
+        body: {'id': '${Get.arguments}'},
+      );
+      if (response.statusCode == 200) {
+        viewData.value = ApdRequestViewModel.fromJson(
+          jsonDecode(response.body),
+        );
+        loading(false);
+        update();
+      } else {
+        final msg = jsonDecode(response.body)['message'];
+        if (msg == '') AppSnackbar.showSnackBar(Get.context!, msg, true);
+      }
+    }
   }
 
   void _onSearchApdChanged() {
     String query = searchApdC.value.text.toLowerCase();
 
     if (query.isEmpty) {
-      // filteredApdSelectList.assignAll(apdSelectList);
+      filteredApdSelectList.assignAll(apdSelectList);
     } else {
-      // filteredApdSelectList.assignAll(
-        // apdSelectList.where((apd) {
-        //   return apd.code.toLowerCase().contains(query) ||
-        //       apd.category.toLowerCase().contains(query) ||
-        //       apd.name.toLowerCase().contains(query);
-        // }).toList(),
-      // );
+      filteredApdSelectList.assignAll(
+        apdSelectList.where((apd) {
+          return (apd?.name ?? '').toLowerCase().contains(query) ||
+              (apd?.code ?? '').toLowerCase().contains(query) ||
+              (apd?.warna ?? '').toLowerCase().contains(query) ||
+              (apd?.ukuranBaju ?? '').toLowerCase().contains(query) ||
+              (apd?.ukuranCelana ?? '').toLowerCase().contains(query) ||
+              (apd?.ukuranSepatu ?? '').toLowerCase().contains(query) ||
+              (apd?.jenisSepatu ?? '').toLowerCase().contains(query);
+        }).toList(),
+      );
     }
   }
 
   Future<void> saveDraftApdRequest() async {
     FocusManager.instance.primaryFocus?.unfocus();
     loadingSaveDraftApd(true);
+    update();
 
-    // var param = ApdRequestParam(
-    //   id: 'ARQ/2025/II/001',
-    //   unit: 'Unit Kalimantan',
-    //   date: dateC.value.text,
-    //   note: noteC.value.text,
-    //   status: selectedStatus.value ?? '',
-    //   reqList: apdReqList,
-    // );
+    var body = ApdRequestParam(
+      unit: loginModel.value.data?.unitId ?? '',
+      docDate: DateFormat(
+        'yyyy-MM-dd',
+      ).format(dateTime.value ?? DateTime.now()),
+      description: noteC.value.text,
+      action: 'draft',
+      dataApd: apdReqList,
+    );
+    final response = await req.post(
+      '/save-permintaan-apd',
+      body: body.toJson(),
+    );
 
-    var listC = Get.find<ApdRequestController>();
-    // listC.apdReq.add(param);
-    listC.filteredApdReq.assignAll(listC.apdReq);
-    listC.refresh();
-
-    log("LIST LENGTH : ${listC.apdReq.length}");
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      update();
+      loading(false);
+      Get.find<ApdRequestController>().getData();
+      Get.back();
+      final map = jsonDecode(response.body);
+      Utils.showSuccess(msg: map["message"]);
+    } else {
+      final mapError = jsonDecode(response.body);
+      final message = mapError["message"] + '' + mapError["error"];
+      loading(false);
+      AppSnackbar.showSnackBar(Get.context!, message, true);
+      throw Exception(message);
+    }
     loadingSaveDraftApd(false);
-    Get.back();
-    listC.update();
-    Utils.showSuccess(msg: '');
   }
 
   Future<void> sendApdRequest() async {
     FocusManager.instance.primaryFocus?.unfocus();
     loadingSendApd(true);
+    update();
 
-    // var param = ApdRequestParam(
-    //   id: 'ARQ/2025/II/001',
-    //   unit: 'Unit Kalimantan',
-    //   date: dateC.value.text,
-    //   note: noteC.value.text,
-    //   status: selectedStatus.value ?? '',
-    //   reqList: apdReqList,
-    // );
+    var body = ApdRequestParam(
+      unit: loginModel.value.data?.unitId ?? '',
+      docDate: DateFormat(
+        'yyyy-MM-dd',
+      ).format(dateTime.value ?? DateTime.now()),
+      description: noteC.value.text,
+      action: null,
+      dataApd: apdReqList,
+    );
+    final response = await req.post(
+      '/save-permintaan-apd',
+      body: body.toJson(),
+    );
 
-    var listC = Get.find<ApdRequestController>();
-    // listC.apdReq.add(param);
-    listC.filteredApdReq.assignAll(listC.apdReq);
-    listC.refresh();
-
-    log("LIST LENGTH : ${listC.apdReq.length}");
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      update();
+      loading(false);
+      Get.find<ApdRequestController>().getData();
+      Get.back();
+      final map = jsonDecode(response.body);
+      Utils.showSuccess(msg: map["message"]);
+    } else {
+      final mapError = jsonDecode(response.body);
+      final message = mapError["message"] + '' + mapError["error"];
+      loading(false);
+      AppSnackbar.showSnackBar(Get.context!, message, true);
+      throw Exception(message);
+    }
     loadingSendApd(false);
-    Get.back();
-    listC.update();
-    Utils.showSuccess(msg: '');
   }
 
-  Future<void> editSendApdRequest(int i) async {
+  Future<void> editSendApdRequest() async {
     FocusManager.instance.primaryFocus?.unfocus();
     loadingSendApd(true);
+    update();
 
-    // var param = ApdRequestParam(
-    //   id: 'ARQ/2025/II/001',
-    //   unit: 'Unit Kalimantan',
-    //   date: dateC.value.text,
-    //   note: noteC.value.text,
-    //   status: selectedStatus.value ?? '',
-    //   reqList: apdReqList,
-    // );
+    var body = ApdRequestParam(
+      id: viewData.value.data?.id ?? '',
+      unit: loginModel.value.data?.unitId ?? '',
+      docDate: DateFormat(
+        'yyyy-MM-dd',
+      ).format(dateTime.value ?? DateTime.now()),
+      description: noteC.value.text,
+      action: null,
+      dataApd: apdReqList,
+    );
+    final response = await req.post(
+      '/save-permintaan-apd',
+      body: body.toJson(),
+    );
 
-    var listC = Get.find<ApdRequestController>();
-    // listC.apdReq.replaceRange(i, i + 1, [param]);
-    listC.filteredApdReq.assignAll(listC.apdReq);
-    listC.refresh();
-
-    log("LIST LENGTH : ${listC.apdReq.length}");
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      update();
+      loading(false);
+      Get.find<ApdRequestController>().getData();
+      Get.back();
+      Get.back();
+      final map = jsonDecode(response.body);
+      Utils.showSuccess(msg: map["message"]);
+    } else {
+      final mapError = jsonDecode(response.body);
+      final message = mapError["message"] + '' + mapError["error"];
+      loading(false);
+      AppSnackbar.showSnackBar(Get.context!, message, true);
+      throw Exception(message);
+    }
     loadingSendApd(false);
-    Get.back();
-    Get.back();
-    listC.update();
-    Utils.showSuccess(msg: '');
   }
 
   Future<void> addApdRequest() async {
     loadingAddApd(true);
-
-    // apdReqList.add(
-    //   ApdRequestModel(
-    //     code: searchC.value.text,
-    //     name: apdNameC.value.text,
-    //     qty: amountC.value.text,
-    //   ),
-    // );
+    log("ADDED APD : ${searchC.value.text}");
+    for (var item in apdSelectList) {
+      log("APD SELECT LIST : ${item?.id}");
+    }
+    final getApd =
+        (filteredApdSelectList.where(
+          (e) => e?.code == searchC.value.text,
+        )).first;
+    log("ADDED APD : ${getApd?.id ?? ''}");
+    apdReqList.add(
+      ApdRequestParamDataApd(
+        id: getApd?.id ?? '',
+        apdId: getApd?.id ?? '',
+        apdName: apdNameC.value.text,
+        qty: int.parse(amountC.value.text),
+        code: searchC.value.text,
+        warna: getApd?.warna ?? '',
+        ukuranBaju: getApd?.ukuranBaju ?? '',
+        ukuranCelana: getApd?.ukuranCelana ?? '',
+        ukuranSepatu: getApd?.ukuranSepatu ?? '',
+        jenisSepatu: getApd?.jenisSepatu ?? '',
+      ),
+    );
 
     searchC.value.clear();
     apdNameC.value.clear();
@@ -236,14 +348,29 @@ class ApdRequestCreateController extends GetxController {
 
   Future<void> editApdRequest(int i) async {
     loadingAddApd(true);
-
-    // apdReqList.replaceRange(i, i + 1, [
-    //   ApdRequestModel(
-    //     code: 'APD${i + 1}',
-    //     name: apdNameC.value.text,
-    //     qty: amountC.value.text,
-    //   ),
-    // ]);
+    log("ADDED APD : ${searchC.value.text}");
+    for (var item in apdSelectList) {
+      log("APD SELECT LIST : ${item?.id}");
+    }
+    final getApd =
+        (filteredApdSelectList.where(
+          (e) => e?.code == searchC.value.text,
+        )).first;
+    log("ADDED APD : ${getApd?.id ?? ''}");
+    apdReqList.replaceRange(i, i + 1, [
+      ApdRequestParamDataApd(
+        id: getApd?.id ?? '',
+        apdId: getApd?.id ?? '',
+        apdName: apdNameC.value.text,
+        qty: int.parse(amountC.value.text),
+        code: searchC.value.text,
+        warna: getApd?.warna ?? '',
+        ukuranBaju: getApd?.ukuranBaju ?? '',
+        ukuranCelana: getApd?.ukuranCelana ?? '',
+        ukuranSepatu: getApd?.ukuranSepatu ?? '',
+        jenisSepatu: getApd?.jenisSepatu ?? '',
+      ),
+    ]);
 
     searchC.value.clear();
     apdNameC.value.clear();
@@ -256,7 +383,7 @@ class ApdRequestCreateController extends GetxController {
 
   Future<void> deleteApdRequest(int i) async {
     loadingAddApd(true);
-
+    apdSelectList.removeAt(i);
     apdReqList.removeAt(i);
     searchC.value.clear();
     apdNameC.value.clear();
