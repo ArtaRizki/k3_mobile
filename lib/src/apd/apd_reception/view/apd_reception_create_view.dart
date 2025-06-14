@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_signature_pad/flutter_signature_pad.dart';
 import 'package:get/get.dart';
 import 'package:k3_mobile/component/empty_list.dart';
@@ -147,6 +148,7 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
                   SizedBox(height: 12),
                   AppTextField.basicTextField(
                     controller: controller.noteC.value,
+                    required: true,
                     label: 'Keterangan',
                     hintText: 'Keterangan',
                     onChanged: (v) {
@@ -405,12 +407,16 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
             prefix: SizedBox(width: 12),
             keyboardType: TextInputType.number,
             controller: controller.apdRecListC[i],
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^[1-9]\d*$')),
+            ],
             hintText: 'input',
             contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 0),
             onTap: () async {},
             onChanged: (v) {
               controller.apdRecList[i].qtyDiterima = int.tryParse(v) ?? 0;
               controller.update();
+              controller.validateForm();
             },
           ),
         ],
@@ -698,74 +704,69 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
 
   Widget _buildSaveDraftButton() {
     return Expanded(
-      child: AppButton.basicButton(
-        enable: true,
-        // enable:
-        //     controller.isValidated.value && !controller.loadingSendApd.value,
-        onTap: () async {
-          if (!controller.loadingSaveDraftApd.value &&
-              !controller.loadingSendApd.value) {
-            await controller.saveDraftApdReception();
-          }
+      child: GetBuilder<ApdReceptionCreateController>(
+        builder: (controller) {
+          final enable =
+              controller.isValidated.value &&
+              !controller.loadingSaveDraftApd.value &&
+              !controller.loadingSendApd.value;
+          final loading = controller.loadingSaveDraftApd.value;
+          return AppButton.basicButton(
+            enable: enable,
+            loading: loading,
+            onTap: () async {
+              await controller.saveDraftApdReception();
+            },
+            color: AppColor.warningDark,
+            height: 55,
+            radius: 12,
+            padding: EdgeInsets.fromLTRB(16, loading ? 0 : 18, 16, 0),
+            child: Text(
+              'Simpan draft',
+              textAlign: TextAlign.center,
+              style: AppTextStyle.actionL.copyWith(
+                color: AppColor.neutralLightLightest,
+              ),
+            ),
+          );
         },
-        color: AppColor.warningDark,
-        height: 55,
-        radius: 12,
-        padding: EdgeInsets.fromLTRB(
-          16,
-          controller.loadingSaveDraftApd.value ? 0 : 18,
-          16,
-          0,
-        ),
-        child:
-            controller.loadingSaveDraftApd.value
-                ? _buildLoadingIndicator()
-                : Text(
-                  'Simpan draft',
-                  textAlign: TextAlign.center,
-                  style: AppTextStyle.actionL.copyWith(
-                    color: AppColor.neutralLightLightest,
-                  ),
-                ),
       ),
     );
   }
 
   Widget _buildSubmitButton() {
     return Expanded(
-      child: AppButton.basicButton(
-        enable: true,
-        // enable: controller.isValidated.value &&
-        //     !controller.loadingSaveDraftApd.value,
-        onTap: () async {
-          if (!controller.loadingSendApd.value &&
-              !controller.loadingSaveDraftApd.value) {
-            if (controller.isEditMode.value) {
-              await controller.editSendApdReception(controller.indexData.value);
-            } else {
-              await controller.sendApdReception();
-            }
-          }
+      child: GetBuilder<ApdReceptionCreateController>(
+        builder: (controller) {
+          final enable = controller.isValidated.value;
+          final enableOnTap =
+              !controller.loadingSaveDraftApd.value &&
+              !controller.loadingSendApd.value;
+          final loading = controller.loadingSendApd.value;
+          return AppButton.basicButton(
+            enable: enable,
+            loading: loading,
+            onTap: () async {
+              if (enableOnTap) {
+                if (controller.isEditMode.value)
+                  await controller.editSendApdReception();
+                else
+                  await controller.sendApdReception();
+              }
+            },
+            color: AppColor.highlightDarkest,
+            height: 55,
+            radius: 12,
+            padding: EdgeInsets.fromLTRB(16, loading ? 0 : 18, 16, 0),
+            child: Text(
+              'Ajukan',
+              textAlign: TextAlign.center,
+              style: AppTextStyle.actionL.copyWith(
+                color: AppColor.neutralLightLightest,
+              ),
+            ),
+          );
         },
-        color: AppColor.highlightDarkest,
-        height: 55,
-        radius: 12,
-        padding: EdgeInsets.fromLTRB(
-          16,
-          controller.loadingSendApd.value ? 0 : 18,
-          16,
-          0,
-        ),
-        child:
-            controller.loadingSendApd.value
-                ? _buildLoadingIndicator()
-                : Text(
-                  'Ajukan',
-                  textAlign: TextAlign.center,
-                  style: AppTextStyle.actionL.copyWith(
-                    color: AppColor.neutralLightLightest,
-                  ),
-                ),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:k3_mobile/component/empty_list.dart';
 import 'package:k3_mobile/const/app_appbar.dart';
@@ -426,6 +427,9 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
                 label: 'Jumlah',
                 hintText: 'Jumlah',
                 keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^[1-9]\d*$')),
+                ],
                 onChanged: (v) {
                   controller.validateAddApdForm();
                   controller.update();

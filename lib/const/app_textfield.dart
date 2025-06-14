@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/const/app_textfield_validator.dart';
@@ -23,6 +24,7 @@ class AppTextField {
     EdgeInsetsGeometry? contentPadding,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,17 +34,18 @@ class AppTextField {
             children: [
               Text(
                 label,
-                style: AppTextStyle.actionL
-                    .copyWith(color: AppColor.neutralDarkDarkest),
+                style: AppTextStyle.actionL.copyWith(
+                  color: AppColor.neutralDarkDarkest,
+                ),
               ),
               required
                   ? Text(
-                      ' *',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: Colors.red,
-                      ),
-                    )
+                    ' *',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.red,
+                    ),
+                  )
                   : SizedBox(),
             ],
           ),
@@ -52,25 +55,29 @@ class AppTextField {
           readOnly: readOnly,
           onTap: onTap,
           maxLines: maxLines,
+          inputFormatters: inputFormatters,
           style: AppTextStyle.bodyM.copyWith(color: AppColor.neutralDarkMedium),
           onChanged: onChanged,
           keyboardType: keyboardType,
           decoration: InputDecoration(
             isDense: isDense,
             filled: true,
-            fillColor: readOnly && onChanged == null
-                ? AppColor.neutralLightLight
-                : Colors.white,
-            prefix: prefixIcon == null && prefix == null
-                ? SizedBox(width: 16)
-                : prefix ?? null,
+            fillColor:
+                readOnly && onChanged == null
+                    ? AppColor.neutralLightLight
+                    : Colors.white,
+            prefix:
+                prefixIcon == null && prefix == null
+                    ? SizedBox(width: 16)
+                    : prefix ?? null,
             prefixIconConstraints: prefixIconConstraints,
             prefixIcon: prefixIcon,
             suffixIconConstraints: suffixIconConstraints,
             suffixIcon: suffixIcon,
             hintText: hintText,
-            hintStyle: AppTextStyle.bodyM
-                .copyWith(color: AppColor.neutralLightDarkest),
+            hintStyle: AppTextStyle.bodyM.copyWith(
+              color: AppColor.neutralLightDarkest,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius ?? 12),
               borderSide: BorderSide(color: AppColor.neutralLightDarkest),
@@ -82,9 +89,11 @@ class AppTextField {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius ?? 12),
               borderSide: BorderSide(
-                  color: readOnly
-                      ? AppColor.neutralLightDarkest
-                      : AppColor.highlightDarkest),
+                color:
+                    readOnly
+                        ? AppColor.neutralLightDarkest
+                        : AppColor.highlightDarkest,
+              ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius ?? 12),
@@ -137,8 +146,9 @@ class AppTextField {
         suffixIconConstraints: suffixIconConstraints,
         suffixIcon: suffixIcon,
         hintText: hintText,
-        hintStyle:
-            AppTextStyle.bodyM.copyWith(color: AppColor.neutralLightDarkest),
+        hintStyle: AppTextStyle.bodyM.copyWith(
+          color: AppColor.neutralLightDarkest,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
           borderSide: BorderSide(color: AppColor.neutralLightDarkest),
@@ -159,8 +169,10 @@ class AppTextField {
           borderRadius: BorderRadius.circular(30),
           borderSide: BorderSide(color: AppColor.errorDark),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 14,
+          horizontal: 16,
+        ),
       ),
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: (v) {

@@ -77,8 +77,9 @@ class ApdReceptionCreateController extends GetxController {
     if (apdReqNumberC.value.text.isEmpty) return false;
     if (expNumberC.value.text.isEmpty) return false;
     if (vendorC.value.text.isEmpty) return false;
-    if (noteC.value.text.isEmpty) return false;
+    // if (noteC.value.text.isEmpty) return false;
     if (apdRecList.isEmpty) return false;
+    if (apdRecListC.any((e) => e.text.isEmpty)) return false;
     if (images.isEmpty) return false;
     var file = await signKey.value.currentState!.getData();
     if (file.height <= 0) return false;
@@ -461,7 +462,7 @@ class ApdReceptionCreateController extends GetxController {
     loadingSendApd(false);
   }
 
-  Future<void> editSendApdReception(int i) async {
+  Future<void> editSendApdReception() async {
     FocusManager.instance.primaryFocus?.unfocus();
     loadingSendApd(true);
     String base64Image = '';

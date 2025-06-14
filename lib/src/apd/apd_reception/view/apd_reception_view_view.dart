@@ -87,7 +87,7 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
                                   borderRadius: BorderRadius.circular(12),
                                   child: Image.network(
                                     // File(item),
-                                    item?.file ?? '',
+                                    item?.filename ?? '',
                                     width: 68,
                                     height: 68,
                                     fit: BoxFit.cover,

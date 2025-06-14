@@ -81,6 +81,7 @@ class ApdReceptionParam {
 } 
 */
 
+  String? id;
   String? docDate;
   String? permintaanId;
   String? pengeluaranId;
@@ -91,6 +92,7 @@ class ApdReceptionParam {
   String? action;
 
   ApdReceptionParam({
+    this.id,
     this.docDate,
     this.permintaanId,
     this.pengeluaranId,
@@ -101,6 +103,7 @@ class ApdReceptionParam {
     this.action,
   });
   ApdReceptionParam.fromJson(Map<String, dynamic> json) {
+    id = json['id']?.toString();
     docDate = json['doc_date']?.toString();
     permintaanId = json['permintaan_id']?.toString();
     pengeluaranId = json['pengeluaran_id']?.toString();
@@ -119,6 +122,7 @@ class ApdReceptionParam {
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
+    if (id != null) data['id'] = id;
     data['doc_date'] = docDate;
     data['permintaan_id'] = permintaanId;
     data['pengeluaran_id'] = pengeluaranId;
