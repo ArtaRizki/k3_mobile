@@ -63,7 +63,7 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter_icons:
   android: true
-  image_path: "assets/images/img-mkp2.png"
+  image_path: "assets/images/img-mkp3.png"
 
 flutter:
   # The following line ensures that the Material Icons font is
