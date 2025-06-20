@@ -28,16 +28,15 @@ class InspectionProjectCreateView
         body: SafeArea(
           child: Container(
             color: AppColor.neutralLightLightest,
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  ...form(),
-                  ...imageList(),
-                  ...tindakLanjutWidget(),
-                  sendBtn(),
+                  ..._buildFormFields(),
+                  ..._buildImageSection(),
+                  ..._buildFollowUpSection(),
+                  _buildSubmitButton(),
                 ],
               ),
             ),
@@ -47,86 +46,120 @@ class InspectionProjectCreateView
     );
   }
 
-  List<Widget> form() {
+  List<Widget> _buildFormFields() {
     return [
-      AppTextField.basicTextField(
-        controller: controller.projectNameC.value,
-        label: 'Nama Proyek',
-        // readOnly: true,
-        hintText: 'Nama Proyek',
+      _textField(controller.projectNameC.value, 'Nama Proyek'),
+      _dateTimeFields(),
+      _categoryDropdown(),
+      _textField(controller.riskC.value, 'Resiko'),
+      _textField(
+        controller.eventLocationC.value,
+        'Lokasi kejadian',
+        maxLines: 4,
+      ),
+      _textField(
+        controller.eventChronologyC.value,
+        'Kronologi kejadian',
+        maxLines: 4,
+      ),
+      _actionTakenCheckbox(),
+      _textField(controller.reasonC.value, 'Alasan', maxLines: 4),
+      _textField(
+        controller.actionDetailC.value,
+        'Rincian tindakan',
+        maxLines: 4,
+      ),
+      _textField(
+        controller.givenRecommendationC.value,
+        'Saran diberikan',
+        maxLines: 4,
+      ),
+    ];
+  }
+
+  Widget _textField(
+    TextEditingController controller,
+    String label, {
+    int maxLines = 1,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: AppTextField.basicTextField(
+        readOnly: this.controller.isViewMode.value,
+        controller: controller,
+        label: label,
+        hintText: label,
+        maxLines: maxLines,
         onChanged: (v) {
-          controller.validateForm();
-          controller.update();
+          this.controller.validateForm();
+          this.controller.update();
         },
       ),
-      SizedBox(height: 12),
-      Row(
+    );
+  }
+
+  Widget _dateField() {
+    return AppTextField.basicTextField(
+      readOnly: true,
+      controller: controller.dateC.value,
+      label: 'Tanggal',
+      hintText: 'dd-mm-yyyy',
+      onTap: () async {
+        await controller.pickDate();
+        FocusManager.instance.primaryFocus?.unfocus();
+        controller.validateForm();
+      },
+      prefixIconConstraints: BoxConstraints(maxHeight: 18),
+      prefixIcon: Padding(
+        padding: const EdgeInsets.only(left: 16, right: 8),
+        child: Image.asset(
+          Assets.iconsIcDate,
+          color: AppColor.neutralLightDarkest,
+        ),
+      ),
+    );
+  }
+
+  Widget _timeField() {
+    return AppTextField.basicTextField(
+      readOnly: true,
+      controller: controller.timeC.value,
+      label: 'Jam',
+      hintText: 'hh:mm',
+      onTap: () async {
+        await controller.pickTime();
+        FocusManager.instance.primaryFocus?.unfocus();
+        controller.validateForm();
+      },
+      prefixIconConstraints: BoxConstraints(maxHeight: 18),
+      prefixIcon: Padding(
+        padding: const EdgeInsets.only(left: 16, right: 8),
+        child: Image.asset(
+          Assets.iconsIcTime,
+          color: AppColor.neutralLightDarkest,
+        ),
+      ),
+    );
+  }
+
+  Widget _dateTimeFields() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
         children: [
-          Expanded(
-            flex: 6,
-            child: AppTextField.basicTextField(
-              readOnly: controller.isViewMode.value,
-              // required: true,
-              controller: controller.dateC.value,
-              label: 'Tanggal',
-              hintText: 'dd-mm-yyyy',
-              onTap: () async {
-                await controller.pickDate();
-                FocusManager.instance.primaryFocus?.unfocus();
-                controller.validateForm();
-              },
-              onChanged: (v) {
-                controller.validateForm();
-                controller.update();
-              },
-              prefixIconConstraints: BoxConstraints(maxHeight: 18),
-              prefixIcon: GestureDetector(
-                onTap: null,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 8),
-                  child: Image.asset(
-                    Assets.iconsIcDate,
-                    color: AppColor.neutralLightDarkest,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            flex: 4,
-            child: AppTextField.basicTextField(
-              readOnly: controller.isViewMode.value,
-              controller: controller.timeC.value,
-              label: 'Jam',
-              hintText: 'hh:mm',
-              onTap: () async {
-                await controller.pickTime();
-                FocusManager.instance.primaryFocus?.unfocus();
-                controller.validateForm();
-              },
-              onChanged: (v) {
-                controller.validateForm();
-                controller.update();
-              },
-              prefixIconConstraints: BoxConstraints(maxHeight: 18),
-              prefixIcon: GestureDetector(
-                onTap: () {},
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 8),
-                  child: Image.asset(
-                    Assets.iconsIcTime,
-                    color: AppColor.neutralLightDarkest,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          Expanded(flex: 6, child: _dateField()),
+          const SizedBox(width: 12),
+          Expanded(flex: 4, child: _timeField()),
         ],
       ),
-      SizedBox(height: 12),
-      Obx(() {
-        return AppDropdown.normalDropdown(
+    );
+  }
+
+  Widget _categoryDropdown() {
+    return Obx(
+      () => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: AppDropdown.normalDropdown(
           label: 'Kategori',
           readOnly: controller.isViewMode.value,
           hintText: 'Pilih Kategori',
@@ -134,7 +167,6 @@ class InspectionProjectCreateView
           onChanged: (v) {
             controller.selectedCategory.value = v;
             controller.validateForm();
-            FocusManager.instance.primaryFocus?.unfocus();
             controller.update();
           },
           list:
@@ -151,155 +183,170 @@ class InspectionProjectCreateView
                     ),
                   )
                   .toList(),
-        );
-      }),
-      SizedBox(height: 12),
-      AppTextField.basicTextField(
-        readOnly: controller.isViewMode.value,
-        controller: controller.riskC.value,
-        label: 'Resiko',
-        hintText: 'Resiko',
-        onChanged: (v) {
-          controller.validateForm();
-          controller.update();
-        },
+        ),
       ),
-      SizedBox(height: 12),
-      AppTextField.basicTextField(
-        readOnly: controller.isViewMode.value,
-        controller: controller.eventLocationC.value,
-        label: 'Lokasi kejadian',
-        hintText: 'Lokasi kejadian',
-        onChanged: (v) {
-          controller.validateForm();
-          controller.update();
-        },
-        maxLines: 4,
+    );
+  }
+
+  Widget _actionTakenCheckbox() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Dilakukan tindakan?',
+            style: AppTextStyle.actionL.copyWith(
+              color: AppColor.neutralDarkDarkest,
+            ),
+          ),
+          const SizedBox(height: 18),
+          Row(
+            children: [
+              _checkboxOption(
+                'Ya',
+                controller.actionTakenYes,
+                controller.actionTakenNo,
+              ),
+              _checkboxOption(
+                'Tidak',
+                controller.actionTakenNo,
+                controller.actionTakenYes,
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+        ],
       ),
-      SizedBox(height: 12),
-      AppTextField.basicTextField(
-        readOnly: controller.isViewMode.value,
-        controller: controller.eventChronologyC.value,
-        label: 'Kronologi kejadian',
-        hintText: 'Kronologi kejadian',
-        onChanged: (v) {
-          controller.validateForm();
-          controller.update();
-        },
-        maxLines: 4,
+    );
+  }
+
+  Widget _checkboxOption(String label, RxBool value, RxBool otherValue) {
+    return Expanded(
+      flex: 5,
+      child: Row(
+        children: [
+          SizedBox(
+            width: 20,
+            height: 20,
+            child: Checkbox(
+              value: value.value,
+              onChanged: (val) {
+                value.value = val ?? false;
+                otherValue.value = !(val ?? false);
+              },
+              activeColor: AppColor.highlightDarkest,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              label,
+              style: AppTextStyle.bodyM.copyWith(
+                color: AppColor.neutralDarkDarkest,
+              ),
+            ),
+          ),
+        ],
       ),
-      SizedBox(height: 12),
+    );
+  }
+
+  List<Widget> _buildImageSection() {
+    final isView = controller.isViewMode.value;
+    final imageData =
+        controller.inspectionViewModelData.value.data?.buktiFoto ?? [];
+
+    return [
+      const SizedBox(height: 12),
       Text(
-        'Dilakukan tindakan?',
+        'Gambar',
         style: AppTextStyle.actionL.copyWith(
           color: AppColor.neutralDarkDarkest,
         ),
       ),
-      SizedBox(height: 6),
+      const SizedBox(height: 6),
       Container(
-        padding: EdgeInsets.symmetric(horizontal: 3, vertical: 15),
-        child: Row(
-          children: [
-            Expanded(
-              flex: 5,
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: Checkbox(
-                      value: controller.actionTakenYes.value,
-                      onChanged: (value) {
-                        controller.actionTakenYes.value = value ?? false;
-                        controller.actionTakenNo.value = !(value ?? false);
-                      },
-                      activeColor: AppColor.highlightDarkest,
-                    ),
-                  ),
-                  SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      'Ya',
-                      style: AppTextStyle.bodyM.copyWith(
-                        color: AppColor.neutralDarkDarkest,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 5,
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: Checkbox(
-                      value: controller.actionTakenNo.value,
-                      onChanged: (value) {
-                        controller.actionTakenNo.value = value ?? false;
-                        controller.actionTakenYes.value = !(value ?? false);
-                      },
-                      activeColor: AppColor.highlightDarkest,
-                    ),
-                  ),
-                  SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      'Tidak',
-                      style: AppTextStyle.bodyM.copyWith(
-                        color: AppColor.neutralDarkDarkest,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      SizedBox(height: 12),
-      AppTextField.basicTextField(
-        readOnly: controller.isViewMode.value,
-        controller: controller.reasonC.value,
-        label: 'Alasan',
-        hintText: 'Alasan',
-        onChanged: (v) {
-          controller.validateForm();
-          controller.update();
-        },
-        maxLines: 4,
-      ),
-      SizedBox(height: 12),
-      AppTextField.basicTextField(
-        readOnly: controller.isViewMode.value,
-        controller: controller.actionDetailC.value,
-        label: 'Rincian tindakan',
-        hintText: 'Rincian tindakan',
-        onChanged: (v) {
-          controller.validateForm();
-          controller.update();
-        },
-        maxLines: 4,
-      ),
-      SizedBox(height: 12),
-      AppTextField.basicTextField(
-        readOnly: controller.isViewMode.value,
-        controller: controller.givenRecommendationC.value,
-        label: 'Saran diberikan',
-        hintText: 'Saran diberikan',
-        onChanged: (v) {
-          controller.validateForm();
-          controller.update();
-        },
-        maxLines: 4,
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child:
+            isView
+                ? _buildImagePreviewList(imageData)
+                : _buildImageUploadList(),
       ),
     ];
   }
 
-  Widget addImageBtn() {
-    if (controller.isViewMode.value) return SizedBox();
+  Widget _buildImagePreviewList(List imageData) {
+    if (imageData.isEmpty) return const Center(child: Text('Tidak ada gambar'));
+
+    return Wrap(
+      spacing: 10,
+      children:
+          imageData.map((item) {
+            return InkWell(
+              onTap:
+                  () async => await Get.toNamed(
+                    AppRoute.IMAGE_PREVIEW,
+                    arguments: item,
+                  ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  item?.file ?? '',
+                  width: 68,
+                  height: 68,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            );
+          }).toList(),
+    );
+  }
+
+  Widget _buildImageUploadList() {
+    return Wrap(
+      spacing: 10,
+      children: List.generate(controller.pictureList.length + 1, (i) {
+        if (i == controller.pictureList.length) return _addImageBtn();
+        final item = controller.pictureList[i];
+
+        return InkWell(
+          onTap:
+              () async => await Get.toNamed(
+                AppRoute.IMAGE_PREVIEW,
+                arguments: item.path,
+              ),
+          child: Stack(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.file(
+                  item,
+                  width: 68,
+                  height: 68,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Positioned(
+                right: -1,
+                top: -1,
+                child: GestureDetector(
+                  onTap: () => controller.removePicture(i),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: Image.asset(Assets.iconsIcRemoveImage),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _addImageBtn() {
     return GestureDetector(
       onTap: () async {
         FocusManager.instance.primaryFocus?.unfocus();
@@ -307,259 +354,76 @@ class InspectionProjectCreateView
         controller.validateForm();
       },
       child: DottedBorder(
-        dashPattern: [6, 3],
+        dashPattern: const [6, 3],
         color: AppColor.highlightDark,
         borderType: BorderType.RRect,
-        radius: Radius.circular(12),
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(color: Colors.white),
-            child: Center(
-              child: Text(
-                '+',
-                style: TextStyle(fontSize: 26, color: AppColor.highlightDark),
-              ),
-            ),
+        radius: const Radius.circular(12),
+        padding: const EdgeInsets.all(10),
+        child: Container(
+          width: 48,
+          height: 48,
+          alignment: Alignment.center,
+          child: Text(
+            '+',
+            style: TextStyle(fontSize: 26, color: AppColor.highlightDark),
           ),
         ),
       ),
     );
   }
 
-  List<Widget> imageList() {
-    final data = controller.inspectionViewModelData.value.data?.buktiFoto ?? [];
-    if (controller.isViewMode.value)
-      return [
-        SizedBox(height: 12),
-        Text(
-          'Gambar',
-          style: AppTextStyle.actionL.copyWith(
-            color: AppColor.neutralDarkDarkest,
-          ),
-        ),
-        SizedBox(height: 6),
-        if (data.isEmpty) ...[
-          Center(child: Text('Tidak ada gambar')),
-        ] else ...[
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 6),
-            child: Wrap(
-              spacing: 10,
-              children: List.generate(data.isEmpty ? 1 : data.length, (i) {
-                final item = data[i];
-                String fileUrl = item?.file ?? '';
-                // Menghapus duplikasi path
-                String imagesUrl = fileUrl;
-                return InkWell(
-                  onTap: () async {
-                    await Get.toNamed(AppRoute.IMAGE_PREVIEW, arguments: item);
-                  },
-                  child: Container(
-                    width: 68,
-                    height: 68,
-                    decoration: BoxDecoration(color: Colors.white),
-                    child: Stack(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.network(
-                            imagesUrl,
-                            width: 68,
-                            height: 68,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-            ),
-          ),
-        ],
-      ];
+  List<Widget> _buildFollowUpSection() {
+    final data = controller.inspectionViewModelData.value.data;
+    if (data?.docStatus != '1') return [const SizedBox()];
+
     return [
-      SizedBox(height: 12),
+      const SizedBox(height: 48),
+      Center(
+        child: Text(
+          'TINDAK LANJUT',
+          style: AppTextStyle.actionL.copyWith(color: const Color(0xff1F2024)),
+        ),
+      ),
+      const SizedBox(height: 24),
       Text(
-        'Gambar',
+        'Dilakukan tindak lanjut?',
         style: AppTextStyle.actionL.copyWith(
           color: AppColor.neutralDarkDarkest,
         ),
       ),
-      SizedBox(height: 6),
-      Container(
-        padding: EdgeInsets.symmetric(vertical: 6),
-        child:
-            controller.pictureList.isEmpty
-                ? addImageBtn()
-                : Wrap(
-                  spacing: 10,
-                  children: List.generate(
-                    controller.pictureList.isEmpty
-                        ? 1
-                        : controller.pictureList.length + 1,
-                    (i) {
-                      if (i == controller.pictureList.length)
-                        return addImageBtn();
-                      final item = controller.pictureList[i];
-                      return InkWell(
-                        onTap: () async {
-                          await Get.toNamed(
-                            AppRoute.IMAGE_PREVIEW,
-                            arguments: item.path,
-                          );
-                        },
-                        child: Container(
-                          width: 68,
-                          height: 68,
-                          decoration: BoxDecoration(color: Colors.white),
-                          child: Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Image.file(
-                                  item,
-                                  width: 68,
-                                  height: 68,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              Positioned(
-                                right: -1,
-                                top: -1,
-                                child: GestureDetector(
-                                  onTap: () => controller.removePicture(i),
-                                  child: SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: Image.asset(
-                                      Assets.iconsIcRemoveImage,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+      const SizedBox(height: 18),
+      Row(
+        children: [
+          _checkboxOption(
+            'Ya',
+            RxBool(data?.tindakLanjut == 1),
+            RxBool(data?.tindakLanjut != 1),
+          ),
+          _checkboxOption(
+            'Tidak',
+            RxBool(data?.tindakLanjut == 0),
+            RxBool(data?.tindakLanjut != 0),
+          ),
+        ],
+      ),
+      const SizedBox(height: 30),
+      _textField(
+        TextEditingController(text: data?.tindakanTindakLanjut ?? ''),
+        'Rincian tindak lanjut',
+        maxLines: 4,
       ),
     ];
   }
 
-  List<Widget> tindakLanjutWidget() {
-    if (controller.inspectionViewModelData.value.data?.docStatus == '1') {
-      final data = controller.inspectionViewModelData.value.data;
-      return [
-        SizedBox(height: 48),
-        Center(
-          child: Text(
-            'TINDAK LANJUT',
-            textAlign: TextAlign.center,
-            style: AppTextStyle.actionL.copyWith(color: Color(0xff1F2024)),
-          ),
-        ),
-        SizedBox(height: 24),
-        Text(
-          'Dilakukan tindak lanjut?',
-          style: AppTextStyle.actionL.copyWith(
-            color: AppColor.neutralDarkDarkest,
-          ),
-        ),
-        SizedBox(height: 6),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 3, vertical: 15),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 5,
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: Checkbox(
-                        value: data?.tindakLanjut == 1,
-                        onChanged: (value) {},
-                        activeColor: AppColor.highlightDarkest,
-                      ),
-                    ),
-                    SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        'Ya',
-                        style: AppTextStyle.bodyM.copyWith(
-                          color: AppColor.neutralDarkDarkest,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                flex: 5,
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: Checkbox(
-                        value: data?.tindakLanjut == 0,
-                        onChanged: (value) {},
-                        activeColor: AppColor.highlightDarkest,
-                      ),
-                    ),
-                    SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        'Tidak',
-                        style: AppTextStyle.bodyM.copyWith(
-                          color: AppColor.neutralDarkDarkest,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: 12),
-        AppTextField.basicTextField(
-          readOnly: controller.isViewMode.value,
-          controller: TextEditingController(
-            text: data?.tindakanTindakLanjut ?? '',
-          ),
-          label: 'Rincian tindak lanjut',
-          hintText: 'Rincian tindak lanjut',
-          onChanged: (v) {
-            controller.validateForm();
-            controller.update();
-          },
-          maxLines: 4,
-        ),
-      ];
-    }
-    return [SizedBox()];
-  }
-
-  Widget sendBtn() {
-    if (controller.isViewMode.value) return SizedBox(height: 24);
+  Widget _buildSubmitButton() {
+    if (controller.isViewMode.value) return const SizedBox(height: 24);
     return Padding(
-      padding: EdgeInsets.only(top: 24, bottom: 24),
+      padding: const EdgeInsets.symmetric(vertical: 24),
       child: AppButton.basicButton(
-        // enable: controller.isValidated.value,
-        enable: true,
-        onTap: () async {
-          if (!controller.loading.value)
-            await controller.sendInspectionProject();
-        },
+        enable: controller.isValidated.value,
+        loading: controller.loading.value,
+        onTap:
+            controller.loading.value ? null : controller.sendInspectionProject,
         width: double.infinity,
         color: AppColor.highlightDarkest,
         height: 55,
@@ -570,25 +434,13 @@ class InspectionProjectCreateView
           16,
           0,
         ),
-        child:
-            controller.loading.value
-                ? Transform.scale(
-                  scale: 0.5,
-                  child: SizedBox(
-                    width: 16,
-                    height: 6,
-                    child: FittedBox(
-                      child: CircularProgressIndicator(color: Colors.white),
-                    ),
-                  ),
-                )
-                : Text(
-                  'Kirim',
-                  textAlign: TextAlign.center,
-                  style: AppTextStyle.actionL.copyWith(
-                    color: AppColor.neutralLightLightest,
-                  ),
-                ),
+        child: Text(
+          'Kirim',
+          textAlign: TextAlign.center,
+          style: AppTextStyle.actionL.copyWith(
+            color: AppColor.neutralLightLightest,
+          ),
+        ),
       ),
     );
   }

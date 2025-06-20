@@ -16,27 +16,21 @@ class InspectionView extends GetView {
       backgroundColor: AppColor.neutralLightLightest,
       appBar: AppAppbar.basicAppbar(title: 'Inspeksi', noBack: true),
       body: SafeArea(
-        child: Container(
-          color: AppColor.neutralLightLightest,
+        child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
             children: [
-              card(
-                onTap: () async {
-                  Get.toNamed(AppRoute.INSPECTION_ROUTINE);
-                },
+              _buildCard(
                 title: 'Inspeksi Rutin',
                 iconPath: Assets.iconsIcCardRoutineInspection,
+                onTap: () => Get.toNamed(AppRoute.INSPECTION_ROUTINE),
               ),
-              SizedBox(height: 24),
-              card(
-                onTap: () async {
-                  Get.toNamed(AppRoute.INSPECTION_PROJECT);
-                },
+              const SizedBox(height: 24),
+              _buildCard(
                 title: 'Inspeksi Proyek',
                 iconPath: Assets.iconsIcCardProjectInspection,
+                onTap: () => Get.toNamed(AppRoute.INSPECTION_PROJECT),
               ),
             ],
           ),
@@ -45,27 +39,25 @@ class InspectionView extends GetView {
     );
   }
 
-  Widget card({
-    required GestureTapCallback onTap,
+  Widget _buildCard({
     required String title,
     required String iconPath,
+    required VoidCallback onTap,
   }) {
     return AppCard.basicCard(
       onTap: onTap,
       radius: 24,
-      padding: EdgeInsets.all(24),
+      padding: const EdgeInsets.all(24),
       color: AppColor.highlightLightest,
       child: Row(
         children: [
           Image.asset(iconPath, width: 32, height: 32),
+          const SizedBox(width: 10),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Text(
-                title,
-                style: AppTextStyle.actionL.copyWith(
-                  color: AppColor.neutralDarkMedium,
-                ),
+            child: Text(
+              title,
+              style: AppTextStyle.actionL.copyWith(
+                color: AppColor.neutralDarkMedium,
               ),
             ),
           ),

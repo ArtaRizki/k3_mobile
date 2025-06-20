@@ -23,126 +23,114 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
         child: Container(
           color: AppColor.neutralLightLightest,
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-          child: Obx(() {
-            final query = controller.searchC.value.text.isNotEmpty;
-            return Column(
+          child: Obx(
+            () => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                AppTextField.basicTextField(
-                  label: '',
-                  controller: controller.searchC.value,
-                  hintText: 'Search',
-                  suffixIconConstraints: BoxConstraints(
-                    maxHeight: query ? 23 : 18,
-                  ),
-                  onChanged: (v) {
-                    controller.update();
-                    controller.onSearchChanged();
-                  },
-                  suffixIcon: InkWell(
-                    onTap: query ? controller.clearField : null,
-                    child:
-                        query
-                            ? Container(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                ),
-                                child: Icon(
-                                  Icons.close,
-                                  color: AppColor.neutralDarkLight,
-                                ),
-                              ),
-                            )
-                            : Padding(
-                              padding: const EdgeInsets.only(right: 16),
-                              child: Image.asset(
-                                Assets.iconsIcSearch,
-                                color: AppColor.neutralLightDarkest,
-                              ),
-                            ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 12, bottom: 12),
-                  child: Row(
-                    children: [
-                      Text(
-                        'Data Inspeksi Proyek',
-                        textAlign: TextAlign.left,
-                        style: AppTextStyle.actionL.copyWith(
-                          color: AppColor.neutralDarkLight,
-                        ),
-                      ),
-                      Spacer(),
-                      AppCard.basicCard(
-                        onTap: () async {
-                          Get.toNamed(AppRoute.INSPECTION_PROJECT_CREATE);
-                        },
-                        color: AppColor.highlightDarkest,
-                        radius: 20,
-                        padding: EdgeInsets.symmetric(
-                          vertical: 8,
-                          horizontal: 24,
-                        ),
-                        child: Text(
-                          'Buat baru',
-                          style: AppTextStyle.actionL.copyWith(
-                            color: AppColor.neutralLightLightest,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 6),
-                list(),
+              children: [
+                _buildSearchBar(),
+                _buildHeaderAction(),
+                const SizedBox(height: 6),
+                _buildInspectionList(),
               ],
-            );
-          }),
+            ),
+          ),
         ),
       ),
     );
   }
 
-  Widget list() {
+  Widget _buildSearchBar() {
+    final isQuerying = controller.searchC.value.text.isNotEmpty;
+    return AppTextField.basicTextField(
+      label: '',
+      controller: controller.searchC.value,
+      hintText: 'Search',
+      suffixIconConstraints: BoxConstraints(maxHeight: isQuerying ? 23 : 18),
+      onChanged: (_) {
+        controller.update();
+        controller.onSearchChanged();
+      },
+      suffixIcon: InkWell(
+        onTap: isQuerying ? controller.clearField : null,
+        child:
+            isQuerying
+                ? const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: Icon(Icons.close, color: AppColor.neutralDarkLight),
+                )
+                : Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: Image.asset(
+                    Assets.iconsIcSearch,
+                    color: AppColor.neutralLightDarkest,
+                  ),
+                ),
+      ),
+    );
+  }
+
+  Widget _buildHeaderAction() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        children: [
+          Text(
+            'Data Inspeksi Proyek',
+            style: AppTextStyle.actionL.copyWith(
+              color: AppColor.neutralDarkLight,
+            ),
+          ),
+          const Spacer(),
+          AppCard.basicCard(
+            onTap: () => Get.toNamed(AppRoute.INSPECTION_PROJECT_CREATE),
+            color: AppColor.highlightDarkest,
+            radius: 20,
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 24),
+            child: Text(
+              'Buat baru',
+              style: AppTextStyle.actionL.copyWith(
+                color: AppColor.neutralLightLightest,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInspectionList() {
     final data = controller.filteredInspections;
-    if (data.isEmpty)
+    if (data.isEmpty) {
       return EmptyList.textEmptyList(
-        minHeight: Get.size.height * .71,
-        onRefresh: () async {
-          await controller.getData();
-          controller.update();
-        },
+        minHeight: Get.size.height * 0.71,
+        onRefresh: _onRefresh,
       );
+    }
+
     return Expanded(
       child: RefreshIndicator(
-        onRefresh: () async {
-          await controller.getData();
-          controller.update();
-        },
+        onRefresh: _onRefresh,
         child: ListView.separated(
           itemCount: data.length,
-          shrinkWrap: true,
-          separatorBuilder: (_, __) => SizedBox(height: 12),
-          itemBuilder: (c, i) {
-            final item = data[i];
-            return listItem(item);
-          },
+          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          itemBuilder: (_, index) => _buildListItem(data[index]),
         ),
       ),
     );
   }
 
-  Widget listItem(InspectionModelData? item) {
+  Future<void> _onRefresh() async {
+    await controller.getData();
+    controller.update();
+  }
+
+  Widget _buildListItem(InspectionModelData? item) {
     return AppCard.listCard(
-      onTap: () async {
-        FocusManager.instance.primaryFocus?.unfocus();
-        Get.toNamed(
-          AppRoute.INSPECTION_PROJECT_CREATE,
-          arguments: item?.id ?? '',
-        );
+      onTap: () {
+        FocusScope.of(Get.context!).unfocus();
+        if (item?.id != null) {
+          Get.toNamed(AppRoute.INSPECTION_PROJECT_CREATE, arguments: item!.id);
+        }
       },
       color: AppColor.neutralLightLightest,
       child: Row(
@@ -152,79 +140,55 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
             width: 52,
             height: 52,
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        item?.code ?? '',
-                        style: AppTextStyle.h4.copyWith(
-                          color: AppColor.neutralDarkDarkest,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      item?.docDate ?? '',
-                      style: AppTextStyle.bodyM.copyWith(
-                        color: AppColor.neutralDarkDarkest,
-                      ),
-                    ),
-                  ],
+                _buildRowText(item?.code, item?.docDate, AppTextStyle.h4),
+                const SizedBox(height: 3),
+                _buildRowText(
+                  item?.resiko,
+                  item?.kategoriName,
+                  AppTextStyle.bodyS,
                 ),
-                SizedBox(height: 3),
-                Flexible(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          item?.resiko ?? '',
-                          style: AppTextStyle.bodyS.copyWith(
-                            color: AppColor.neutralDarkDarkest,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        item?.kategoriName ?? '',
-                        style: AppTextStyle.bodyS.copyWith(
-                          color: AppColor.neutralDarkDarkest,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 3),
-                Flexible(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          item?.lokasi ?? '',
-                          style: AppTextStyle.bodyS.copyWith(
-                            color: AppColor.neutralDarkDarkest,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        Utils.getDocStatusName(item?.docStatus ?? ''),
-                        style: AppTextStyle.bodyS.copyWith(
-                          color: Utils.getDocStatusColor(item?.docStatus ?? ''),
-                        ),
-                      ),
-                    ],
-                  ),
+                const SizedBox(height: 3),
+                _buildRowText(
+                  item?.lokasi,
+                  Utils.getDocStatusName(item?.docStatus ?? ''),
+                  AppTextStyle.bodyS,
+                  rightColor: Utils.getDocStatusColor(item?.docStatus ?? ''),
                 ),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildRowText(
+    String? left,
+    String? right,
+    TextStyle style, {
+    Color? rightColor,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Text(
+            left ?? '',
+            style: style.copyWith(color: AppColor.neutralDarkDarkest),
+          ),
+        ),
+        Text(
+          right ?? '',
+          style: style.copyWith(
+            color: rightColor ?? AppColor.neutralDarkDarkest,
+          ),
+        ),
+      ],
     );
   }
 }
