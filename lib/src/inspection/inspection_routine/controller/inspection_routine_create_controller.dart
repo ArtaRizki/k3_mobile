@@ -3,12 +3,10 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:k3_mobile/component/custom_date_picker.dart';
 import 'package:k3_mobile/component/custom_image_picker.dart';
 import 'package:k3_mobile/component/http_request_client.dart';
-import 'package:k3_mobile/component/multipart.dart';
 import 'package:k3_mobile/component/utils.dart';
 import 'package:k3_mobile/const/app_shared_preference_key.dart';
 import 'package:k3_mobile/const/app_snackbar.dart';
@@ -17,7 +15,6 @@ import 'package:k3_mobile/src/inspection/model/inspection_category_model.dart';
 import 'package:k3_mobile/src/inspection/model/inspection_param.dart';
 import 'package:k3_mobile/src/inspection/model/inspection_view_model.dart';
 import 'package:k3_mobile/src/login/model/login_model.dart';
-import 'package:k3_mobile/src/session/controller/session_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class InspectionRoutineCreateController extends GetxController {

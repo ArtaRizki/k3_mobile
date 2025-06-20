@@ -232,6 +232,9 @@ class Utils {
   static convertDateyyyyDashMMDashdd(String date) {
     return DateFormat("yyyy-MM-dd").format(DateTime.parse(date));
   }
+  static convertDateyyyySlashMMSlashdd(String date) {
+    return DateFormat("dd/MM/yyyy").format(DateTime.parse(date));
+  }
 
   static convertDateddMMMMyyyy(String date) {
     return DateFormat("dd MMMM yyyy").format(DateTime.parse(date));
@@ -239,6 +242,10 @@ class Utils {
 
   static convertDateddMMMMyyyyHHmmss(String date) {
     return DateFormat("dd MMMM yyyy HH:mm:ss").format(DateTime.parse(date));
+  }
+
+  static convertDateHHmm(String date) {
+    return DateFormat("HH:mm").format(DateTime.parse(date));
   }
 
   // dismiss loading

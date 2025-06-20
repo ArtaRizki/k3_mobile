@@ -4,6 +4,6 @@ import 'package:k3_mobile/src/notification/controller/notification_controller.da
 class NotificationBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put(NotificationController(), permanent: true);
+    Get.put(NotificationController());
   }
 }
