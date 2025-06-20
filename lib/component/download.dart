@@ -10,88 +10,89 @@ import 'package:open_file_plus/open_file_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-downloadFile(BuildContext context, String link,
-    {required String filename,
-    bool openAfterDownload = false,
-    required String typeFile}) async {
+Future<void> downloadFile(
+  BuildContext context,
+  String link, {
+  required String filename,
+  bool openAfterDownload = false,
+  required String typeFile,
+}) async {
   try {
-    var initializationSettingsAndroid =
-        new AndroidInitializationSettings('@mipmap/ic_launcher');
-    await Permission.storage.request();
-    await Permission.manageExternalStorage.request();
-    var request = await HttpClient().getUrl(Uri.parse(link));
-    var response = await request.close();
-    if (response.statusCode == 200) {
-      Utils.showSuccess(msg: '');
-      var bytes = await consolidateHttpClientResponseBytes(response);
-      Directory? d;
-      if (Platform.isAndroid) {
-        await Permission.manageExternalStorage.request();
-        await Permission.storage.request();
-        await Permission.photos.request();
-        // d = await DownloadsPathProvider.downloadsDirectory;
-        d = await getExternalStorageDirectory();
-        bool dExists = Directory("${d!.path}/K3Mobile").existsSync();
-        if (!dExists) {
-          Directory("${d.path}/K3Mobile").createSync();
-        }
-        File f = await File(d.path + "/K3Mobile/$filename.$typeFile")
-            .writeAsBytes(bytes);
-        FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-            FlutterLocalNotificationsPlugin();
-        if (openAfterDownload) {
-          await flutterLocalNotificationsPlugin.initialize(
-              initializationSettings,
-              onDidReceiveNotificationResponse:
-                  (NotificationResponse? payload) {});
-          await flutterLocalNotificationsPlugin.show(0, filename,
-              "Download berhasil disimpan di ${f.path}", notificationDetails);
-          await OpenFile.open(f.path);
-        } else {
-          await flutterLocalNotificationsPlugin.initialize(
-              initializationSettings, onDidReceiveNotificationResponse:
-                  (NotificationResponse? payload) {
-            if (payload != null) OpenFile.open(f.path);
-          });
-          await flutterLocalNotificationsPlugin.show(0, filename,
-              "Download berhasil, Ketuk untuk buka file", notificationDetails);
-        }
-      } else {
-        d = await getApplicationDocumentsDirectory();
-        log("APP DIR : $d");
-        bool dExists = Directory("${d.path}/K3Mobile").existsSync();
-        if (!dExists) {
-          Directory("${d.path}/K3Mobile").createSync();
-        }
-        File f = await File(d.path + "/K3Mobile/$filename.$typeFile")
-            .writeAsBytes(bytes);
-        FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-            FlutterLocalNotificationsPlugin();
-        if (openAfterDownload) {
-          await flutterLocalNotificationsPlugin.initialize(
-              initializationSettings,
-              onDidReceiveNotificationResponse:
-                  (NotificationResponse? payload) {});
-          await flutterLocalNotificationsPlugin.show(
-              0, filename, "Download berhasil", notificationDetails);
-          await OpenFile.open(f.path);
-        } else {
-          await flutterLocalNotificationsPlugin.initialize(
-              initializationSettings, onDidReceiveNotificationResponse:
-                  (NotificationResponse? payload) {
-            if (payload != null) OpenFile.open(f.path);
-          });
-          await flutterLocalNotificationsPlugin.show(0, filename,
-              "Download berhasil, Ketuk untuk buka file", notificationDetails);
-        }
-      }
-    } else {
-      // Widgets.showSnackBar(
-      //     context, "Gagal Download ${response.statusCode}", true);
-      log('Error code: ' + response.statusCode.toString());
+    // Request permission
+    await _requestStoragePermissions();
+
+    final uri = Uri.parse(link);
+    final response = await HttpClient().getUrl(uri).then((req) => req.close());
+
+    if (response.statusCode != 200) {
+      log('Failed to download. Status code: ${response.statusCode}');
+      return;
     }
+
+    Utils.showSuccess(msg: 'Download Berhasil');
+
+    final bytes = await consolidateHttpClientResponseBytes(response);
+    final directory = await _getDownloadDirectory();
+    final folder = Directory('${directory.path}/K3Mobile');
+
+    if (!await folder.exists()) {
+      await folder.create(recursive: true);
+    }
+
+    final filePath = '${folder.path}/$filename.$typeFile';
+    final file = await File(filePath).writeAsBytes(bytes);
+
+    final notifications = FlutterLocalNotificationsPlugin();
+    await _showDownloadNotification(
+      notifications,
+      file,
+      filename,
+      openAfterDownload,
+    );
   } catch (e) {
-    // Widgets.showSnackBar(context, "Gagal Download $e", true);
-    log('Can not fetch url $e');
+    log('Download failed: $e');
+  }
+}
+
+Future<void> _requestStoragePermissions() async {
+  await [
+    Permission.storage,
+    if (Platform.isAndroid) Permission.manageExternalStorage,
+    Permission.photos,
+  ].request();
+}
+
+Future<Directory> _getDownloadDirectory() async {
+  if (Platform.isAndroid) {
+    return await getExternalStorageDirectory() ??
+        await getApplicationDocumentsDirectory();
+  }
+  return await getApplicationDocumentsDirectory();
+}
+
+Future<void> _showDownloadNotification(
+  FlutterLocalNotificationsPlugin plugin,
+  File file,
+  String filename,
+  bool openAfterDownload,
+) async {
+  await plugin.initialize(
+    initializationSettings,
+    onDidReceiveNotificationResponse: (response) {
+      if (!openAfterDownload && response != null) {
+        OpenFile.open(file.path);
+      }
+    },
+  );
+
+  final message =
+      openAfterDownload
+          ? "Download berhasil disimpan di ${file.path}"
+          : "Download berhasil, Ketuk untuk buka file";
+
+  await plugin.show(0, filename, message, notificationDetails);
+
+  if (openAfterDownload) {
+    await OpenFile.open(file.path);
   }
 }

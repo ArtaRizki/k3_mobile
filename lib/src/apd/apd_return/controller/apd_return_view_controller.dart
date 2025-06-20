@@ -63,7 +63,7 @@ class ApdReturnViewController extends GetxController {
         // isJsonEncode: true,
       );
       if (response.statusCode == 204) {
-        final msg = 'Data berhasil disimpan';
+        final msg = 'Data berhasil ${status == '99' ? 'dihapus' : 'disimpan'}';
         await Utils.showSuccess(msg: msg);
         loading(false);
         Get.find<ApdReturnController>().getData();

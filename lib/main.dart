@@ -6,12 +6,14 @@ import 'package:k3_mobile/const/app_page.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    // systemNavigationBarColor: AppColor.highlightDarkest,
-    // statusBarColor: AppColor.highlightDarkest,
-    systemNavigationBarIconBrightness: Brightness.light,
-    statusBarIconBrightness: Brightness.light,
-  ));
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(
+      // systemNavigationBarColor: AppColor.highlightDarkest,
+      // statusBarColor: AppColor.highlightDarkest,
+      systemNavigationBarIconBrightness: Brightness.light,
+      statusBarIconBrightness: Brightness.light,
+    ),
+  );
   await WidgetsFlutterBinding.ensureInitialized();
 
   await requestPermission(Permission.storage);
@@ -32,7 +34,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'K3 Mobile',
+      title: 'MSafety',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -48,8 +50,9 @@ class MyApp extends StatelessWidget {
         // log(MediaQuery.of(context).size.toString());
         return MediaQuery(
           child: child,
-          data: MediaQuery.of(context)
-              .copyWith(textScaler: TextScaler.linear(1.0)),
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: TextScaler.linear(1.0)),
         );
       },
     );

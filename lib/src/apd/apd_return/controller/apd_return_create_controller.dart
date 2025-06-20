@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:developer' as d;
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_signature_pad/flutter_signature_pad.dart';
 import 'package:get/get.dart';
@@ -23,6 +23,8 @@ import 'package:k3_mobile/src/apd/model/expenditure_select_model.dart';
 import 'package:k3_mobile/src/login/model/login_model.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path/path.dart' as path;
+import 'package:http/http.dart' as http;
 
 class ApdReturnCreateController extends GetxController {
   var req = HttpRequestClient();
@@ -47,6 +49,7 @@ class ApdReturnCreateController extends GetxController {
       vendorC = TextEditingController().obs,
       noteC = TextEditingController().obs;
   var images = <File>[].obs;
+  var signature = Rxn<File>();
   var dateTime = Rx<DateTime?>(null);
   var selectedStatus = Rx<String?>(null);
 
@@ -136,7 +139,41 @@ class ApdReturnCreateController extends GetxController {
     super.onInit();
   }
 
+  Future<void> initImages() async {
+    if (viewData.value.data != null) {
+      final data = viewData.value.data?.daftarFoto ?? [];
+      if (data.isNotEmpty) {
+        images.clear();
+        update();
+        for (var item in data) {
+          if (item?.file != null) {
+            final downloadedFile = await downloadAndCacheImage(
+              item?.file ?? '',
+              item?.filename ?? '',
+            );
+            if (downloadedFile != null) images.add(downloadedFile);
+          }
+        }
+      }
+    }
+    update();
+  }
+
+  Future<void> initSignature() async {
+    if (viewData.value.data != null) {
+      final data = viewData.value.data;
+      if (data != null) {
+        signature.value = await downloadAndCacheImage(
+          data.ttdFile ?? '',
+          data.ttdName ?? '',
+        );
+      }
+    }
+    update();
+  }
+
   Future<void> init() async {
+    Utils.showLoading();
     var prefs = await SharedPreferences.getInstance();
     var loginDataKey = prefs.getString(
       AppSharedPreferenceKey.kSetPrefLoginModel,
@@ -202,11 +239,14 @@ class ApdReturnCreateController extends GetxController {
         ),
       );
 
+      initImages();
+
       // skip signature gabisa load
       // apdReqList.assignAll(data.recList);
       validateForm();
     }
     update();
+    Utils.dismissLoading();
   }
 
   Future<void> getSelectApdRequest() async {
@@ -379,6 +419,7 @@ class ApdReturnCreateController extends GetxController {
       apdRecFinal[i].qtyDikembalikan = int.tryParse(apdRetListC[i].text) ?? 0;
     update();
     var body = ApdReturnParam(
+      id: viewData.value.data?.id,
       docDate: DateFormat(
         'yyyy-MM-dd',
       ).format(dateTime.value ?? DateTime.now()),
@@ -387,7 +428,7 @@ class ApdReturnCreateController extends GetxController {
       description: noteC.value.text,
       dataApdRtn: apdRecFinal,
       buktiFoto: jsonEncode(await generateBase64Photo()),
-      ttdFoto: 'data:image/jpeg;base64,${base64Image}',
+      ttdFile: 'data:image/jpeg;base64,${base64Image}',
       action: 'draft',
     );
     final response = await req.post(
@@ -399,6 +440,7 @@ class ApdReturnCreateController extends GetxController {
       update();
       loading(false);
       Get.find<ApdReturnController>().getData();
+      if (viewData.value.data != null) Get.back();
       Get.back();
       final map = jsonDecode(response.body);
       Utils.showSuccess(msg: map["message"]);
@@ -447,7 +489,7 @@ class ApdReturnCreateController extends GetxController {
       description: noteC.value.text,
       dataApdRtn: apdRecFinal,
       buktiFoto: jsonEncode(await generateBase64Photo()),
-      ttdFoto: 'data:image/jpeg;base64,${base64Image}',
+      ttdFile: 'data:image/jpeg;base64,${base64Image}',
       action: null,
     );
     final response = await req.post(
@@ -500,7 +542,7 @@ class ApdReturnCreateController extends GetxController {
       apdRecFinal[i].qtyDikembalikan = int.tryParse(apdRetListC[i].text) ?? 0;
     update();
     var body = ApdReturnParam(
-      id: viewData.value.data?.id ?? '',
+      id: viewData.value.data?.id,
       docDate: DateFormat(
         'yyyy-MM-dd',
       ).format(dateTime.value ?? DateTime.now()),
@@ -509,7 +551,7 @@ class ApdReturnCreateController extends GetxController {
       description: noteC.value.text,
       dataApdRtn: apdRecFinal,
       buktiFoto: jsonEncode(await generateBase64Photo()),
-      ttdFoto: 'data:image/jpeg;base64,${base64Image}',
+      ttdFile: 'data:image/jpeg;base64,${base64Image}',
       action: null,
     );
     final response = await req.post(
@@ -555,6 +597,66 @@ class ApdReturnCreateController extends GetxController {
   void clearSearchExpField() {
     searchExpenditureC.value.clear();
     update();
+  }
+
+  /// Download dan cache file gambar dari URL menggunakan http
+  Future<File?> downloadAndCacheImage(String imageUrl, String filename) async {
+    // Cek apakah file sudah ada di cache
+    if (images.any((e) => e.path.contains(filename))) {
+      final tmp = images.where((e) => e.path.contains(filename)).first;
+      final cachedFile = tmp;
+      if (await cachedFile.exists()) {
+        d.log("DOWNLOAD IMAGE RESPONSE : $filename EXISTED");
+        return cachedFile;
+      }
+    }
+
+    // Download file menggunakan http
+    final response = await http.get(Uri.parse(imageUrl));
+    d.log(
+      "DOWNLOAD IMAGE RESPONSE : ${response.statusCode == 200 ? 'SUCCESS' : 'FAILED'}",
+    );
+
+    if (response.statusCode == 200) {
+      // Simpan ke cache directory
+      final file = await _saveToCache(response.bodyBytes, filename);
+      return file;
+    } else {
+      d.log('Error downloading $filename image: $e');
+    }
+    return null;
+  }
+
+  /// Simpan bytes ke cache directory
+  Future<File> _saveToCache(Uint8List bytes, String filename) async {
+    final cacheDir = await getTemporaryDirectory();
+    final file = File(path.join(cacheDir.path, 'apd_images', filename));
+
+    // Buat directory jika belum ada
+    await file.parent.create(recursive: true);
+
+    // Tulis file
+    return await file.writeAsBytes(bytes);
+  }
+
+  /// Get cached file by filename
+  File? getCachedFile(String filename) {
+    final tmp = images.where((e) => e.path.contains(filename)).first;
+    return tmp;
+  }
+
+  /// Clear cache
+  Future<void> clearCache() async {
+    try {
+      final cacheDir = await getTemporaryDirectory();
+      final apdImagesDir = Directory(path.join(cacheDir.path, 'apd_images'));
+
+      if (await apdImagesDir.exists()) {
+        await apdImagesDir.delete(recursive: true);
+      }
+    } catch (e) {
+      d.log('Error clearing cache: $e');
+    }
   }
 
   @override

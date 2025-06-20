@@ -14,14 +14,11 @@ class ApdView extends GetView {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.neutralLightLightest,
-      appBar: AppAppbar.basicAppbar(title: 'Manajemen APD'),
+      appBar: AppAppbar.basicAppbar(title: 'Manajemen APD', noBack: true),
       body: SafeArea(
         child: Container(
           color: AppColor.neutralLightLightest,
-          padding: const EdgeInsets.symmetric(
-            vertical: 12,
-            horizontal: 24,
-          ),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,

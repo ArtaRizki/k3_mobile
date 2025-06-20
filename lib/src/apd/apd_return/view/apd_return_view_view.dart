@@ -17,7 +17,15 @@ class ApdReturnViewView extends GetView<ApdReturnViewController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final buktiFoto = (controller.viewData.value.data?.daftarFoto ?? []);
+      final data = controller.viewData.value.data;
+      final buktiFoto = data?.daftarFoto ?? [];
+      final fileTtd = data?.ttdFile ?? '';
+      String ttdUrl = fileTtd
+      /*.replaceAll(
+        '/file_ttd_pengembalian/file_ttd_pengembalian/',
+        '/file_ttd_pengembalian/',
+      )*/
+      ;
       return Scaffold(
         appBar: AppAppbar.basicAppbar(
           // harusnya penerimaanCode atau code saja
@@ -71,6 +79,14 @@ class ApdReturnViewView extends GetView<ApdReturnViewController> {
                           buktiFoto.isEmpty ? 1 : buktiFoto.length,
                           (i) {
                             final item = buktiFoto[i];
+                            String fileUrl = item?.file ?? '';
+                            // Menghapus duplikasi path
+                            String imagesUrl = fileUrl
+                            /*.replaceAll(
+                              '/file_bukti_foto_pengembalian/file_bukti_foto_pengembalian/',
+                              '/file_bukti_foto_pengembalian/',
+                            )*/
+                            ;
                             return InkWell(
                               onTap: () async {
                                 await Get.toNamed(
@@ -86,7 +102,7 @@ class ApdReturnViewView extends GetView<ApdReturnViewController> {
                                   borderRadius: BorderRadius.circular(12),
                                   child: Image.network(
                                     // File(item),
-                                    item?.file ?? '',
+                                    imagesUrl,
                                     width: 68,
                                     height: 68,
                                     fit: BoxFit.cover,
@@ -118,7 +134,7 @@ class ApdReturnViewView extends GetView<ApdReturnViewController> {
                       children: [
                         Center(
                           child: Image.network(
-                            controller.viewData.value.data?.ttdFile ?? '',
+                            data?.ttdFile ?? '',
                             height: 138,
                           ),
                         ),
@@ -127,7 +143,7 @@ class ApdReturnViewView extends GetView<ApdReturnViewController> {
                           left: 0,
                           right: 0,
                           child: Text(
-                            controller.viewData.value.data?.ttdName ?? '',
+                            data?.ttdName ?? '',
                             textAlign: TextAlign.center,
                             style: AppTextStyle.bodyS.copyWith(
                               color: AppColor.neutralDarkLight,
@@ -165,9 +181,7 @@ class ApdReturnViewView extends GetView<ApdReturnViewController> {
         }),
       if (status == '2')
         _buildActionButton('Hapus', AppColor.errorDark, () async {
-          var c = Get.find<ApdReturnController>();
-          await c.deleteApdReturnModel(controller.indexData.value);
-          c.update();
+          await controller.setApdStatus('99');
           Get.back();
         }),
       SizedBox(width: 18),

@@ -9,6 +9,7 @@ class AppAppbar {
     required String title,
     List<Widget>? action,
     bool centerTitle = true,
+    bool noBack = false,
     TextStyle? titleStyle,
     double? titleSpacing,
     GestureTapCallback? onBack,
@@ -19,34 +20,34 @@ class AppAppbar {
       backgroundColor: AppColor.neutralLightLightest,
       leadingWidth: 72,
       titleSpacing: titleSpacing,
-      leading: InkWell(
-        onTap: onBack ??
-            () async {
-              Get.back();
-            },
-        child: SizedBox(
-          width: 24,
-          height: 24,
-          child: Padding(
-            padding: EdgeInsets.all(4),
-            child: Transform.scale(
-              scale: 0.5,
-              child: Image.asset(
-                Assets.iconsIcArrowBack,
-                width: 24,
-                height: 24,
+      automaticallyImplyLeading: !noBack,
+      leading:
+          noBack
+              ? null
+              : InkWell(
+                onTap: onBack ?? () => Get.back(),
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: Padding(
+                    padding: EdgeInsets.all(4),
+                    child: Transform.scale(
+                      scale: 0.5,
+                      child: Image.asset(
+                        Assets.iconsIcArrowBack,
+                        width: 24,
+                        height: 24,
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ),
-      ),
       centerTitle: centerTitle,
       title: Text(
         title,
-        style: titleStyle ??
-            AppTextStyle.h4.copyWith(
-              color: AppColor.neutralDarkLight,
-            ),
+        style:
+            titleStyle ??
+            AppTextStyle.h4.copyWith(color: AppColor.neutralDarkLight),
       ),
       actions: action,
       bottom: bottom,

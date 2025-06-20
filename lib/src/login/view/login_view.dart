@@ -14,152 +14,143 @@ class LoginView extends GetView<LoginController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.neutralLightLightest,
-      body: Container(
-        color: AppColor.neutralLightLightest,
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                Image.asset(
-                  Assets.imagesImgLogin,
-                  width: double.infinity,
-                  height: Get.size.height * .4,
-                  fit: BoxFit.cover,
-                ),
-                body(),
-              ],
-            ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Image.asset(
+                Assets.imagesImgLogin,
+                width: double.infinity,
+                height: Get.size.height * 0.4,
+                fit: BoxFit.cover,
+              ),
+              _buildLoginCard(),
+            ],
           ),
         ),
       ),
     );
   }
 
-  body() {
+  Widget _buildLoginCard() {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 40),
+      margin: const EdgeInsets.symmetric(vertical: 40),
       color: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 30),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Image.asset(Assets.imagesImgMkp, width: 78, height: 32),
-          ),
-          SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30),
-            child: Text(
-              'K3L Corporate',
-              style: AppTextStyle.h1.copyWith(color: AppColor.neutralDarkLight),
-            ),
-          ),
-          SizedBox(height: 24),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30),
-            child: formAndButton(),
-          ),
+          _buildLogo(),
+          const SizedBox(height: 24),
+          _buildTitle(),
+          const SizedBox(height: 24),
+          _buildLoginForm(),
         ],
       ),
     );
   }
 
-  formAndButton() {
+  Widget _buildLogo() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: Image.asset(Assets.imagesImgMkp2, width: 78, height: 32),
+    );
+  }
+
+  Widget _buildTitle() {
+    return Text(
+      'MSafety',
+      style: AppTextStyle.h1.copyWith(color: AppColor.neutralDarkLight),
+    );
+  }
+
+  Widget _buildLoginForm() {
     return Obx(() {
-      bool pwVisible = controller.passwordVisible.value;
-      bool isLoading = controller.loading.value;
-      return Container(
-        padding: EdgeInsets.symmetric(vertical: 24),
+      final pwVisible = controller.passwordVisible.value;
+      final isLoading = controller.loading.value;
+
+      return Padding(
+        padding: const EdgeInsets.only(top: 24),
         child: Column(
           children: [
             AppTextField.loginTextField(
               controller: controller.nidC,
               hintText: 'Nama pengguna',
-              onChanged: (v) {
+              onChanged: (_) {
                 controller.checkLoginBtnStatus();
-                controller.update();
               },
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             AppTextField.loginTextField(
               controller: controller.passwordC,
               hintText: 'Kata sandi',
               isPassword: !pwVisible,
-              suffixIconConstraints: BoxConstraints(maxHeight: 18),
-              onChanged: (v) {
+              suffixIconConstraints: const BoxConstraints(maxHeight: 18),
+              onChanged: (_) {
                 controller.checkLoginBtnStatus();
-                controller.update();
               },
-              suffixIcon: GestureDetector(
-                onTap: () async {
-                  controller.passwordVisible.value = !pwVisible;
-                },
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 16),
-                  child: Image.asset(
-                    pwVisible
-                        ? Assets.iconsIcPassVisible
-                        : Assets.iconsIcPassNonVisible,
-                    color:
-                        pwVisible
-                            ? AppColor.highlightDarkest
-                            : AppColor.neutralDarkLightest,
-                  ),
-                ),
-              ),
+              suffixIcon: _buildPasswordToggleIcon(pwVisible),
             ),
-            SizedBox(height: 30),
-            AppButton.basicButton(
-              width: double.infinity,
-              // enable: controller.enableLoginBtn.value,
-              enable: true,
-              onTap: () async {
-                if (!isLoading) {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  await controller.login();
-                }
-              },
-              color: AppColor.highlightDarkest,
-              height: 48,
-              radius: 30,
-              padding: EdgeInsets.fromLTRB(16, isLoading ? 0 : 14, 16, 0),
-              child:
-                  isLoading
-                      ? Transform.scale(
-                        scale: 0.5,
-                        child: SizedBox(
-                          width: 16,
-                          height: 6,
-                          child: FittedBox(
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      )
-                      : Text(
-                        'Masuk',
-                        textAlign: TextAlign.center,
-                        style: AppTextStyle.actionL.copyWith(
-                          color: AppColor.neutralLightLightest,
-                        ),
-                      ),
-            ),
-            SizedBox(height: 30),
-            copyright(),
+            const SizedBox(height: 30),
+            _buildLoginButton(isLoading),
+            const SizedBox(height: 30),
+            _buildCopyright(),
           ],
         ),
       );
     });
   }
 
-  copyright() {
+  Widget _buildPasswordToggleIcon(bool isVisible) {
+    return GestureDetector(
+      onTap: () {
+        controller.passwordVisible.value = !isVisible;
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(right: 16),
+        child: Image.asset(
+          isVisible ? Assets.iconsIcPassVisible : Assets.iconsIcPassNonVisible,
+          color:
+              isVisible
+                  ? AppColor.highlightDarkest
+                  : AppColor.neutralDarkLightest,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoginButton(bool isLoading) {
+    return AppButton.basicButton(
+      width: double.infinity,
+      enable: controller.enableLoginBtn.value,
+      loading: isLoading,
+      onTap: () async {
+        if (!isLoading) {
+          FocusManager.instance.primaryFocus?.unfocus();
+          await controller.login();
+        }
+      },
+      color: AppColor.highlightDarkest,
+      height: 48,
+      radius: 30,
+      padding: EdgeInsets.fromLTRB(16, isLoading ? 0 : 14, 16, 0),
+      child: Text(
+        'Masuk',
+        textAlign: TextAlign.center,
+        style: AppTextStyle.actionL.copyWith(
+          color: AppColor.neutralLightLightest,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCopyright() {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Column(
         children: [
-          Divider(thickness: 0.5, color: AppColor.neutralLightDark),
-          SizedBox(height: 15),
+          const Divider(thickness: 0.5, color: AppColor.neutralLightDark),
+          const SizedBox(height: 15),
           Text(
             'PT Mitra Karya Prima',
             style: AppTextStyle.bodyS.copyWith(

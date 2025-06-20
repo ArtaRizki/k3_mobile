@@ -17,12 +17,19 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final buktiFoto =
-          (controller.viewData.value.data?.gambarPenerimaan ?? []);
+      final data = controller.viewData.value.data;
+      final buktiFoto = data?.gambarPenerimaan ?? [];
+      final fileTtd = data?.fileTtd ?? '';
+      String ttdUrl = fileTtd
+      /*.replaceAll(
+        '/file_bukti_ttd_penerimaan_apd/file_bukti_ttd_penerimaan_apd/',
+        '/file_bukti_ttd_penerimaan_apd/',
+      )*/
+      ;
       return Scaffold(
         appBar: AppAppbar.basicAppbar(
           // harusnya penerimaanCode atau code saja
-          title: controller.viewData.value.data?.permintaanCode ?? '',
+          title: data?.permintaanCode ?? '',
           centerTitle: false,
           titleSpacing: 0,
           titleStyle: AppTextStyle.h4.copyWith(
@@ -72,6 +79,15 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
                           buktiFoto.isEmpty ? 1 : buktiFoto.length,
                           (i) {
                             final item = buktiFoto[i];
+                            String fileUrl = item?.file ?? '';
+                            // Menghapus duplikasi path
+                            String imagesUrl = fileUrl
+                            /*
+                            .replaceAll(
+                              '/file_bukti_foto_penerimaan_apd/file_bukti_foto_penerimaan_apd/',
+                              '/file_bukti_foto_penerimaan_apd/',
+                            )*/
+                            ;
                             return InkWell(
                               onTap: () async {
                                 await Get.toNamed(
@@ -87,7 +103,7 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
                                   borderRadius: BorderRadius.circular(12),
                                   child: Image.network(
                                     // File(item),
-                                    item?.file ?? '',
+                                    imagesUrl,
                                     width: 68,
                                     height: 68,
                                     fit: BoxFit.cover,
@@ -119,7 +135,7 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
                       children: [
                         Center(
                           child: Image.network(
-                            controller.viewData.value.data?.fileTtd ?? '',
+                            data?.fileTtd ?? '',
                             height: 138,
                           ),
                         ),
@@ -128,7 +144,7 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
                           left: 0,
                           right: 0,
                           child: Text(
-                            controller.viewData.value.data?.filenameTtd ?? '',
+                            data?.filenameTtd ?? '',
                             textAlign: TextAlign.center,
                             style: AppTextStyle.bodyS.copyWith(
                               color: AppColor.neutralDarkLight,
@@ -166,9 +182,7 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
         }),
       if (status == '2')
         _buildActionButton('Hapus', AppColor.errorDark, () async {
-          var c = Get.find<ApdReceptionController>();
-          await c.deleteApdReceptionModel(controller.indexData.value);
-          c.update();
+          await controller.setApdStatus('99');
           Get.back();
         }),
       SizedBox(width: 18),

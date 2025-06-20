@@ -89,11 +89,11 @@ class InspectionParam {
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
-    data['name'] = name;
+    if (name != null) data['name'] = name;
     data['karyawan_id'] = karyawanId;
     data['type'] = type;
     data['proyek_name'] = proyekName;
-    data['unit_id'] = unitId;
+    if (unitId != null) data['unit_id'] = unitId;
     data['doc_date'] = docDate;
     data['doc_time'] = docTime;
     data['kategori'] = kategori;

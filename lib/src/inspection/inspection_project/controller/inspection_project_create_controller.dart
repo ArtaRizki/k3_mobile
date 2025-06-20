@@ -96,6 +96,16 @@ class InspectionProjectCreateController extends GetxController {
       reasonC.value.text = data?.alasan ?? '';
       actionDetailC.value.text = data?.rincianTindakan ?? '';
       givenRecommendationC.value.text = data?.saran ?? '';
+    } else {
+      final prefs = await SharedPreferences.getInstance();
+      final data = prefs.getString(AppSharedPreferenceKey.kSetPrefLoginModel);
+      if (data != null) {
+        loginModel.value = LoginModel.fromJson(jsonDecode(data));
+        final user = loginModel.value.data;
+        log("USER NAME : ${user?.name ?? ''}");
+        log("USER UNIT : ${user?.unitName ?? ''}");
+        update();
+      }
     }
   }
 
@@ -233,12 +243,13 @@ class InspectionProjectCreateController extends GetxController {
     );
     loading(true);
     final user = loginModel.value.data;
+    log("USER NAME : ${user?.name ?? ''}");
     var param = InspectionParam(
-      name: user?.name ?? '',
-      type: '0',
+      name: user?.name,
+      type: '1',
       proyekName: projectNameC.value.text,
       karyawanId: user?.karyawan?.id ?? '',
-      unitId: '',
+      unitId: null,
       docDate: DateFormat(
         'dd/MM/yyyy',
       ).format(dateTime.value ?? DateTime.now()),

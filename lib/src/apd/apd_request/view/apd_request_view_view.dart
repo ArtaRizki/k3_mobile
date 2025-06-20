@@ -64,9 +64,7 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
         }),
       if (status == '2')
         _buildActionButton('Hapus', AppColor.errorDark, () async {
-          var c = Get.find<ApdRequestController>();
-          await c.deleteApdRequestModel(controller.indexData.value);
-          c.update();
+          await controller.setApdStatus('99');
           Get.back();
         }),
       SizedBox(width: 18),

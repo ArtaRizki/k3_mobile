@@ -68,7 +68,7 @@ class HttpRequestClient {
     List<http.MultipartFile>? files,
   }) {
     log("==== $method REQUEST ====");
-    log("URL: ${AppUrl.BASE_API_FULL}$url");
+    log("URL: $url");
     if (body != null) log("BODY: ${jsonEncode(body)}");
     if (files != null) log("FILES: $files");
   }

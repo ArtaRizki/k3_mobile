@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:get/get.dart';
 import 'package:k3_mobile/component/http_request_client.dart';
 import 'package:k3_mobile/component/utils.dart';
@@ -65,7 +64,7 @@ class ApdReceptionViewController extends GetxController {
         // isJsonEncode: true,
       );
       if (response.statusCode == 204) {
-        final msg = 'Data berhasil disimpan';
+        final msg = 'Data berhasil ${status == '99' ? 'dihapus' : 'disimpan'}';
         await Utils.showSuccess(msg: msg);
         loading(false);
         Get.find<ApdReceptionController>().getData();

@@ -8,6 +8,7 @@ import 'package:k3_mobile/const/app_snackbar.dart';
 import 'package:k3_mobile/src/apd/apd_request/model/apd_request_model.dart';
 
 class ApdRequestController extends GetxController {
+  var req = HttpRequestClient();
   final searchC = TextEditingController().obs;
   var apdReqList = <ApdRequestModelData?>[].obs;
   var filteredApdReq = <ApdRequestModelData?>[].obs;
@@ -64,8 +65,7 @@ class ApdRequestController extends GetxController {
   Future<void> getData() async {
     if (!loading.value) {
       loading(true);
-      final httpClient = HttpRequestClient();
-      final response = await httpClient.get('/get-data-permintaan');
+      final response = await req.get('/get-data-permintaan');
       if (response.statusCode == 200) {
         final apdReqs = ApdRequestModel.fromJson(jsonDecode(response.body));
         loading(false);

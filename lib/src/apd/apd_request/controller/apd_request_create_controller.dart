@@ -207,6 +207,7 @@ class ApdRequestCreateController extends GetxController {
     update();
 
     var body = ApdRequestParam(
+      id: viewData.value.data?.id,
       unit: loginModel.value.data?.unitId ?? '',
       docDate: DateFormat(
         'yyyy-MM-dd',
@@ -224,6 +225,7 @@ class ApdRequestCreateController extends GetxController {
       update();
       loading(false);
       Get.find<ApdRequestController>().getData();
+      if (viewData.value.data != null) Get.back();
       Get.back();
       final map = jsonDecode(response.body);
       Utils.showSuccess(msg: map["message"]);
@@ -279,7 +281,7 @@ class ApdRequestCreateController extends GetxController {
     update();
 
     var body = ApdRequestParam(
-      id: viewData.value.data?.id ?? '',
+      id: viewData.value.data?.id,
       unit: loginModel.value.data?.unitId ?? '',
       docDate: DateFormat(
         'yyyy-MM-dd',

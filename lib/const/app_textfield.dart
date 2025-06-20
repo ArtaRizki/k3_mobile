@@ -25,6 +25,7 @@ class AppTextField {
     TextInputType? keyboardType,
     String? Function(String?)? validator,
     List<TextInputFormatter>? inputFormatters,
+    TextInputAction? textInputAction,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,6 +60,7 @@ class AppTextField {
           style: AppTextStyle.bodyM.copyWith(color: AppColor.neutralDarkMedium),
           onChanged: onChanged,
           keyboardType: keyboardType,
+          textInputAction: textInputAction,
           decoration: InputDecoration(
             isDense: isDense,
             filled: true,

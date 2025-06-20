@@ -12,7 +12,7 @@ class SessionController extends FullLifeCycleController
     prefs.reload();
     prefs.clear();
     loginModel.value = LoginModel();
-    Get.delete<HomeController>(force: true);
+    // Get.delete<HomeController>(force: true);
     Get.appUpdate();
   }
 

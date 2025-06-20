@@ -70,7 +70,7 @@ class ApdReturnParam {
     }
   ],
   "bukti_foto": "data:image/jpeg;base64",
-  "ttd_foto": "data:image/jpeg;base64",
+  "ttd_file": "data:image/jpeg;base64",
   "action": "draft"
 } 
 */
@@ -82,7 +82,7 @@ class ApdReturnParam {
   String? description;
   List<ApdReturnParamDataApdRtn?>? dataApdRtn;
   String? buktiFoto;
-  String? ttdFoto;
+  String? ttdFile;
   String? action;
 
   ApdReturnParam({
@@ -93,7 +93,7 @@ class ApdReturnParam {
     this.description,
     this.dataApdRtn,
     this.buktiFoto,
-    this.ttdFoto,
+    this.ttdFile,
     this.action,
   });
   ApdReturnParam.fromJson(Map<String, dynamic> json) {
@@ -111,7 +111,7 @@ class ApdReturnParam {
       dataApdRtn = arr0;
     }
     buktiFoto = json['bukti_foto']?.toString();
-    ttdFoto = json['ttd_foto']?.toString();
+    ttdFile = json['ttd_file']?.toString();
     action = json['action']?.toString();
   }
   Map<String, dynamic> toJson() {
@@ -130,7 +130,7 @@ class ApdReturnParam {
       data['data_apd_rtn'] = jsonEncode(arr0);
     }
     data['bukti_foto'] = buktiFoto;
-    data['ttd_foto'] = ttdFoto;
+    data['ttd_file'] = ttdFile;
     if (action != null) data['action'] = action;
     return data;
   }

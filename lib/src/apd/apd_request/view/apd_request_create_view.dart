@@ -269,8 +269,10 @@ class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
         padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
         child: Row(
           children: [
-            if (data == null) _buildSaveDraftButton(),
-            if (data == null) SizedBox(width: 12),
+            // if (data == null)
+            _buildSaveDraftButton(),
+            // if (data == null)
+            SizedBox(width: 12),
             _buildSubmitButton(),
           ],
         ),

@@ -8,6 +8,7 @@ import 'package:k3_mobile/const/app_snackbar.dart';
 import 'package:k3_mobile/src/apd/apd_return/model/apd_return_model.dart';
 
 class ApdReturnController extends GetxController {
+  var req = HttpRequestClient();
   final searchC = TextEditingController().obs;
   var apdRets = <ApdReturnModelData?>[].obs;
   var filteredApdRet = <ApdReturnModelData?>[].obs;
@@ -59,8 +60,7 @@ class ApdReturnController extends GetxController {
   Future<void> getData() async {
     if (!loading.value) {
       loading(true);
-      final httpClient = HttpRequestClient();
-      final response = await httpClient.get('/get-data-pengembalian-barang');
+      final response = await req.get('/get-data-pengembalian-barang');
       if (response.statusCode == 200) {
         final apdRets = ApdReturnModel.fromJson(jsonDecode(response.body));
         loading(false);

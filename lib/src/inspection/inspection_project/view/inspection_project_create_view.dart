@@ -33,7 +33,12 @@ class InspectionProjectCreateView
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
-                children: <Widget>[...form(), ...imageList(), sendBtn()],
+                children: <Widget>[
+                  ...form(),
+                  ...imageList(),
+                  ...tindakLanjutWidget(),
+                  sendBtn(),
+                ],
               ),
             ),
           ),
@@ -326,7 +331,57 @@ class InspectionProjectCreateView
   }
 
   List<Widget> imageList() {
-    if (controller.isViewMode.value) return [SizedBox()];
+    final data = controller.inspectionViewModelData.value.data?.buktiFoto ?? [];
+    if (controller.isViewMode.value)
+      return [
+        SizedBox(height: 12),
+        Text(
+          'Gambar',
+          style: AppTextStyle.actionL.copyWith(
+            color: AppColor.neutralDarkDarkest,
+          ),
+        ),
+        SizedBox(height: 6),
+        if (data.isEmpty) ...[
+          Center(child: Text('Tidak ada gambar')),
+        ] else ...[
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 6),
+            child: Wrap(
+              spacing: 10,
+              children: List.generate(data.isEmpty ? 1 : data.length, (i) {
+                final item = data[i];
+                String fileUrl = item?.file ?? '';
+                // Menghapus duplikasi path
+                String imagesUrl = fileUrl;
+                return InkWell(
+                  onTap: () async {
+                    await Get.toNamed(AppRoute.IMAGE_PREVIEW, arguments: item);
+                  },
+                  child: Container(
+                    width: 68,
+                    height: 68,
+                    decoration: BoxDecoration(color: Colors.white),
+                    child: Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            imagesUrl,
+                            width: 68,
+                            height: 68,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
+        ],
+      ];
     return [
       SizedBox(height: 12),
       Text(
@@ -396,6 +451,102 @@ class InspectionProjectCreateView
                 ),
       ),
     ];
+  }
+
+  List<Widget> tindakLanjutWidget() {
+    if (controller.inspectionViewModelData.value.data?.docStatus == '1') {
+      final data = controller.inspectionViewModelData.value.data;
+      return [
+        SizedBox(height: 48),
+        Center(
+          child: Text(
+            'TINDAK LANJUT',
+            textAlign: TextAlign.center,
+            style: AppTextStyle.actionL.copyWith(color: Color(0xff1F2024)),
+          ),
+        ),
+        SizedBox(height: 24),
+        Text(
+          'Dilakukan tindak lanjut?',
+          style: AppTextStyle.actionL.copyWith(
+            color: AppColor.neutralDarkDarkest,
+          ),
+        ),
+        SizedBox(height: 6),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 3, vertical: 15),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 5,
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: Checkbox(
+                        value: data?.tindakLanjut == 1,
+                        onChanged: (value) {},
+                        activeColor: AppColor.highlightDarkest,
+                      ),
+                    ),
+                    SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'Ya',
+                        style: AppTextStyle.bodyM.copyWith(
+                          color: AppColor.neutralDarkDarkest,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 5,
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: Checkbox(
+                        value: data?.tindakLanjut == 0,
+                        onChanged: (value) {},
+                        activeColor: AppColor.highlightDarkest,
+                      ),
+                    ),
+                    SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'Tidak',
+                        style: AppTextStyle.bodyM.copyWith(
+                          color: AppColor.neutralDarkDarkest,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 12),
+        AppTextField.basicTextField(
+          readOnly: controller.isViewMode.value,
+          controller: TextEditingController(
+            text: data?.tindakanTindakLanjut ?? '',
+          ),
+          label: 'Rincian tindak lanjut',
+          hintText: 'Rincian tindak lanjut',
+          onChanged: (v) {
+            controller.validateForm();
+            controller.update();
+          },
+          maxLines: 4,
+        ),
+      ];
+    }
+    return [SizedBox()];
   }
 
   Widget sendBtn() {

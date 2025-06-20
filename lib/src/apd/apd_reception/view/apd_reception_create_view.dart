@@ -148,7 +148,7 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
                   SizedBox(height: 12),
                   AppTextField.basicTextField(
                     controller: controller.noteC.value,
-                    required: true,
+                    // required: true,
                     label: 'Keterangan',
                     hintText: 'Keterangan',
                     onChanged: (v) {
@@ -287,6 +287,7 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
                           onSign: () {
                             log("ON SIGN");
                             controller.showHintSignature.value = false;
+                            controller.validateForm();
                           },
                         ),
                         if (controller.showHintSignature.value)
@@ -341,7 +342,7 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
         final item = controller.apdRecList[i];
         return AppCard.listCard(
           onTap: () async {
-            Get.back();
+            // Get.back();
           },
           padding: EdgeInsets.all(6),
           color:
@@ -778,8 +779,10 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
         padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
         child: Row(
           children: [
-            if (data == null) _buildSaveDraftButton(),
-            if (data == null) SizedBox(width: 12),
+            // if (data == null)
+            _buildSaveDraftButton(),
+            // if (data == null)
+            SizedBox(width: 12),
             _buildSubmitButton(),
           ],
         ),

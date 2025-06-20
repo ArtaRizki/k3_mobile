@@ -9,6 +9,7 @@ import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/const/app_textfield.dart';
 import 'package:k3_mobile/generated/assets.dart';
 import 'package:k3_mobile/src/guide/controller/guide_controller.dart';
+import 'package:k3_mobile/src/guide/model/guide_model.dart';
 
 class GuideView extends GetView<GuideController> {
   GuideView({super.key});
@@ -16,157 +17,181 @@ class GuideView extends GetView<GuideController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppAppbar.basicAppbar(title: 'Pedoman K3'),
+      appBar: AppAppbar.basicAppbar(title: 'Pedoman K3', noBack: true),
       body: SafeArea(
-        child: Obx(
-          () => Container(
+        child: Obx(() {
+          return Container(
             color: AppColor.neutralLightLightest,
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                AppTextField.loginTextField(
-                  controller: controller.searchC.value,
-                  hintText: 'Search',
-                  suffixIconConstraints: BoxConstraints(maxHeight: 18),
-                  onChanged: (v) {
-                    controller.update();
-                  },
-                  suffixIcon: GestureDetector(
-                    onTap: null,
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 16),
-                      child: Image.asset(
-                        Assets.iconsIcSearch,
-                        color: AppColor.neutralLightDarkest,
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 12, bottom: 12),
-                  child: Text(
-                    'Daftar pedoman K3',
-                    textAlign: TextAlign.left,
-                    style: AppTextStyle.actionL.copyWith(
-                      color: AppColor.neutralDarkLight,
-                    ),
-                  ),
-                ),
-                list(),
+              children: [
+                _buildSearchBar(),
+                _buildGuideTitle(),
+                _buildGuideList(),
               ],
             ),
-          ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    final isSearching = controller.searchC.value.text.isNotEmpty;
+    return AppTextField.basicTextField(
+      label: '',
+      controller: controller.searchC.value,
+      hintText: 'Search',
+      suffixIconConstraints: BoxConstraints(maxHeight: isSearching ? 23 : 18),
+      onChanged: (v) {
+        controller.update();
+        controller.onSearchChanged();
+      },
+      textInputAction: TextInputAction.done,
+      suffixIcon: InkWell(
+        onTap: isSearching ? controller.clearField : null,
+        child:
+            isSearching
+                ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Icon(Icons.close, color: AppColor.neutralDarkLight),
+                )
+                : Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: Image.asset(
+                    Assets.iconsIcSearch,
+                    color: AppColor.neutralLightDarkest,
+                  ),
+                ),
+      ),
+    );
+  }
+
+  Widget _buildGuideTitle() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, bottom: 12),
+      child: Text(
+        'Daftar pedoman K3',
+        style: AppTextStyle.actionL.copyWith(color: AppColor.neutralDarkLight),
+      ),
+    );
+  }
+
+  Widget _buildGuideList() {
+    final data = controller.filteredGuides;
+
+    if (data.isEmpty) {
+      return EmptyList.textEmptyList(
+        minHeight: Get.size.height * .71,
+        onRefresh: () async {
+          await controller.getData();
+          controller.update();
+        },
+      );
+    }
+
+    return Expanded(
+      child: RefreshIndicator(
+        onRefresh: () async {
+          await controller.getData();
+          controller.update();
+        },
+        child: ListView.separated(
+          shrinkWrap: true,
+          itemCount: data.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          itemBuilder: (_, i) => _buildGuideItem(data[i]),
         ),
       ),
     );
   }
 
-  Widget list() {
-    final data = controller.filteredGuides;
-    if (data.isEmpty)
-      return EmptyList.textEmptyList(
-        minHeight: Get.size.height * .71,
-        onRefresh: () async {
-          controller.update();
-        },
-      );
-    return Expanded(
-      child: ListView.separated(
-        itemCount: data.length,
-        shrinkWrap: true,
-        separatorBuilder: (_, __) => SizedBox(height: 12),
-        itemBuilder: (c, i) {
-          final item = data[i];
-          return AppCard.listCard(
-            onTap: () async {
-              FocusManager.instance.primaryFocus?.unfocus();
-              if (item?.file != null)
-                Get.toNamed(
-                  AppRoute.GUIDE_PREVIEW,
-                  arguments: item?.file ?? '',
-                );
-            },
-            color: AppColor.neutralLightLightest,
-            child: Row(
+  Widget _buildGuideItem(GuideModelData? item) {
+    return AppCard.listCard(
+      onTap: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+        if (item?.file != null) {
+          Get.toNamed(AppRoute.GUIDE_PREVIEW, arguments: item);
+        }
+      },
+      color: AppColor.neutralLightLightest,
+      child: Row(
+        children: [
+          Image.asset(Assets.iconsIcListGuide, width: 52, height: 52),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.asset(Assets.iconsIcListGuide, width: 52, height: 52),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              item?.nomor ?? '',
-                              style: AppTextStyle.bodyS.copyWith(
-                                color: AppColor.neutralDarkDarkest,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            item?.tanggal ?? '',
-                            style: AppTextStyle.bodyS.copyWith(
-                              color: AppColor.neutralDarkDarkest,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 3),
-                      Flexible(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                item?.judul ?? '',
-                                style: AppTextStyle.h5.copyWith(
-                                  color: AppColor.neutralDarkDarkest,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  item?.kategoriName ?? '',
-                                  style: AppTextStyle.bodyS.copyWith(
-                                    color: AppColor.neutralDarkDarkest,
-                                  ),
-                                ),
-                                Row(
-                                  children: [
-                                    Image.asset(
-                                      Assets.iconsIcDownloadGuide,
-                                      width: 24,
-                                      height: 24,
-                                    ),
-                                    Text(
-                                      ' Unduh',
-                                      style: AppTextStyle.bodyS.copyWith(
-                                        color: AppColor.highlightDarkest,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                _buildGuideHeader(item),
+                const SizedBox(height: 3),
+                _buildGuideBody(item),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGuideHeader(item) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            item?.nomor ?? '',
+            style: AppTextStyle.bodyS.copyWith(
+              color: AppColor.neutralDarkDarkest,
+            ),
+          ),
+        ),
+        Text(
+          item?.tanggal ?? '',
+          style: AppTextStyle.bodyS.copyWith(
+            color: AppColor.neutralDarkDarkest,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGuideBody(item) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Text(
+            item?.judul ?? '',
+            style: AppTextStyle.h5.copyWith(
+              color: AppColor.neutralDarkDarkest,
+              fontSize: 12,
+            ),
+          ),
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              item?.kategoriName ?? '',
+              style: AppTextStyle.bodyS.copyWith(
+                color: AppColor.neutralDarkDarkest,
+              ),
+            ),
+            Row(
+              children: [
+                Image.asset(Assets.iconsIcDownloadGuide, width: 24, height: 24),
+                Text(
+                  ' Unduh',
+                  style: AppTextStyle.bodyS.copyWith(
+                    color: AppColor.highlightDarkest,
                   ),
                 ),
               ],
             ),
-          );
-        },
-      ),
+          ],
+        ),
+      ],
     );
   }
 }

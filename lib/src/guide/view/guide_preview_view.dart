@@ -12,59 +12,25 @@ class GuidePreviewView extends GetView<GuidePreviewController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppAppbar.basicAppbar(
-        title: 'Permenaker Nomor 11 Tahun 2023',
-        centerTitle: true,
-        onBack: () async {
-          Get.back();
-        },
-        action: actionWidget(controller),
-      ),
-      body: SafeArea(
-        child: Obx(
-          () => Container(
-            color: AppColor.neutralLightLightest,
-            padding: const EdgeInsets.symmetric(
-              vertical: 12,
-              horizontal: 24,
-            ),
-            child: controller.localPdfPath.value == ''
-                ? Center(child: CircularProgressIndicator())
-                : Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-                    child: Container(
-                      height: double.infinity,
-                      decoration: BoxDecoration(boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 10,
-                          spreadRadius: 5,
-                        ),
-                      ]),
-                      child: PDFView(
-                        filePath: controller.localPdfPath.value,
-                      ),
-                    ),
-                  ),
-          ),
-        ),
-      ),
+    return Obx(
+      () =>
+          Scaffold(appBar: _buildAppBar(), body: SafeArea(child: _buildBody())),
     );
   }
 
-  List<Widget> actionWidget(GuidePreviewController controller) {
+  PreferredSizeWidget _buildAppBar() {
+    return AppAppbar.basicAppbar(
+      title: controller.title.value,
+      centerTitle: true,
+      onBack: () => Get.back(),
+      action: _buildDownloadAction(),
+    );
+  }
+
+  List<Widget> _buildDownloadAction() {
     return [
       InkWell(
-        onTap: () async {
-          downloadFile(
-            Get.context!,
-            controller.pdfUrl.value,
-            filename: controller.pdfUrl.value.split('/').last,
-            typeFile: 'pdf',
-          );
-        },
+        onTap: controller.handleDownload,
         child: Padding(
           padding: const EdgeInsets.only(right: 24),
           child: Text(
@@ -76,5 +42,35 @@ class GuidePreviewView extends GetView<GuidePreviewController> {
         ),
       ),
     ];
+  }
+
+  Widget _buildBody() {
+    final path = controller.localPdfPath.value;
+    return Container(
+      color: AppColor.neutralLightLightest,
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+      child:
+          path.isEmpty
+              ? const Center(child: CircularProgressIndicator())
+              : _buildPdfView(path),
+    );
+  }
+
+  Widget _buildPdfView(String path) {
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(25),
+            blurRadius: 10,
+            spreadRadius: 5,
+          ),
+        ],
+      ),
+      child: PDFView(filePath: path),
+    );
   }
 }

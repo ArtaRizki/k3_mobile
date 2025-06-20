@@ -50,6 +50,7 @@ class Assets {
   static const String iconsIcTime = 'assets/icons/ic-time.png';
   static const String imagesImgLogin = 'assets/images/img-login.jpg';
   static const String imagesImgMkp = 'assets/images/img-mkp.png';
+  static const String imagesImgMkp2 = 'assets/images/img-mkp2.png';
   static const String imagesImgOftenInspection = 'assets/images/img-often-inspection.png';
   static const String imagesImgProjectInspection = 'assets/images/img-project-inspection.png';
   static const String imagesImgSampleSignature = 'assets/images/img-sample-signature.png';

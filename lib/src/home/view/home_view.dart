@@ -17,12 +17,10 @@ class HomeView extends GetView<HomeController> {
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () async {
-            controller.getData();
-          },
-          child: SingleChildScrollView(
-            child: Obx(
-              () => Container(
+          onRefresh: () async => controller.getData(),
+          child: Obx(
+            () => SingleChildScrollView(
+              child: Container(
                 color: AppColor.neutralLightLightest,
                 padding: const EdgeInsets.symmetric(
                   vertical: 12,
@@ -30,43 +28,14 @@ class HomeView extends GetView<HomeController> {
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    SizedBox(height: 16),
-                    header(),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 24, bottom: 12),
-                      child: Text(
-                        'Inspeksi',
-                        textAlign: TextAlign.left,
-                        style: AppTextStyle.actionL.copyWith(
-                          color: AppColor.neutralDarkLight,
-                        ),
-                      ),
-                    ),
-                    inspectionCard(),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 24, bottom: 12),
-                      child: Text(
-                        'Manajemen APD',
-                        textAlign: TextAlign.left,
-                        style: AppTextStyle.actionL.copyWith(
-                          color: AppColor.neutralDarkLight,
-                        ),
-                      ),
-                    ),
-                    apdManagementCard(),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 24, bottom: 12),
-                      child: Text(
-                        'Linimasa',
-                        textAlign: TextAlign.left,
-                        style: AppTextStyle.actionL.copyWith(
-                          color: AppColor.neutralDarkLight,
-                        ),
-                      ),
-                    ),
-                    timeline(),
+                  children: [
+                    _buildHeader(),
+                    _sectionTitle('Inspeksi'),
+                    _buildInspectionCard(),
+                    _sectionTitle('Manajemen APD'),
+                    _buildApdManagementCard(),
+                    _sectionTitle('Linimasa'),
+                    _buildTimeline(),
                   ],
                 ),
               ),
@@ -77,20 +46,19 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget header() {
+  Widget _buildHeader() {
     final user = controller.loginModel.value?.data;
     return InkWell(
-      onTap: () async {
-        Get.find<MainHomeController>().selectedIndex.value = 4;
-      },
-      child: Row(
-        children: [
-          Image.asset(Assets.iconsIcAvatar, width: 45, height: 45),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24),
+      onTap: () => Get.find<MainHomeController>().selectedIndex.value = 4,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 16),
+        child: Row(
+          children: [
+            Image.asset(Assets.iconsIcAvatar, width: 45, height: 45),
+            const SizedBox(width: 24),
+            Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     user?.name ?? '',
@@ -98,7 +66,7 @@ class HomeView extends GetView<HomeController> {
                       color: AppColor.highlightDarkest,
                     ),
                   ),
-                  SizedBox(height: 6),
+                  const SizedBox(height: 6),
                   Text(
                     user?.unitName ?? '',
                     style: AppTextStyle.bodyS.copyWith(
@@ -108,245 +76,175 @@ class HomeView extends GetView<HomeController> {
                 ],
               ),
             ),
-          ),
-          InkWell(
-            onTap: () async {
-              Get.toNamed(AppRoute.NOTIFICATION);
-            },
-            child: Image.asset(
+            _iconButton(
               Assets.iconsIcNotification,
-              width: 24,
-              height: 24,
+              () => Get.toNamed(AppRoute.NOTIFICATION),
             ),
-          ),
-          SizedBox(width: 24),
-          InkWell(
-            onTap: () async {
+            const SizedBox(width: 24),
+            _iconButton(Assets.iconsIcLogout, () async {
               await Get.find<SessionController>().logout();
               Get.offAllNamed(AppRoute.LOGIN);
-            },
-            child: Image.asset(Assets.iconsIcLogout, width: 24, height: 24),
-          ),
-        ],
+            }),
+          ],
+        ),
       ),
     );
   }
 
-  Widget inspectionCard() {
+  Widget _iconButton(String assetPath, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Image.asset(assetPath, width: 24, height: 24),
+    );
+  }
+
+  Widget _sectionTitle(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24, bottom: 12),
+      child: Text(
+        text,
+        style: AppTextStyle.actionL.copyWith(color: AppColor.neutralDarkLight),
+      ),
+    );
+  }
+
+  Widget _buildInspectionCard() {
     final inspeksi = controller.homeModel.value.data?.inspeksi;
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Expanded(
-          child: Container(
-            height: 130,
-            padding: EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(Assets.imagesImgOftenInspection),
-              ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Image.asset(
-                      Assets.iconsIcOftenInspection,
-                      width: 24,
-                      height: 24,
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      inspeksi?.rutin ?? '',
-                      style: AppTextStyle.h1.copyWith(
-                        color: AppColor.successMedium,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Inspeksi Rutin',
-                  style: AppTextStyle.bodyM.copyWith(
-                    color: AppColor.successMedium,
-                  ),
-                ),
-              ],
-            ),
-          ),
+        _inspectionItem(
+          image: Assets.imagesImgOftenInspection,
+          icon: Assets.iconsIcOftenInspection,
+          value: inspeksi?.rutin ?? '',
+          label: 'Inspeksi Rutin',
+          color: AppColor.successMedium,
         ),
-        SizedBox(width: 12),
-        Expanded(
-          child: Container(
-            padding: EdgeInsets.all(24),
-            constraints: BoxConstraints(minHeight: 132),
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(Assets.imagesImgProjectInspection),
-              ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Image.asset(
-                      Assets.iconsIcProjectInspection,
-                      width: 24,
-                      height: 24,
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      inspeksi?.proyek ?? '',
-                      style: AppTextStyle.h1.copyWith(
-                        color: AppColor.errorMedium,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Inspeksi Proyek',
-                  style: AppTextStyle.bodyM.copyWith(
-                    color: AppColor.errorMedium,
-                  ),
-                ),
-              ],
-            ),
-          ),
+        const SizedBox(width: 12),
+        _inspectionItem(
+          image: Assets.imagesImgProjectInspection,
+          icon: Assets.iconsIcProjectInspection,
+          value: inspeksi?.proyek ?? '',
+          label: 'Inspeksi Proyek',
+          color: AppColor.errorMedium,
         ),
       ],
     );
   }
 
-  Widget apdManagementCard() {
+  Widget _inspectionItem({
+    required String image,
+    required String icon,
+    required String value,
+    required String label,
+    required Color color,
+  }) {
+    return Expanded(
+      child: Container(
+        height: 130,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          image: DecorationImage(image: AssetImage(image), fit: BoxFit.cover),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Image.asset(icon, width: 24, height: 24),
+                const SizedBox(width: 10),
+                Text(value, style: AppTextStyle.h1.copyWith(color: color)),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(label, style: AppTextStyle.bodyM.copyWith(color: color)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildApdManagementCard() {
     final apd = controller.homeModel.value.data?.manajemenApd;
     return SizedBox(
       height: 126,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-            child: AppCard.basicCard(
-              color: AppColor.highlightLightest,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Permintaan',
-                      textAlign: TextAlign.center,
-                      style: AppTextStyle.bodyM.copyWith(
-                        color: AppColor.highlightDarkest,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  Expanded(
-                    child: Text(
-                      apd?.permintaan ?? '',
-                      textAlign: TextAlign.center,
-                      style: AppTextStyle.h1.copyWith(
-                        color: AppColor.highlightDarkest,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          _apdCard(
+            'Permintaan',
+            apd?.permintaan ?? '',
+            AppColor.highlightLightest,
+            AppColor.highlightDarkest,
           ),
-          SizedBox(width: 10),
-          Expanded(
-            child: AppCard.basicCard(
-              color: AppColor.warningLight,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Penerimaan',
-                      textAlign: TextAlign.center,
-                      style: AppTextStyle.bodyM.copyWith(
-                        color: AppColor.warningDark,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  Expanded(
-                    child: Text(
-                      apd?.penerimaan ?? '',
-                      textAlign: TextAlign.center,
-                      style: AppTextStyle.h1.copyWith(
-                        color: AppColor.warningDark,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          const SizedBox(width: 10),
+          _apdCard(
+            'Penerimaan',
+            apd?.penerimaan ?? '',
+            AppColor.warningLight,
+            AppColor.warningDark,
           ),
-          SizedBox(width: 10),
-          Expanded(
-            child: AppCard.basicCard(
-              color: AppColor.neutralLightMedium,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Pengembalian',
-                      textAlign: TextAlign.center,
-                      style: AppTextStyle.bodyM.copyWith(
-                        color: AppColor.neutralDarkLight,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  Expanded(
-                    child: Text(
-                      apd?.pengembalian ?? '',
-                      textAlign: TextAlign.center,
-                      style: AppTextStyle.h1.copyWith(
-                        color: AppColor.neutralDarkLight,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          const SizedBox(width: 10),
+          _apdCard(
+            'Pengembalian',
+            apd?.pengembalian ?? '',
+            AppColor.neutralLightMedium,
+            AppColor.neutralDarkLight,
           ),
         ],
       ),
     );
   }
 
-  Widget timeline() {
+  Widget _apdCard(String title, String value, Color bgColor, Color textColor) {
+    return Expanded(
+      child: AppCard.basicCard(
+        color: bgColor,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                textAlign: TextAlign.center,
+                style: AppTextStyle.bodyM.copyWith(color: textColor),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: Text(
+                value,
+                textAlign: TextAlign.center,
+                style: AppTextStyle.h1.copyWith(color: textColor),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTimeline() {
     final linimasa = controller.homeModel.value.data?.linimasa ?? [];
-    if (linimasa.isEmpty) return Center(child: Text('Tidak ada data'));
+    if (linimasa.isEmpty) {
+      return const Center(child: Text('Tidak ada data'));
+    }
+
     return ListView.separated(
       itemCount: linimasa.length,
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      separatorBuilder: (_, __) => SizedBox(height: 12),
-      itemBuilder: (c, i) {
-        final item = controller.homeModel.value.data?.linimasa?[i];
+      physics: const NeverScrollableScrollPhysics(),
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (_, i) {
+        final item = linimasa[i];
         return AppCard.listCard(
           color: AppColor.neutralLightLightest,
           child: Row(
             children: [
               Image.asset(Assets.iconsIcListDashboard, width: 52, height: 52),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
                       children: [
@@ -366,21 +264,17 @@ class HomeView extends GetView<HomeController> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 3),
-                    Flexible(
-                      child: Text(
-                        item?.code ?? '',
-                        style: AppTextStyle.h4.copyWith(
-                          color: AppColor.highlightDarkest,
-                        ),
+                    const SizedBox(height: 3),
+                    Text(
+                      item?.code ?? '',
+                      style: AppTextStyle.h4.copyWith(
+                        color: AppColor.highlightDarkest,
                       ),
                     ),
-                    Flexible(
-                      child: Text(
-                        item?.description ?? '',
-                        style: AppTextStyle.bodyS.copyWith(
-                          color: AppColor.neutralDarkDarkest,
-                        ),
+                    Text(
+                      item?.description ?? '',
+                      style: AppTextStyle.bodyS.copyWith(
+                        color: AppColor.neutralDarkDarkest,
                       ),
                     ),
                   ],
