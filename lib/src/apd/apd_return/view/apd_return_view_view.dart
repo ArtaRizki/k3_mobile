@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:k3_mobile/component/utils.dart';
 import 'package:k3_mobile/const/app_appbar.dart';
@@ -81,18 +82,33 @@ class ApdReturnViewView extends GetView<ApdReturnViewController> {
                             final item = buktiFoto[i];
                             String fileUrl = item?.file ?? '';
                             // Menghapus duplikasi path
-                            String imagesUrl = fileUrl
-                            /*.replaceAll(
-                              '/file_bukti_foto_pengembalian/file_bukti_foto_pengembalian/',
-                              '/file_bukti_foto_pengembalian/',
-                            )*/
-                            ;
+                            String imagesUrl = fileUrl;
+                            final latitude = data?.latitude ?? '';
+                            final longitude = data?.longitude ?? '';
+                            final dateTime = data?.docDate ?? '';
                             return InkWell(
                               onTap: () async {
-                                await Get.toNamed(
-                                  AppRoute.IMAGE_PREVIEW,
-                                  arguments: item,
-                                );
+                                await Geolocator.requestPermission;
+                                LocationPermission permission =
+                                    await Geolocator.checkPermission();
+                                if (permission != LocationPermission.always) {
+                                  await Geolocator.requestPermission();
+                                  if (permission ==
+                                          LocationPermission.deniedForever ||
+                                      permission == LocationPermission.denied)
+                                    Utils.displaySnackBar(
+                                      'Izinkan akses lokasi',
+                                    );
+                                } else {
+                                  await Get.toNamed(
+                                    AppRoute.IMAGE_PREVIEW,
+                                    arguments: [
+                                      '${longitude},${latitude}',
+                                      dateTime,
+                                      data?.ttdFile ?? '',
+                                    ],
+                                  );
+                                }
                               },
                               child: Container(
                                 width: 68,
@@ -132,10 +148,25 @@ class ApdReturnViewView extends GetView<ApdReturnViewController> {
                     height: 158,
                     child: Stack(
                       children: [
-                        Center(
-                          child: Image.network(
-                            data?.ttdFile ?? '',
-                            height: 138,
+                        InkWell(
+                          onTap: () async {
+                            final latitude = data?.latitude ?? '';
+                            final longitude = data?.longitude ?? '';
+                            final dateTime = data?.docDate ?? '';
+                            await Get.toNamed(
+                              AppRoute.IMAGE_PREVIEW,
+                              arguments: [
+                                '${longitude},${latitude}',
+                                dateTime,
+                                data?.ttdFile ?? '',
+                              ],
+                            );
+                          },
+                          child: Center(
+                            child: Image.network(
+                              data?.ttdFile ?? '',
+                              height: 138,
+                            ),
                           ),
                         ),
                         Positioned(

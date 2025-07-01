@@ -27,17 +27,23 @@ class ImagePreviewView extends GetView<ImagePreviewController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(
-                        '${controller.currentDateTime}',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        '${controller.currentPosition.value.latitude}, ${controller.currentPosition.value.longitude}',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                      if (controller.currentDateTime.value != '')
+                        Text(
+                          '${controller.currentDateTime.value}',
+                          textAlign: TextAlign.right,
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      if (controller.currentPosition.value != '')
+                        SizedBox(height: 4),
+                      if (controller.currentPosition.value != '')
+                        Text(
+                          '${controller.currentPosition.value?.latitude}, ${controller.currentPosition.value?.longitude}',
+                          textAlign: TextAlign.right,
+                          style: TextStyle(color: Colors.white),
+                        ),
                       Text(
                         '${controller.addressData.value.displayName ?? 'N/A'}',
+                        textAlign: TextAlign.right,
                         style: TextStyle(color: Colors.white),
                       ),
                     ],

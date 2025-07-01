@@ -41,7 +41,7 @@ class CustomImagePicker {
   static Future<File?> cameraOrGallery(BuildContext context) async {
     File? f;
     await AppSheet.showModalBottomDraggable(
-      initialChildSize: 0.275,
+      initialChildSize: 0.305,
       context: context,
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16),
@@ -56,17 +56,23 @@ class CustomImagePicker {
                 Navigator.pop(context);
               },
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 6,
+                ),
                 child: Row(
                   children: [
-                    Image.asset(Assets.iconsIcTakePicture,
-                        width: 32, height: 32),
+                    Image.asset(
+                      Assets.iconsIcTakePicture,
+                      width: 32,
+                      height: 32,
+                    ),
                     SizedBox(width: 16),
                     Text(
                       'Ambil gambar',
-                      style: AppTextStyle.bodyM
-                          .copyWith(color: AppColor.neutralDarkMedium),
+                      style: AppTextStyle.bodyM.copyWith(
+                        color: AppColor.neutralDarkMedium,
+                      ),
                     ),
                   ],
                 ),
@@ -81,16 +87,19 @@ class CustomImagePicker {
                 Navigator.pop(context);
               },
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 6,
+                ),
                 child: Row(
                   children: [
                     Image.asset(Assets.iconsIcGallery, width: 32, height: 32),
                     SizedBox(width: 16),
                     Text(
                       'Pilih dari galeri',
-                      style: AppTextStyle.bodyM
-                          .copyWith(color: AppColor.neutralDarkMedium),
+                      style: AppTextStyle.bodyM.copyWith(
+                        color: AppColor.neutralDarkMedium,
+                      ),
                     ),
                   ],
                 ),

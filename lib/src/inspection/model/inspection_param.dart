@@ -43,6 +43,8 @@ class InspectionParam {
   String? saran;
   String? rincianTindakan;
   List<String?>? foto;
+  String? latitude;
+  String? longitude;
 
   InspectionParam({
     this.name,
@@ -61,6 +63,8 @@ class InspectionParam {
     this.saran,
     this.rincianTindakan,
     this.foto,
+    this.latitude,
+    this.longitude,
   });
   InspectionParam.fromJson(Map<String, dynamic> json) {
     name = json['name']?.toString();
@@ -86,6 +90,8 @@ class InspectionParam {
       });
       foto = arr0;
     }
+    latitude = json['latitude']?.toString();
+    longitude = json['longitude']?.toString();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -101,7 +107,7 @@ class InspectionParam {
     data['lokasi'] = lokasi;
     data['kronologi'] = kronologi;
     data['action'] = action;
-    data['alasan'] = alasan;
+    if (alasan != null && alasan != '') data['alasan'] = alasan;
     data['saran'] = saran;
     data['rincian_tindakan'] = rincianTindakan;
     if (foto != null) {
@@ -112,6 +118,8 @@ class InspectionParam {
       });
       data['foto'] = jsonEncode(arr0);
     }
+    data['latitude'] = latitude;
+    data['longitude'] = longitude;
     return data;
   }
 }

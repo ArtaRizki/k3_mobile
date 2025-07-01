@@ -17,8 +17,14 @@ import 'package:k3_mobile/src/inspection/model/inspection_param.dart';
 import 'package:k3_mobile/src/inspection/model/inspection_view_model.dart';
 import 'package:k3_mobile/src/login/model/login_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart' as loc;
 
 class InspectionProjectCreateController extends GetxController {
+  loc.Location location = loc.Location();
+  var currentPosition = LatLng(0, 0).obs;
   var req = HttpRequestClient();
   var loginModel = LoginModel().obs;
   var loading = false.obs;
@@ -153,8 +159,8 @@ class InspectionProjectCreateController extends GetxController {
     if (riskC.value.text.isEmpty) return false;
     if (eventLocationC.value.text.isEmpty) return false;
     if (eventChronologyC.value.text.isEmpty) return false;
-    if (reasonC.value.text.isEmpty) return false;
-    if (actionDetailC.value.text.isEmpty) return false;
+    // if (reasonC.value.text.isEmpty) return false;
+    // if (actionDetailC.value.text.isEmpty) return false;
     if (givenRecommendationC.value.text.isEmpty) return false;
     if (pictureList.isEmpty) return false;
     return true;
@@ -235,13 +241,90 @@ class InspectionProjectCreateController extends GetxController {
     return [];
   }
 
+  /// Shows GPS enable dialog to user
+  Future<void> _showGpsDialog() async {
+    return await Get.dialog(
+      AlertDialog(
+        title: const Text('Enable GPS'),
+        content: const Text('Please enable GPS to use this feature.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Geolocator.openLocationSettings();
+              Get.back();
+            },
+            child: const Text('Settings'),
+          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+        ],
+      ),
+    );
+  }
+
+  /// Gets current location with proper permission handling
+  Future<void> getLocation() async {
+    try {
+      // Check and request location service
+      final serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        await _showGpsDialog();
+        return;
+      }
+      // Handle location permissions
+      await _handleLocationPermissions();
+      // Get current position
+      final position = await _getCurrentPosition();
+      if (position != null)
+        currentPosition.value = LatLng(position.latitude, position.longitude);
+    } catch (e) {
+      // Handle errors appropriately
+      debugPrint('Error getting location: $e');
+      rethrow;
+    }
+  }
+
+  /// Handles location permission requests and checks
+  Future<void> _handleLocationPermissions() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      throw Exception('Location permissions are permanently denied.');
+    }
+
+    if (permission == LocationPermission.denied) {
+      throw Exception('Location permissions are denied');
+    }
+  }
+
+  /// Gets current position with fallback to last known position
+  Future<Position?> _getCurrentPosition() async {
+    try {
+      return await Geolocator.getCurrentPosition(
+        locationSettings: AndroidSettings(
+          forceLocationManager: true,
+          accuracy: LocationAccuracy.best,
+          timeLimit: Duration(seconds: 5),
+        ),
+      ).timeout(const Duration(seconds: 30));
+    } catch (e) {
+      debugPrint('Failed to get current position, trying last known: $e');
+      return await Geolocator.getLastKnownPosition(
+        forceAndroidLocationManager: true,
+      );
+    }
+  }
+
   Future<void> sendInspectionProject() async {
     log(
       "DOCTIME : ${DateFormat('HH:mm').format(dateTime.value ?? DateTime.now())}",
     );
     loading(true);
     final user = loginModel.value.data;
-    log("USER NAME : ${user?.name ?? ''}");
+    await getLocation();
     var param = InspectionParam(
       name: user?.name,
       type: '1',
@@ -261,6 +344,10 @@ class InspectionProjectCreateController extends GetxController {
       saran: givenRecommendationC.value.text,
       rincianTindakan: actionDetailC.value.text,
       foto: await initFoto(),
+      latitude:
+          '${currentPosition.value.latitude}',
+      longitude:
+          '${currentPosition.value.longitude}',
     );
     var body = param.toJson();
     final httpClient = HttpRequestClient();

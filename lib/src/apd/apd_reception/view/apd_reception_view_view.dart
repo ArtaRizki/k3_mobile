@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:k3_mobile/component/utils.dart';
 import 'package:k3_mobile/const/app_appbar.dart';
@@ -8,8 +7,8 @@ import 'package:k3_mobile/const/app_card.dart';
 import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_page.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
-import 'package:k3_mobile/src/apd/apd_reception/controller/apd_reception_controller.dart';
 import 'package:k3_mobile/src/apd/apd_reception/controller/apd_reception_view_controller.dart';
+import 'package:location/location.dart';
 
 class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
   ApdReceptionViewView({super.key});
@@ -19,13 +18,6 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
     return Obx(() {
       final data = controller.viewData.value.data;
       final buktiFoto = data?.gambarPenerimaan ?? [];
-      final fileTtd = data?.fileTtd ?? '';
-      String ttdUrl = fileTtd
-      /*.replaceAll(
-        '/file_bukti_ttd_penerimaan_apd/file_bukti_ttd_penerimaan_apd/',
-        '/file_bukti_ttd_penerimaan_apd/',
-      )*/
-      ;
       return Scaffold(
         appBar: AppAppbar.basicAppbar(
           // harusnya penerimaanCode atau code saja
@@ -81,19 +73,34 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
                             final item = buktiFoto[i];
                             String fileUrl = item?.file ?? '';
                             // Menghapus duplikasi path
-                            String imagesUrl = fileUrl
-                            /*
-                            .replaceAll(
-                              '/file_bukti_foto_penerimaan_apd/file_bukti_foto_penerimaan_apd/',
-                              '/file_bukti_foto_penerimaan_apd/',
-                            )*/
-                            ;
+                            String imagesUrl = fileUrl;
+                            final latitude = data?.latitude ?? '';
+                            final longitude = data?.longitude ?? '';
+                            final dateTime = data?.docDate ?? '';
+
                             return InkWell(
                               onTap: () async {
-                                await Get.toNamed(
-                                  AppRoute.IMAGE_PREVIEW,
-                                  arguments: item,
-                                );
+                                await Geolocator.requestPermission;
+                                LocationPermission permission =
+                                    await Geolocator.checkPermission();
+                                if (permission != LocationPermission.always) {
+                                  await Geolocator.requestPermission();
+                                  if (permission ==
+                                          LocationPermission.deniedForever ||
+                                      permission == LocationPermission.denied)
+                                    Utils.displaySnackBar(
+                                      'Izinkan akses lokasi',
+                                    );
+                                } else {
+                                  await Get.toNamed(
+                                    AppRoute.IMAGE_PREVIEW,
+                                    arguments: [
+                                      '${longitude},${latitude}',
+                                      dateTime,
+                                      data?.fileTtd ?? '',
+                                    ],
+                                  );
+                                }
                               },
                               child: Container(
                                 width: 68,
@@ -133,10 +140,25 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
                     height: 158,
                     child: Stack(
                       children: [
-                        Center(
-                          child: Image.network(
-                            data?.fileTtd ?? '',
-                            height: 138,
+                        InkWell(
+                          onTap: () async {
+                            final latitude = data?.latitude ?? '';
+                            final longitude = data?.longitude ?? '';
+                            final dateTime = data?.docDate ?? '';
+                            await Get.toNamed(
+                              AppRoute.IMAGE_PREVIEW,
+                              arguments: [
+                                '${longitude},${latitude}',
+                                dateTime,
+                                data?.fileTtd ?? '',
+                              ],
+                            );
+                          },
+                          child: Center(
+                            child: Image.network(
+                              data?.fileTtd ?? '',
+                              height: 138,
+                            ),
                           ),
                         ),
                         Positioned(
@@ -144,7 +166,7 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
                           left: 0,
                           right: 0,
                           child: Text(
-                            data?.filenameTtd ?? '',
+                            data?.userName ?? '',
                             textAlign: TextAlign.center,
                             style: AppTextStyle.bodyS.copyWith(
                               color: AppColor.neutralDarkLight,
@@ -228,10 +250,13 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
 
   List<Widget> headerOutcome() {
     final data = controller.viewData.value.data;
+    String dateStr = data?.docDate ?? '';
+    String formattedDate =
+        dateStr.length >= 10 ? dateStr.substring(0, 10) : dateStr;
     return [
       headerItem('Pengeluaran barang No', data?.pengeluaranCode ?? ''),
       SizedBox(height: 9),
-      headerItem('Tanggal', data?.docDate ?? ''),
+      headerItem('Tanggal', formattedDate),
       SizedBox(height: 9),
       headerItem('Vendor', data?.vendorName ?? ''),
     ];
@@ -286,15 +311,15 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // harusnya kode
-                  titleSubtitle('Kode', item?.code ?? '', 3),
+                  titleSubtitle('Kode', item?.apdCode ?? '', 3),
                   SizedBox(width: 6),
-                  titleSubtitle('Nama', item?.apdName ?? '', 4),
+                  titleSubtitle('Nama', item?.apdName ?? '', 6),
                   SizedBox(width: 6),
-                  titleSubtitle('Jumlah', '${item?.qtyJumlah ?? 0}', 2),
+                  titleSubtitle('Jumlah', '${item?.qtyJumlah ?? 0}', 3),
+                  // SizedBox(width: 6),
+                  // titleSubtitle('Sisa', '${item?.qtySisa ?? 0}', 2),
                   SizedBox(width: 6),
-                  titleSubtitle('Sisa', '${item?.qtySisa ?? 0}', 2),
-                  SizedBox(width: 6),
-                  titleSubtitle('Diterima', '${item?.qtyDiterima ?? 0}', 2),
+                  titleSubtitle('Diterima', '${item?.qtyDiterima ?? 0}', 3),
                 ],
               ),
               SizedBox(height: 10),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:k3_mobile/component/empty_list.dart';
 import 'package:k3_mobile/component/utils.dart';
 import 'package:k3_mobile/const/app_appbar.dart';
@@ -125,7 +126,9 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
   }
 
   Widget _buildListItem(InspectionModelData? item) {
-    return AppCard.listCard(
+    final date = DateFormat('dd/MM/yyyy HH:mm').parse(item?.docDate ?? '');
+    final docDate = DateFormat('dd/MM/yyyy').format(date);
+   return AppCard.listCard(
       onTap: () {
         FocusScope.of(Get.context!).unfocus();
         if (item?.id != null) {
@@ -145,18 +148,27 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildRowText(item?.code, item?.docDate, AppTextStyle.h4),
+                _buildRowText(
+                  item?.code,
+                  docDate,
+                  AppTextStyle.h4,
+                  AppTextStyle.bodyS,
+                  flex1: 5,
+                  flex2: 4,
+                ),
                 const SizedBox(height: 3),
                 _buildRowText(
                   item?.resiko,
                   item?.kategoriName,
                   AppTextStyle.bodyS,
+                  null,
                 ),
                 const SizedBox(height: 3),
                 _buildRowText(
                   item?.lokasi,
                   Utils.getDocStatusName(item?.docStatus ?? ''),
                   AppTextStyle.bodyS,
+                  null,
                   rightColor: Utils.getDocStatusColor(item?.docStatus ?? ''),
                 ),
               ],
@@ -170,22 +182,33 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
   Widget _buildRowText(
     String? left,
     String? right,
-    TextStyle style, {
+    TextStyle style1,
+    TextStyle? style2, {
+    int? flex1,
+    int? flex2,
     Color? rightColor,
   }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
+          flex: flex1 ?? 1,
           child: Text(
             left ?? '',
-            style: style.copyWith(color: AppColor.neutralDarkDarkest),
+            style: style1.copyWith(color: AppColor.neutralDarkDarkest),
           ),
         ),
-        Text(
-          right ?? '',
-          style: style.copyWith(
-            color: rightColor ?? AppColor.neutralDarkDarkest,
+        SizedBox(width: 16),
+        Expanded(
+          flex: flex2 ?? 1,
+          child: Text(
+            right ?? '',
+            textAlign: TextAlign.right,
+            style:
+                style2 ??
+                style1.copyWith(
+                  color: rightColor ?? AppColor.neutralDarkDarkest,
+                ),
           ),
         ),
       ],

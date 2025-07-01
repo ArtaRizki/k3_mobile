@@ -6,18 +6,17 @@ import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/src/notification/controller/notification_controller.dart';
 
-
 class NotificationListView extends StatelessWidget {
   final ScrollController scrollController;
   final String iconPath;
-  final String status;
+  final bool isRead;
   final Color textColor;
   final Color subtitleColor;
 
   const NotificationListView({
     required this.scrollController,
     required this.iconPath,
-    required this.status,
+    required this.isRead,
     required this.textColor,
     required this.subtitleColor,
   });
@@ -29,7 +28,7 @@ class NotificationListView extends StatelessWidget {
     return Obx(() {
       final notifications =
           (controller.notificationModel.value.data ?? [])
-              .where((e) => e?.status == status)
+              .where((e) => e?.isRead == isRead)
               .toList();
 
       return RefreshIndicator(
@@ -42,6 +41,11 @@ class NotificationListView extends StatelessWidget {
           itemBuilder: (context, index) {
             final item = notifications[index];
             return AppCard.listCard(
+              onTap: () async {
+                controller.navigateDetailNotification(item);
+                if (item?.isRead == false || item?.isRead == null)
+                  controller.readNotification(item?.id ?? '');
+              },
               color: AppColor.neutralLightLightest,
               child: Row(
                 children: [

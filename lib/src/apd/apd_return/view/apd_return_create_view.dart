@@ -100,11 +100,13 @@ class ApdReturnCreateView extends GetView<ApdReturnCreateController> {
                     label: 'Pengeluaran Barang No',
                     hintText: 'Pilih',
                     onTap: () async {
-                      controller.searchExpenditureC.value.clear();
-                      await AppDialog.showBasicDialog(
-                        title: 'Pilih Pengeluaran Barang',
-                        content: selectOutcomeDialog(),
-                      );
+                      if (controller.apdReqNumberC.value.text.isNotEmpty) {
+                        controller.searchExpenditureC.value.clear();
+                        await AppDialog.showBasicDialog(
+                          title: 'Pilih Pengeluaran Barang',
+                          content: selectOutcomeDialog(),
+                        );
+                      }
                     },
                     onChanged: (v) {
                       controller.validateForm();
@@ -216,7 +218,7 @@ class ApdReturnCreateView extends GetView<ApdReturnCreateController> {
                                     onTap: () async {
                                       await Get.toNamed(
                                         AppRoute.IMAGE_PREVIEW,
-                                        arguments: item,
+                                        arguments: [null, null, item.path],
                                       );
                                     },
                                     child: Container(

@@ -22,7 +22,7 @@ class _NotReadTabState extends State<NotReadTab>
     return NotificationListView(
       scrollController: scrollController,
       iconPath: Assets.iconsIcListDashboard,
-      status: '0',
+      isRead: false,
       textColor: AppColor.highlightDarkest,
       subtitleColor: AppColor.neutralDarkDarkest,
     );

@@ -12,7 +12,7 @@ FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 AndroidFlutterLocalNotificationsPlugin? androidFlutterLocalNotificationsPlugin;
 const AndroidNotificationChannel androidChannel = AndroidNotificationChannel(
-    'MedicineApp common', 'Common',
+    'MSafety', 'MSafety',
     importance: Importance.high, enableVibration: true, playSound: true);
 IOSFlutterLocalNotificationsPlugin? iosFlutterLocalNotificationPlugin;
 

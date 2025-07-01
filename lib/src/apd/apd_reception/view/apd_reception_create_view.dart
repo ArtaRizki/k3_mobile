@@ -100,11 +100,13 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
                     label: 'Pengeluaran Barang No',
                     hintText: 'Pilih',
                     onTap: () async {
-                      controller.searchExpenditureC.value.clear();
-                      await AppDialog.showBasicDialog(
-                        title: 'Pilih Pengeluaran Barang',
-                        content: selectOutcomeDialog(),
-                      );
+                      if (controller.apdReqNumberC.value.text.isNotEmpty) {
+                        controller.searchExpenditureC.value.clear();
+                        await AppDialog.showBasicDialog(
+                          title: 'Pilih Pengeluaran Barang',
+                          content: selectOutcomeDialog(),
+                        );
+                      }
                     },
                     onChanged: (v) {
                       controller.validateForm();
@@ -217,7 +219,7 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
                                     onTap: () async {
                                       await Get.toNamed(
                                         AppRoute.IMAGE_PREVIEW,
-                                        arguments: item,
+                                        arguments: [null, null, item.path],
                                       );
                                     },
                                     child: Container(
@@ -357,11 +359,11 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
                 children: [
                   titleSubtitle('Kode', item.code ?? '', 3),
                   SizedBox(width: 6),
-                  titleSubtitle('Nama', item.name ?? '', 3),
+                  titleSubtitle('Nama', item.name ?? '', 4),
                   SizedBox(width: 6),
-                  titleSubtitle('Jumlah', '${item.qtyJumlah ?? 0}', 2),
-                  SizedBox(width: 6),
-                  titleSubtitle('Sisa', '${item.qtySisa ?? 0}', 1),
+                  titleSubtitle('Jumlah', '${item.qtyJumlah ?? 0}', 3),
+                  // SizedBox(width: 6),
+                  // titleSubtitle('Sisa', '${item.qtySisa ?? 0}', 1),
                   SizedBox(width: 6),
                   receive(() {}, i),
                 ],

@@ -27,8 +27,14 @@ import 'dart:typed_data';
 
 import 'package:path/path.dart' as path;
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart' as loc;
 
 class ApdReceptionCreateController extends GetxController {
+  loc.Location location = loc.Location();
+  var currentPosition = LatLng(0, 0).obs;
   var req = HttpRequestClient();
   var loginModel = Rxn<LoginModel>(); // Make it reactive
   var loading = false.obs;
@@ -225,7 +231,7 @@ class ApdReceptionCreateController extends GetxController {
                 id: e?.apdId ?? '',
                 name: e?.apdName ?? '',
                 qtyDiterima: e?.qtyDiterima ?? 0,
-                code: e?.code ?? '',
+                code: e?.apdCode ?? '',
                 warna: e?.warna ?? '',
                 ukuranBaju: e?.ukuranBaju ?? '',
                 ukuranCelana: e?.ukuranCelana ?? '',
@@ -255,8 +261,19 @@ class ApdReceptionCreateController extends GetxController {
       loading(true);
       final response = await req.get('/get-data-permintaan');
       if (response.statusCode == 200) {
-        apdReqSelectList.value =
-            ApdRequestModel.fromJson(jsonDecode(response.body)).data ?? [];
+        final apdRequest = ApdRequestModel.fromJson(jsonDecode(response.body));
+        final list =
+            (apdRequest.data ?? [])
+                .where(
+                  (e) =>
+                      e?.docStatus == '1' &&
+                      (e?.detailPermintaan?.any(
+                            (e) => (e?.qtyAvailable ?? 0) > 0,
+                          ) ??
+                          false),
+                )
+                .toList();
+        apdReqSelectList.value = list;
         filteredApdReqSelectList.assignAll(apdReqSelectList);
         loading(false);
         update();
@@ -272,9 +289,21 @@ class ApdReceptionCreateController extends GetxController {
       loading(true);
       final response = await req.get('/get-data-pengeluaran-barang');
       if (response.statusCode == 200) {
-        expSelectList.value =
-            ExpenditureSelectModel.fromJson(jsonDecode(response.body)).data ??
-            [];
+        final expList = ExpenditureSelectModel.fromJson(
+          jsonDecode(response.body),
+        );
+        final list =
+            (expList.data ?? [])
+                .where(
+                  (e) =>
+                      e?.status == 'Disetujui' &&
+                      (e?.detailPengeluaran?.any(
+                            (e) => (e?.qtyAvailable ?? 0) > 0,
+                          ) ??
+                          false),
+                )
+                .toList();
+        expSelectList.value = list;
         filteredExpSelectList.assignAll(expSelectList);
         loading(false);
         update();
@@ -395,6 +424,83 @@ class ApdReceptionCreateController extends GetxController {
     return [];
   }
 
+  /// Shows GPS enable dialog to user
+  Future<void> _showGpsDialog() async {
+    return await Get.dialog(
+      AlertDialog(
+        title: const Text('Enable GPS'),
+        content: const Text('Please enable GPS to use this feature.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Geolocator.openLocationSettings();
+              Get.back();
+            },
+            child: const Text('Settings'),
+          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+        ],
+      ),
+    );
+  }
+
+  /// Gets current location with proper permission handling
+  Future<void> getLocation() async {
+    try {
+      // Check and request location service
+      final serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        await _showGpsDialog();
+        return;
+      }
+      // Handle location permissions
+      await _handleLocationPermissions();
+      // Get current position
+      final position = await _getCurrentPosition();
+      if (position != null)
+        currentPosition.value = LatLng(position.latitude, position.longitude);
+    } catch (e) {
+      // Handle errors appropriately
+      debugPrint('Error getting location: $e');
+      rethrow;
+    }
+  }
+
+  /// Handles location permission requests and checks
+  Future<void> _handleLocationPermissions() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      throw Exception('Location permissions are permanently denied.');
+    }
+
+    if (permission == LocationPermission.denied) {
+      throw Exception('Location permissions are denied');
+    }
+  }
+
+  /// Gets current position with fallback to last known position
+  Future<Position?> _getCurrentPosition() async {
+    try {
+      return await Geolocator.getCurrentPosition(
+        locationSettings: AndroidSettings(
+          forceLocationManager: true,
+          accuracy: LocationAccuracy.best,
+          timeLimit: Duration(seconds: 5),
+        ),
+      ).timeout(const Duration(seconds: 30));
+    } catch (e) {
+      debugPrint('Failed to get current position, trying last known: $e');
+      return await Geolocator.getLastKnownPosition(
+        forceAndroidLocationManager: true,
+      );
+    }
+  }
+
   Future<void> saveDraftApdReception() async {
     FocusManager.instance.primaryFocus?.unfocus();
     loadingSaveDraftApd(true);
@@ -421,6 +527,7 @@ class ApdReceptionCreateController extends GetxController {
     for (int i = 0; i < apdRecFinal.length; i++)
       apdRecFinal[i].qtyDiterima = int.tryParse(apdRecListC[i].text) ?? 0;
     update();
+    await getLocation();
     var body = ApdReceptionParam(
       id: viewData.value.data?.id,
       docDate: DateFormat(
@@ -433,6 +540,8 @@ class ApdReceptionCreateController extends GetxController {
       buktiFoto: jsonEncode(await generateBase64Photo()),
       ttdFoto: 'data:image/jpeg;base64,${base64Image}',
       action: 'draft',
+      latitude: '${currentPosition.value.latitude}',
+      longitude: '${currentPosition.value.longitude}',
     );
     final response = await req.post(
       '/save-data-penerimaan',
@@ -483,6 +592,7 @@ class ApdReceptionCreateController extends GetxController {
     for (int i = 0; i < apdRecFinal.length; i++)
       apdRecFinal[i].qtyDiterima = int.tryParse(apdRecListC[i].text) ?? 0;
     update();
+    await getLocation();
     var body = ApdReceptionParam(
       id: viewData.value.data?.id,
       docDate: DateFormat(
@@ -495,6 +605,8 @@ class ApdReceptionCreateController extends GetxController {
       buktiFoto: jsonEncode(await generateBase64Photo()),
       ttdFoto: 'data:image/jpeg;base64,${base64Image}',
       action: null,
+      latitude: '${currentPosition.value.latitude}',
+      longitude: '${currentPosition.value.longitude}',
     );
     final response = await req.post(
       '/save-data-penerimaan',
@@ -544,6 +656,7 @@ class ApdReceptionCreateController extends GetxController {
     for (int i = 0; i < apdRecFinal.length; i++)
       apdRecFinal[i].qtyDiterima = int.tryParse(apdRecListC[i].text) ?? 0;
     update();
+    await getLocation();
     var body = ApdReceptionParam(
       id: viewData.value.data?.id ?? '',
       docDate: DateFormat(
@@ -556,6 +669,8 @@ class ApdReceptionCreateController extends GetxController {
       buktiFoto: jsonEncode(await generateBase64Photo()),
       ttdFoto: 'data:image/jpeg;base64,${base64Image}',
       action: null,
+      latitude: '${currentPosition.value.latitude}',
+      longitude: '${currentPosition.value.longitude}',
     );
     final response = await req.post(
       '/save-data-penerimaan',

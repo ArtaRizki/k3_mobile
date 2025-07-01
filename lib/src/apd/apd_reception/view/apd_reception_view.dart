@@ -150,8 +150,10 @@ class ApdReceptionView extends GetView<ApdReceptionController> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Expanded(
+                                flex: 5,
                                 child: Text(
                                   item?.requestCode ?? '',
                                   style: AppTextStyle.h4.copyWith(
@@ -159,15 +161,19 @@ class ApdReceptionView extends GetView<ApdReceptionController> {
                                   ),
                                 ),
                               ),
-                              Text(
-                                DateFormat('dd/MM/yyyy').format(
-                                  DateFormat(
-                                    'dd/MM/yyyy',
-                                  ).parse(item?.docDate ?? ''),
-                                ),
-
-                                style: AppTextStyle.bodyM.copyWith(
-                                  color: AppColor.neutralDarkDarkest,
+                              SizedBox(width: 16),
+                              Expanded(
+                                flex: 4,
+                                child: Text(
+                                  DateFormat('dd/MM/yyyy').format(
+                                    DateFormat(
+                                      'dd/MM/yyyy',
+                                    ).parse(item?.docDate ?? ''),
+                                  ),
+                                  textAlign: TextAlign.right,
+                                  style: AppTextStyle.bodyS.copyWith(
+                                    color: AppColor.neutralDarkDarkest,
+                                  ),
                                 ),
                               ),
                             ],
@@ -205,31 +211,13 @@ class ApdReceptionView extends GetView<ApdReceptionController> {
                             ),
                           ),
                           SizedBox(height: 3),
-                          Flexible(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  flex: 4,
-                                  child: Text(
-                                    item?.pengeluaranCode ?? '',
-                                    textAlign: TextAlign.left,
-                                    style: AppTextStyle.bodyS.copyWith(
-                                      color: AppColor.neutralDarkLightest,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 6,
-                                  child: Text(
-                                    item?.docDate ?? '',
-                                    textAlign: TextAlign.left,
-                                    style: AppTextStyle.bodyS.copyWith(
-                                      color: AppColor.neutralDarkLightest,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                          Text(
+                            (item?.pengeluaranCode ?? '') +
+                                '     ' +
+                                (item?.docDate ?? ''),
+                            textAlign: TextAlign.left,
+                            style: AppTextStyle.bodyS.copyWith(
+                              color: AppColor.neutralDarkLightest,
                             ),
                           ),
                         ],

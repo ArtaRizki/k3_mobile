@@ -34,8 +34,8 @@ class HomeView extends GetView<HomeController> {
                     _buildInspectionCard(),
                     _sectionTitle('Manajemen APD'),
                     _buildApdManagementCard(),
-                    _sectionTitle('Linimasa'),
-                    _buildTimeline(),
+                    _sectionTitle('Riwayat Inspeksi'),
+                    _buildInspectionHistory(),
                   ],
                 ),
               ),
@@ -76,10 +76,7 @@ class HomeView extends GetView<HomeController> {
                 ],
               ),
             ),
-            _iconButton(
-              Assets.iconsIcNotification,
-              () => Get.toNamed(AppRoute.NOTIFICATION),
-            ),
+            _notificationIconWithBadge(),
             const SizedBox(width: 24),
             _iconButton(Assets.iconsIcLogout, () async {
               await Get.find<SessionController>().logout();
@@ -87,6 +84,47 @@ class HomeView extends GetView<HomeController> {
             }),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _notificationIconWithBadge() {
+    // Ganti dengan getter dari controller untuk jumlah notifikasi
+    final notificationCount = controller.notificationCount.value;
+
+    return InkWell(
+      onTap: () => Get.toNamed(AppRoute.NOTIFICATION),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Image.asset(Assets.iconsIcNotification, width: 24, height: 24),
+          if (notificationCount > 0)
+            Positioned(
+              top: -4,
+              right: -4,
+              child: Container(
+                width: 16,
+                height: 16,
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                  color: Color(0xffeb3444), // Atau warna merah sesuai design
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Center(
+                  child: Text(
+                    notificationCount > 99
+                        ? '99+'
+                        : notificationCount.toString(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -153,11 +191,21 @@ class HomeView extends GetView<HomeController> {
               children: [
                 Image.asset(icon, width: 24, height: 24),
                 const SizedBox(width: 10),
-                Text(value, style: AppTextStyle.h1.copyWith(color: color)),
+                Flexible(
+                  child: Text(
+                    value,
+                    style: AppTextStyle.h1.copyWith(color: color),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 10),
-            Text(label, style: AppTextStyle.bodyM.copyWith(color: color)),
+            Flexible(
+              child: Text(
+                label,
+                style: AppTextStyle.bodyM.copyWith(color: color),
+              ),
+            ),
           ],
         ),
       ),
@@ -223,7 +271,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _buildTimeline() {
+  Widget _buildInspectionHistory() {
     final linimasa = controller.homeModel.value.data?.linimasa ?? [];
     if (linimasa.isEmpty) {
       return const Center(child: Text('Tidak ada data'));

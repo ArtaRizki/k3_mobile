@@ -11,6 +11,8 @@ import 'package:k3_mobile/generated/assets.dart';
 import 'package:k3_mobile/src/guide/controller/guide_controller.dart';
 import 'package:k3_mobile/src/guide/model/guide_model.dart';
 
+import 'package:k3_mobile/component/download.dart';
+
 class GuideView extends GetView<GuideController> {
   GuideView({super.key});
 
@@ -135,7 +137,7 @@ class GuideView extends GetView<GuideController> {
     );
   }
 
-  Widget _buildGuideHeader(item) {
+  Widget _buildGuideHeader(GuideModelData? item) {
     return Row(
       children: [
         Expanded(
@@ -156,7 +158,7 @@ class GuideView extends GetView<GuideController> {
     );
   }
 
-  Widget _buildGuideBody(item) {
+  Widget _buildGuideBody(GuideModelData? item) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -178,16 +180,32 @@ class GuideView extends GetView<GuideController> {
                 color: AppColor.neutralDarkDarkest,
               ),
             ),
-            Row(
-              children: [
-                Image.asset(Assets.iconsIcDownloadGuide, width: 24, height: 24),
-                Text(
-                  ' Unduh',
-                  style: AppTextStyle.bodyS.copyWith(
-                    color: AppColor.highlightDarkest,
+            GestureDetector(
+              onTap: () async {
+                downloadFile(
+                  Get.context!,
+                  item?.file ?? '',
+                  filename: (item?.file ?? '').split('/').last,
+                  typeFile: 'pdf',
+                  allowCustomSaveLocation: false,
+                );
+                // await OpenFile.open(localPdfPath);
+              },
+              child: Row(
+                children: [
+                  Image.asset(
+                    Assets.iconsIcDownloadGuide,
+                    width: 24,
+                    height: 24,
                   ),
-                ),
-              ],
+                  Text(
+                    ' Unduh',
+                    style: AppTextStyle.bodyS.copyWith(
+                      color: AppColor.highlightDarkest,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

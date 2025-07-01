@@ -19,7 +19,7 @@ class PdfView extends StatefulWidget {
 
 class _PdfSignatureScreenState extends State<PdfView> {
   GlobalKey<SignatureState> signKey = GlobalKey();
-
+  double progress = 0.0;
   String? localPdfPath;
 
   @override
@@ -33,7 +33,8 @@ class _PdfSignatureScreenState extends State<PdfView> {
       final dir = await getApplicationDocumentsDirectory();
       print(widget.pdfUrl);
       final file = File(
-          '${dir.path}/${widget.pdfUrl.replaceAll('/', '_').replaceAll(':', '_')}.pdf');
+        '${dir.path}/${widget.pdfUrl.replaceAll('/', '_').replaceAll(':', '_')}.pdf',
+      );
       if (!await file.exists()) {
         final response = await http.get(Uri.parse(widget.pdfUrl));
         if (response.statusCode == 200) {
@@ -61,31 +62,38 @@ class _PdfSignatureScreenState extends State<PdfView> {
           IconButton(
             icon: Icon(Icons.download),
             onPressed: () async {
-              downloadFile(context, widget.pdfUrl,
-                  filename: widget.pdfUrl.split('/').last, typeFile: 'pdf');
+              downloadFile(
+                context,
+                widget.pdfUrl,
+                filename: widget.pdfUrl.split('/').last,
+                typeFile: 'pdf',
+                allowCustomSaveLocation: false,
+                onProgress: (p) => setState(() => progress = p),
+              );
               // await OpenFile.open(localPdfPath);
             },
           ),
         ],
       ),
-      body: localPdfPath == null
-          ? Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Container(
-                height: double.infinity,
-                decoration: BoxDecoration(boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    spreadRadius: 5,
+      body:
+          localPdfPath == null
+              ? Center(child: CircularProgressIndicator())
+              : Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Container(
+                  height: double.infinity,
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        spreadRadius: 5,
+                      ),
+                    ],
                   ),
-                ]),
-                child: PDFView(
-                  filePath: localPdfPath,
+                  child: PDFView(filePath: localPdfPath),
                 ),
               ),
-            ),
       bottomNavigationBar: BottomAppBar(
         color: Colors.white,
         child: Padding(
@@ -118,10 +126,7 @@ class _PdfSignatureScreenState extends State<PdfView> {
 
               showSuccessDialog(context);
             },
-            child: Text(
-              'Simpan',
-              style: TextStyle(color: Colors.white),
-            ),
+            child: Text('Simpan', style: TextStyle(color: Colors.white)),
           ),
         ),
       ),
@@ -143,11 +148,7 @@ class _PdfSignatureScreenState extends State<PdfView> {
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
-                    Icon(
-                      Icons.check_circle,
-                      color: Colors.green,
-                      size: 60,
-                    ),
+                    Icon(Icons.check_circle, color: Colors.green, size: 60),
                     SizedBox(height: 10),
                     Text(
                       'Berhasil',

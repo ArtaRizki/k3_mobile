@@ -1,6 +1,7 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:k3_mobile/component/utils.dart';
 import 'package:k3_mobile/const/app_appbar.dart';
 import 'package:k3_mobile/const/app_button.dart';
 import 'package:k3_mobile/const/app_color.dart';
@@ -10,6 +11,8 @@ import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/const/app_textfield.dart';
 import 'package:k3_mobile/generated/assets.dart';
 import 'package:k3_mobile/src/inspection/inspection_project/controller/inspection_project_create_controller.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:k3_mobile/src/inspection/model/inspection_view_model.dart';
 
 class InspectionProjectCreateView
     extends GetView<InspectionProjectCreateController> {
@@ -17,13 +20,29 @@ class InspectionProjectCreateView
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => Scaffold(
+    return Obx(() {
+      final data = controller.inspectionViewModelData.value.data;
+      return Scaffold(
         appBar: AppAppbar.basicAppbar(
           title:
               controller.isViewMode.value
-                  ? controller.inspectionViewModelData.value.data?.code ?? ''
+                  ? data?.code ?? ''
                   : 'Buat Inspeksi Proyek',
+
+          action:
+              controller.isViewMode.value
+                  ? [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Text(
+                        Utils.getDocStatusName(data?.docStatus ?? ''),
+                        style: AppTextStyle.bodyS.copyWith(
+                          color: Utils.getDocStatusColor(data?.docStatus ?? ''),
+                        ),
+                      ),
+                    ),
+                  ]
+                  : null,
         ),
         body: SafeArea(
           child: Container(
@@ -42,8 +61,8 @@ class InspectionProjectCreateView
             ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   List<Widget> _buildFormFields() {
@@ -63,11 +82,17 @@ class InspectionProjectCreateView
         maxLines: 4,
       ),
       _actionTakenCheckbox(),
-      _textField(controller.reasonC.value, 'Alasan', maxLines: 4),
+      _textField(
+        controller.reasonC.value,
+        'Alasan',
+        maxLines: 4,
+        disable: controller.actionTakenYes.value,
+      ),
       _textField(
         controller.actionDetailC.value,
         'Rincian tindakan',
         maxLines: 4,
+        disable: controller.actionTakenNo.value,
       ),
       _textField(
         controller.givenRecommendationC.value,
@@ -80,12 +105,14 @@ class InspectionProjectCreateView
   Widget _textField(
     TextEditingController controller,
     String label, {
+    bool readOnly = false,
+    bool disable = false,
     int maxLines = 1,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: AppTextField.basicTextField(
-        readOnly: this.controller.isViewMode.value,
+        readOnly: (this.controller.isViewMode.value || readOnly) || disable,
         controller: controller,
         label: label,
         hintText: label,
@@ -231,10 +258,19 @@ class InspectionProjectCreateView
             height: 20,
             child: Checkbox(
               value: value.value,
-              onChanged: (val) {
-                value.value = val ?? false;
-                otherValue.value = !(val ?? false);
-              },
+              onChanged:
+                  controller.isViewMode.value
+                      ? null
+                      : (val) {
+                        value.value = val ?? false;
+                        otherValue.value = !(val ?? false);
+                        if (controller.actionTakenYes.value) {
+                          controller.reasonC.value.clear();
+                        } else {
+                          controller.actionDetailC.value.clear();
+                        }
+                        controller.update();
+                      },
               activeColor: AppColor.highlightDarkest,
             ),
           ),
@@ -256,6 +292,12 @@ class InspectionProjectCreateView
     final isView = controller.isViewMode.value;
     final imageData =
         controller.inspectionViewModelData.value.data?.buktiFoto ?? [];
+    final latitude =
+        controller.inspectionViewModelData.value.data?.latitude ?? '';
+    final longitude =
+        controller.inspectionViewModelData.value.data?.longitude ?? '';
+    final dateTime =
+        controller.inspectionViewModelData.value.data?.docDate ?? '';
 
     return [
       const SizedBox(height: 12),
@@ -270,13 +312,21 @@ class InspectionProjectCreateView
         padding: const EdgeInsets.symmetric(vertical: 6),
         child:
             isView
-                ? _buildImagePreviewList(imageData)
+                ? _buildImagePreviewList(
+                  '${longitude},${latitude}',
+                  dateTime,
+                  imageData,
+                )
                 : _buildImageUploadList(),
       ),
     ];
   }
 
-  Widget _buildImagePreviewList(List imageData) {
+  Widget _buildImagePreviewList(
+    String longitudeLatitude,
+    String dateTime,
+    List<InspectionViewModelDataBuktiFoto?> imageData,
+  ) {
     if (imageData.isEmpty) return const Center(child: Text('Tidak ada gambar'));
 
     return Wrap(
@@ -284,11 +334,22 @@ class InspectionProjectCreateView
       children:
           imageData.map((item) {
             return InkWell(
-              onTap:
-                  () async => await Get.toNamed(
+              onTap: () async {
+                await Geolocator.requestPermission();
+                LocationPermission permission =
+                    await Geolocator.checkPermission();
+                if (permission != LocationPermission.always) {
+                  await Geolocator.requestPermission();
+                  if (permission == LocationPermission.deniedForever ||
+                      permission == LocationPermission.denied)
+                    Utils.displaySnackBar('Izinkan akses lokasi');
+                } else {
+                  await Get.toNamed(
                     AppRoute.IMAGE_PREVIEW,
-                    arguments: item,
-                  ),
+                    arguments: [longitudeLatitude, dateTime, item?.file ?? ''],
+                  );
+                }
+              },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.network(
@@ -311,11 +372,21 @@ class InspectionProjectCreateView
         final item = controller.pictureList[i];
 
         return InkWell(
-          onTap:
-              () async => await Get.toNamed(
+          onTap: () async {
+            await Geolocator.requestPermission;
+            LocationPermission permission = await Geolocator.checkPermission();
+            if (permission != LocationPermission.always) {
+              await Geolocator.requestPermission();
+              if (permission == LocationPermission.deniedForever ||
+                  permission == LocationPermission.denied)
+                Utils.displaySnackBar('Izinkan akses lokasi');
+            } else {
+              await Get.toNamed(
                 AppRoute.IMAGE_PREVIEW,
-                arguments: item.path,
-              ),
+                arguments: [null, null, item.path],
+              );
+            }
+          },
           child: Stack(
             children: [
               ClipRRect(

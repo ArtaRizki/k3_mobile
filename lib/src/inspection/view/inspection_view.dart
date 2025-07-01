@@ -6,12 +6,15 @@ import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_page.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/generated/assets.dart';
+import 'package:k3_mobile/src/main_home/controller/main_home_controller.dart';
 
 class InspectionView extends GetView {
   InspectionView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final roleName =
+        Get.find<MainHomeController>().loginModel.value?.data?.roleName;
     return Scaffold(
       backgroundColor: AppColor.neutralLightLightest,
       appBar: AppAppbar.basicAppbar(title: 'Inspeksi', noBack: true),
@@ -21,12 +24,13 @@ class InspectionView extends GetView {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildCard(
-                title: 'Inspeksi Rutin',
-                iconPath: Assets.iconsIcCardRoutineInspection,
-                onTap: () => Get.toNamed(AppRoute.INSPECTION_ROUTINE),
-              ),
-              const SizedBox(height: 24),
+              if (roleName != 'Pelaksana Non MKP')
+                _buildCard(
+                  title: 'Inspeksi Rutin',
+                  iconPath: Assets.iconsIcCardRoutineInspection,
+                  onTap: () => Get.toNamed(AppRoute.INSPECTION_ROUTINE),
+                ),
+              if (roleName != 'Pelaksana Non MKP') const SizedBox(height: 24),
               _buildCard(
                 title: 'Inspeksi Proyek',
                 iconPath: Assets.iconsIcCardProjectInspection,

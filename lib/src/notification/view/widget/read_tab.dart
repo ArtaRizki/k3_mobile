@@ -22,7 +22,7 @@ class _ReadTabState
     return NotificationListView(
       scrollController: scrollController,
       iconPath: Assets.iconsIcListDashboardGray,
-      status: '1',
+      isRead: true,
       textColor: AppColor.neutralDarkLightest,
       subtitleColor: AppColor.neutralDarkLightest,
     );

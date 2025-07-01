@@ -29,8 +29,12 @@ class ProfileView extends GetView<ProfileController> {
                 children: [
                   _buildAvatar(),
                   _buildProfileItem('Nama', user?.name ?? ''),
-                  _buildProfileItem('Unit', user?.unitName ?? ''),
+                  if (user?.tipeAkunName == 'MKP')
+                    _buildProfileItem('Unit', user?.unitName ?? ''),
+                  _buildProfileItem('Instansi', user?.instansiName ?? ''),
                   _buildProfileItem('Jabatan', user?.karyawan?.jabatan ?? ''),
+                  _buildProfileItem('Tipe Pengguna', user?.tipeAkunName ?? ''),
+                  _buildProfileItem('Role', user?.roleName ?? ''),
                 ],
               ),
             );

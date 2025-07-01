@@ -10,26 +10,28 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:k3_mobile/component/page/image_preview/model/address_model.dart';
 import 'package:k3_mobile/component/utils.dart';
+import 'package:location/location.dart' as loc;
 
 class ImagePreviewController extends GetxController {
+  loc.Location location = loc.Location();
   var loading = false.obs;
   Uri path = Uri();
   ImageProvider? img;
   var addressData = AddressModel().obs;
-  var currentPosition = LatLng(0, 0).obs;
+  var currentPosition = (null as LatLng?).obs;
 
   // Adding the date and time variable
-  String currentDateTime = '';
+  var currentDateTime = (null as String?).obs;
 
   @override
   void onInit() {
     super.onInit();
-    if (Get.arguments == null || (Get.arguments as String).isEmpty) {
+    if (Get.arguments == null || (Get.arguments[2] as String).isEmpty) {
       Get.back();
       return;
     }
 
-    String argument = Get.arguments as String;
+    String argument = Get.arguments[2] as String;
     if (isFilePath(argument)) {
       img = FileImage(File(argument));
     } else if (isUrl(argument)) {
@@ -45,16 +47,27 @@ class ImagePreviewController extends GetxController {
 
   void init() async {
     log("INIT");
-    log("ARGUMENTS: ${Get.arguments}");
+    log("ARGUMENTS 0: ${Get.arguments[0]}");
+    log("ARGUMENTS 1: ${Get.arguments[2]}");
     loading.value = true;
     Utils.showLoading();
-
-    path = Uri.parse(Get.arguments as String);
-    await getLocation();
+    if (Get.arguments[0] != null) {
+      final latLng = (Get.arguments[0] as String).split(',');
+      final lat = double.tryParse(latLng[1]) ?? 0;
+      final lng = double.tryParse(latLng[0]) ?? 0;
+      currentPosition.value = LatLng(lat, lng);
+      await getAddress(lat, lng);
+    }
+    path = Uri.parse(Get.arguments[1] as String);
+    // await getLocation();
 
     // Store the current date and time
-    currentDateTime = DateFormat('dd/MM/yyyy HH.mm')
-        .format(DateTime.now()); // Or format it as needed
+    if (Get.arguments[1] != null) {
+      final datee = DateFormat('dd/MM/yyyy HH:mm').parse(Get.arguments[1]);
+      currentDateTime.value = DateFormat(
+        'dd/MM/yyyy HH.mm',
+      ).format(datee); // Or format it as needed
+    }
 
     if (!isFile() && !isUrl(path.toString())) {
       // Utils.showToast("Error: Image does not exist!");
@@ -80,42 +93,85 @@ class ImagePreviewController extends GetxController {
     return path.isScheme('file');
   }
 
-  getLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
+  /// Shows GPS enable dialog to user
+  Future<void> _showGpsDialog() async {
+    return await Get.dialog(
+      AlertDialog(
+        title: const Text('Enable GPS'),
+        content: const Text('Please enable GPS to use this feature.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Geolocator.openLocationSettings();
+              Get.back();
+            },
+            child: const Text('Settings'),
+          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+        ],
+      ),
+    );
+  }
 
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return Future.error('Location services are disabled.');
-
-    permission = await Geolocator.checkPermission();
-    if (permission != LocationPermission.always) {
-      await Geolocator.requestPermission();
-      if (permission == LocationPermission.deniedForever) {
-        return Future.error('Location permissions are permanently denied.');
+  /// Gets current location with proper permission handling
+  Future<void> getLocation() async {
+    try {
+      // Check and request location service
+      final serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        await _showGpsDialog();
+        return;
       }
 
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
+      // Handle location permissions
+      await _handleLocationPermissions();
+
+      // Get current position
+      final position = await _getCurrentPosition();
+
+      if (position != null) {
+        currentPosition.value = LatLng(position.latitude, position.longitude);
+        await getAddress(position.latitude, position.longitude);
       }
+    } catch (e) {
+      // Handle errors appropriately
+      debugPrint('Error getting location: $e');
+      rethrow;
+    }
+  }
+
+  /// Handles location permission requests and checks
+  Future<void> _handleLocationPermissions() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
     }
 
-    Position? pos;
+    if (permission == LocationPermission.deniedForever) {
+      throw Exception('Location permissions are permanently denied.');
+    }
+
+    if (permission == LocationPermission.denied) {
+      throw Exception('Location permissions are denied');
+    }
+  }
+
+  /// Gets current position with fallback to last known position
+  Future<Position?> _getCurrentPosition() async {
     try {
-      pos = await Geolocator.getCurrentPosition(
+      return await Geolocator.getCurrentPosition(
         locationSettings: AndroidSettings(
           forceLocationManager: true,
           accuracy: LocationAccuracy.best,
           timeLimit: Duration(seconds: 5),
         ),
-      ).timeout(Duration(seconds: 30));
+      ).timeout(const Duration(seconds: 30));
     } catch (e) {
-      pos = await Geolocator.getLastKnownPosition(
-          forceAndroidLocationManager: true);
-    }
-
-    if (pos != null) {
-      currentPosition.value = LatLng(pos.latitude, pos.longitude);
-      await getAddress(pos.latitude, pos.longitude);
+      debugPrint('Failed to get current position, trying last known: $e');
+      return await Geolocator.getLastKnownPosition(
+        forceAndroidLocationManager: true,
+      );
     }
   }
 

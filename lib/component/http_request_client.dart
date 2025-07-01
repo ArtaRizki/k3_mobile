@@ -69,7 +69,7 @@ class HttpRequestClient {
   }) {
     log("==== $method REQUEST ====");
     log("URL: $url");
-    if (body != null) log("BODY: ${jsonEncode(body)}");
+    if (body != null) log("BODY $url: ${jsonEncode(body)}");
     if (files != null) log("FILES: $files");
   }
 
@@ -80,7 +80,7 @@ class HttpRequestClient {
     required http.Response response,
   }) {
     log("RESPONSE $method $url STATUS: ${response.statusCode}");
-    log("RESPONSE BODY: ${response.body}");
+    log("RESPONSE BODY $url: ${response.body}");
     log("========================");
   }
 

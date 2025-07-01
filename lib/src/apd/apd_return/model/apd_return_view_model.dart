@@ -153,6 +153,8 @@ class ApdReturnViewModelData {
   String? pengeluaranDate;
   String? ttdFile;
   String? ttdName;
+  String? latitude;
+  String? longitude;
   List<ApdReturnViewModelDataDaftarPengeluaran?>? daftarPengeluaran;
   List<ApdReturnViewModelDataDaftarFoto?>? daftarFoto;
 
@@ -173,6 +175,8 @@ class ApdReturnViewModelData {
     this.pengeluaranDate,
     this.ttdFile,
     this.ttdName,
+    this.latitude,
+    this.longitude,
     this.daftarPengeluaran,
     this.daftarFoto,
   });
@@ -193,6 +197,8 @@ class ApdReturnViewModelData {
     pengeluaranDate = json['pengeluaran_date']?.toString();
     ttdFile = json['ttd_file']?.toString();
     ttdName = json['ttd_name']?.toString();
+    latitude = json['latitude']?.toString();
+    longitude = json['longitude']?.toString();
     if (json['daftar_pengeluaran'] != null) {
       final v = json['daftar_pengeluaran'];
       final arr0 = <ApdReturnViewModelDataDaftarPengeluaran>[];
@@ -228,6 +234,8 @@ class ApdReturnViewModelData {
     data['pengeluaran_date'] = pengeluaranDate;
     data['ttd_file'] = ttdFile;
     data['ttd_name'] = ttdName;
+    data['latitude'] = latitude;
+    data['longitude'] = longitude;
     if (daftarPengeluaran != null) {
       final v = daftarPengeluaran;
       final arr0 = [];

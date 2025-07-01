@@ -28,7 +28,14 @@ class GuidePreviewController extends GetxController {
   Future<void> handleDownload() async {
     final url = pdfUrl.value;
     final filename = url.split('/').last;
-    downloadFile(Get.context!, url, filename: filename, typeFile: 'pdf');
+    downloadFile(
+      Get.context!,
+      url,
+      filename: filename,
+      typeFile: 'pdf',
+
+      // allowCustomSaveLocation: true,
+    );
   }
 
   Future<void> _downloadPdf() async {

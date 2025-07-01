@@ -138,7 +138,7 @@ class ApdReturnView extends GetView<ApdReturnController> {
                 color: AppColor.neutralLightLightest,
                 child: Row(
                   children: [
-                    Image.asset( 
+                    Image.asset(
                       Assets.iconsIcListApdReturn,
                       width: 52,
                       height: 52,
@@ -152,6 +152,7 @@ class ApdReturnView extends GetView<ApdReturnController> {
                           Row(
                             children: [
                               Expanded(
+                                flex: 5,
                                 child: Text(
                                   item?.requestCode ?? '',
                                   style: AppTextStyle.h4.copyWith(
@@ -159,15 +160,19 @@ class ApdReturnView extends GetView<ApdReturnController> {
                                   ),
                                 ),
                               ),
-                              Text(
-                                DateFormat('dd/MM/yyyy').format(
-                                  DateFormat(
-                                    'dd/MM/yyyy',
-                                  ).parse(item?.docDate ?? ''),
-                                ),
-
-                                style: AppTextStyle.bodyM.copyWith(
-                                  color: AppColor.neutralDarkDarkest,
+                              SizedBox(width: 16),
+                              Expanded(
+                                flex: 4,
+                                child: Text(
+                                  DateFormat('dd/MM/yyyy').format(
+                                    DateFormat(
+                                      'dd/MM/yyyy',
+                                    ).parse(item?.docDate ?? ''),
+                                  ),
+                                  textAlign: TextAlign.right,
+                                  style: AppTextStyle.bodyM.copyWith(
+                                    color: AppColor.neutralDarkDarkest,
+                                  ),
                                 ),
                               ),
                             ],
@@ -206,31 +211,13 @@ class ApdReturnView extends GetView<ApdReturnController> {
                             ),
                           ),
                           SizedBox(height: 3),
-                          Flexible(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  flex: 4,
-                                  child: Text(
-                                    item?.pengeluaranCode ?? '',
-                                    textAlign: TextAlign.left,
-                                    style: AppTextStyle.bodyS.copyWith(
-                                      color: AppColor.neutralDarkLightest,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 6,
-                                  child: Text(
-                                    item?.docDate ?? '',
-                                    textAlign: TextAlign.left,
-                                    style: AppTextStyle.bodyS.copyWith(
-                                      color: AppColor.neutralDarkLightest,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                          Text(
+                            (item?.pengeluaranCode ?? '') +
+                                '     ' +
+                                (item?.docDate ?? ''),
+                            textAlign: TextAlign.left,
+                            style: AppTextStyle.bodyS.copyWith(
+                              color: AppColor.neutralDarkLightest,
                             ),
                           ),
                         ],

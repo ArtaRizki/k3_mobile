@@ -90,6 +90,8 @@ class ApdReceptionParam {
   String? buktiFoto;
   String? ttdFoto;
   String? action;
+  String? latitude;
+  String? longitude;
 
   ApdReceptionParam({
     this.id,
@@ -101,6 +103,8 @@ class ApdReceptionParam {
     this.buktiFoto,
     this.ttdFoto,
     this.action,
+    this.latitude,
+    this.longitude,
   });
   ApdReceptionParam.fromJson(Map<String, dynamic> json) {
     id = json['id']?.toString();
@@ -119,6 +123,8 @@ class ApdReceptionParam {
     buktiFoto = json['bukti_foto']?.toString();
     ttdFoto = json['ttd_foto']?.toString();
     action = json['action']?.toString();
+    latitude = json['latitude']?.toString();
+    longitude = json['longitude']?.toString();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -138,6 +144,8 @@ class ApdReceptionParam {
     data['bukti_foto'] = buktiFoto;
     data['ttd_foto'] = ttdFoto;
     if (action != null) data['action'] = action;
+    data['latitude'] = latitude;
+    data['longitude'] = longitude;
     return data;
   }
 }

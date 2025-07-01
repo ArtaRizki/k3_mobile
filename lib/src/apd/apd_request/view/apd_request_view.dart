@@ -109,7 +109,7 @@ class ApdRequestView extends GetView<ApdRequestController> {
         return EmptyList.textEmptyList(
           minHeight: Get.size.height * .71,
           onRefresh: () async {
-          await controller.getData();
+            await controller.getData();
             controller.update();
           },
         );
@@ -173,17 +173,23 @@ class ApdRequestView extends GetView<ApdRequestController> {
     return Row(
       children: [
         Expanded(
+          flex: 5,
           child: Text(
             item?.code ?? '',
             style: AppTextStyle.h4.copyWith(color: AppColor.neutralDarkDarkest),
           ),
         ),
-        Text(
-          DateFormat(
-            'dd/MM/yyyy',
-          ).format(DateFormat('dd/MM/yyyy HH:mm').parse(item?.docDate ?? '')),
-          style: AppTextStyle.bodyM.copyWith(
-            color: AppColor.neutralDarkDarkest,
+        SizedBox(width: 16),
+        Expanded(
+          flex: 4,
+          child: Text(
+            DateFormat(
+              'dd/MM/yyyy',
+            ).format(DateFormat('dd/MM/yyyy HH:mm').parse(item?.docDate ?? '')),
+            textAlign: TextAlign.right,
+            style: AppTextStyle.bodyS.copyWith(
+              color: AppColor.neutralDarkDarkest,
+            ),
           ),
         ),
       ],
