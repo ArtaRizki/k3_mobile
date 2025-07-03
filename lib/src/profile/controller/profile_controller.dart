@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:k3_mobile/const/app_shared_preference_key.dart';
 import 'package:k3_mobile/src/login/model/login_model.dart';

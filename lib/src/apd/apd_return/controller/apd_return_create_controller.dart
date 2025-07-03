@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:developer' as d;
 import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_signature_pad/flutter_signature_pad.dart';

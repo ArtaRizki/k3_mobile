@@ -23,7 +23,6 @@ import 'package:k3_mobile/src/apd/model/expenditure_select_model.dart';
 import 'package:k3_mobile/src/login/model/login_model.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:typed_data';
 
 import 'package:path/path.dart' as path;
 import 'package:http/http.dart' as http;

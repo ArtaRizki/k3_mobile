@@ -17,7 +17,6 @@ import 'package:k3_mobile/src/inspection/model/inspection_param.dart';
 import 'package:k3_mobile/src/inspection/model/inspection_view_model.dart';
 import 'package:k3_mobile/src/login/model/login_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as loc;

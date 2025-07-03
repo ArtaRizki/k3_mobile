@@ -420,10 +420,8 @@ class LoginModel {
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
-    if (data != null) {
-      data['data'] = this.data!.toJson();
-    }
-    data['token'] = token;
+    data['data'] = this.data!.toJson();
+      data['token'] = token;
     data['message'] = message;
     data['status'] = status;
     return data;

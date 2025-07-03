@@ -8,7 +8,6 @@ import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_page.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/src/apd/apd_reception/controller/apd_reception_view_controller.dart';
-import 'package:location/location.dart';
 
 class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
   ApdReceptionViewView({super.key});

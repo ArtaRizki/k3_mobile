@@ -6,7 +6,6 @@ import 'package:k3_mobile/const/app_shared_preference_key.dart';
 import 'package:k3_mobile/const/app_snackbar.dart';
 import 'package:k3_mobile/src/home/model/home_model.dart';
 import 'package:k3_mobile/src/login/model/login_model.dart';
-import 'package:k3_mobile/src/notification/controller/notification_controller.dart';
 import 'package:k3_mobile/src/notification/model/notification_model.dart';
 import 'package:k3_mobile/src/session/controller/session_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';

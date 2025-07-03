@@ -1,14 +1,11 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart';
 import 'package:k3_mobile/component/http_request_client.dart';
 import 'package:k3_mobile/const/app_page.dart';
 import 'package:k3_mobile/const/app_shared_preference_key.dart';
 import 'package:k3_mobile/const/app_snackbar.dart';
-import 'package:k3_mobile/const/app_url.dart';
 import 'package:k3_mobile/src/login/model/login_model.dart';
 import 'package:k3_mobile/src/session/controller/session_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';

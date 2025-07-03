@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:k3_mobile/const/app_shared_preference_key.dart';
-import 'package:k3_mobile/src/home/controller/home_controller.dart';
 import 'package:k3_mobile/src/login/model/login_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

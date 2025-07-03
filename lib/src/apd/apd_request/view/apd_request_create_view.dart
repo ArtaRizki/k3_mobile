@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,7 +14,6 @@ import 'package:k3_mobile/const/app_textfield.dart';
 import 'package:k3_mobile/generated/assets.dart';
 import 'package:k3_mobile/src/apd/apd_request/controller/apd_request_create_controller.dart';
 import 'package:k3_mobile/src/apd/apd_request/model/apd_request_param.dart';
-import 'package:k3_mobile/src/apd/model/apd_select_model.dart';
 
 class ApdRequestCreateView extends GetView<ApdRequestCreateController> {
   ApdRequestCreateView({super.key});

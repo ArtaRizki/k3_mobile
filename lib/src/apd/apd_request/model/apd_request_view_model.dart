@@ -275,10 +275,8 @@ class ApdRequestViewModel {
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
-    if (data != null) {
-      data['data'] = this.data!.toJson();
-    }
-    data['message'] = message;
+    data['data'] = this.data!.toJson();
+      data['message'] = message;
     data['status'] = status;
     return data;
   }

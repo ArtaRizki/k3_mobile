@@ -1,13 +1,10 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:k3_mobile/component/http_request_client.dart';
 import 'package:k3_mobile/component/utils.dart';
-import 'package:k3_mobile/const/app_color.dart';
 import 'package:k3_mobile/const/app_snackbar.dart';
 import 'package:k3_mobile/src/apd/apd_request/controller/apd_request_controller.dart';
-import 'package:k3_mobile/src/apd/apd_request/model/apd_request_model.dart';
 import 'package:k3_mobile/src/apd/apd_request/model/apd_request_view_model.dart';
 
 class ApdRequestViewController extends GetxController {
