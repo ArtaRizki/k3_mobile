@@ -75,7 +75,7 @@ class MainHomeController extends GetxController {
       final roleName = loginModel.value?.data?.roleName;
 
       if (roleName != null &&
-          (roleName == 'Pelaksana MKP' || roleName == 'Pelaksana Non MKP')) {
+          (roleName == 'Pelaksana Mkp' || roleName == 'Pelaksana Non Mkp')) {
         removeMenu(2);
       }
     } catch (e) {

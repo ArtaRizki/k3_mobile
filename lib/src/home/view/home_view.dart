@@ -34,7 +34,7 @@ class HomeView extends GetView<HomeController> {
                     _buildInspectionCard(),
                     _sectionTitle('Manajemen APD'),
                     _buildApdManagementCard(),
-                    _sectionTitle('Riwayat Inspeksi'),
+                    _sectionTitle('Riwayat Dokumen'),
                     _buildInspectionHistory(),
                   ],
                 ),

@@ -123,58 +123,58 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
                     ),
                   ],
                   SizedBox(height: 12),
-                  Text(
-                    'Tanda tangan',
-                    style: AppTextStyle.actionL.copyWith(
-                      color: AppColor.neutralDarkDarkest,
-                    ),
-                  ),
-                  SizedBox(height: 6),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: AppColor.neutralLightDarkest),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    height: 158,
-                    child: Stack(
-                      children: [
-                        InkWell(
-                          onTap: () async {
-                            final latitude = data?.latitude ?? '';
-                            final longitude = data?.longitude ?? '';
-                            final dateTime = data?.docDate ?? '';
-                            await Get.toNamed(
-                              AppRoute.IMAGE_PREVIEW,
-                              arguments: [
-                                '${longitude},${latitude}',
-                                dateTime,
-                                data?.fileTtd ?? '',
-                              ],
-                            );
-                          },
-                          child: Center(
-                            child: Image.network(
-                              data?.fileTtd ?? '',
-                              height: 138,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 125,
-                          left: 0,
-                          right: 0,
-                          child: Text(
-                            data?.userName ?? '',
-                            textAlign: TextAlign.center,
-                            style: AppTextStyle.bodyS.copyWith(
-                              color: AppColor.neutralDarkLight,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  // Text(
+                  //   'Tanda tangan',
+                  //   style: AppTextStyle.actionL.copyWith(
+                  //     color: AppColor.neutralDarkDarkest,
+                  //   ),
+                  // ),
+                  // SizedBox(height: 6),
+                  // Container(
+                  //   decoration: BoxDecoration(
+                  //     color: Colors.white,
+                  //     border: Border.all(color: AppColor.neutralLightDarkest),
+                  //     borderRadius: BorderRadius.circular(12),
+                  //   ),
+                  //   height: 158,
+                  //   child: Stack(
+                  //     children: [
+                  //       InkWell(
+                  //         onTap: () async {
+                  //           final latitude = data?.latitude ?? '';
+                  //           final longitude = data?.longitude ?? '';
+                  //           final dateTime = data?.docDate ?? '';
+                  //           await Get.toNamed(
+                  //             AppRoute.IMAGE_PREVIEW,
+                  //             arguments: [
+                  //               '${longitude},${latitude}',
+                  //               dateTime,
+                  //               data?.fileTtd ?? '',
+                  //             ],
+                  //           );
+                  //         },
+                  //         child: Center(
+                  //           child: Image.network(
+                  //             data?.fileTtd ?? '',
+                  //             height: 138,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //       Positioned(
+                  //         top: 125,
+                  //         left: 0,
+                  //         right: 0,
+                  //         child: Text(
+                  //           data?.userName ?? '',
+                  //           textAlign: TextAlign.center,
+                  //           style: AppTextStyle.bodyS.copyWith(
+                  //             color: AppColor.neutralDarkLight,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                   SizedBox(height: 24),
                 ],
               ),
@@ -194,7 +194,7 @@ class ApdReceptionViewView extends GetView<ApdReceptionViewController> {
           await controller.setApdStatus('0');
           Get.back();
         }),
-      if (status == '2' || status == '3')
+      if (status == '2'/*|| status == '3'*/)
         _buildActionButton('Edit', AppColor.highlightDarkest, () async {
           Get.toNamed(
             AppRoute.APD_RECEPTION_CREATE,

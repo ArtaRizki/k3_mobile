@@ -128,7 +128,7 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
   Widget _buildListItem(InspectionModelData? item) {
     final date = DateFormat('dd/MM/yyyy HH:mm').parse(item?.docDate ?? '');
     final docDate = DateFormat('dd/MM/yyyy').format(date);
-   return AppCard.listCard(
+    return AppCard.listCard(
       onTap: () {
         FocusScope.of(Get.context!).unfocus();
         if (item?.id != null) {
@@ -171,6 +171,32 @@ class InspectionProjectView extends GetView<InspectionProjectController> {
                   null,
                   rightColor: Utils.getDocStatusColor(item?.docStatus ?? ''),
                 ),
+                if (item?.linkPdf != null) const SizedBox(height: 3),
+                if (item?.linkPdf != null)
+                  GestureDetector(
+                    onTap: () async {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      if (item?.linkPdf != null) {
+                        Get.toNamed(AppRoute.INSPECTION_PDF, arguments: item);
+                      }
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Image.asset(
+                          Assets.iconsIcDownloadGuide,
+                          width: 24,
+                          height: 24,
+                        ),
+                        Text(
+                          ' Lihat Pdf',
+                          style: AppTextStyle.bodyS.copyWith(
+                            color: AppColor.highlightDarkest,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
           ),

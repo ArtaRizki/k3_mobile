@@ -34,6 +34,22 @@ class ProfileView extends GetView<ProfileController> {
                   _buildProfileItem('Jabatan', user?.karyawan?.jabatan ?? ''),
                   _buildProfileItem('Tipe Pengguna', user?.tipeAkunName ?? ''),
                   _buildProfileItem('Role', user?.roleName ?? ''),
+                  SizedBox(height: 16),
+                  InkWell(
+                    onTap: () async {
+                      Get.toNamed(AppRoute.CHANGE_PASSWORD);
+                    },
+                    child: Center(
+                      child: Text(
+                        'Ubah Kata Sandi',
+                        style: AppTextStyle.h3.copyWith(
+                          fontWeight: FontWeight.normal,
+                          color: AppColor.highlightDarkest,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 4),
                 ],
               ),
             );

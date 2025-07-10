@@ -86,6 +86,8 @@ class ApdReturnParam {
   String? action;
   String? latitude;
   String? longitude;
+  String? nomorResi;
+  String? namaEkspedisi;
 
   ApdReturnParam({
     this.id,
@@ -99,6 +101,8 @@ class ApdReturnParam {
     this.action,
     this.latitude,
     this.longitude,
+    this.nomorResi,
+    this.namaEkspedisi,
   });
   ApdReturnParam.fromJson(Map<String, dynamic> json) {
     id = json['id']?.toString();
@@ -119,6 +123,8 @@ class ApdReturnParam {
     action = json['action']?.toString();
     latitude = json['latitude']?.toString();
     longitude = json['longitude']?.toString();
+    nomorResi = json['nomor_resi']?.toString();
+    namaEkspedisi = json['nama_ekspedisi']?.toString();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -140,6 +146,8 @@ class ApdReturnParam {
     if (action != null) data['action'] = action;
     data['latitude'] = latitude;
     data['longitude'] = longitude;
+    if (nomorResi != null) data['nomor_resi'] = nomorResi;
+    if (namaEkspedisi != null) data['nama_ekspedisi'] = namaEkspedisi;
     return data;
   }
 }

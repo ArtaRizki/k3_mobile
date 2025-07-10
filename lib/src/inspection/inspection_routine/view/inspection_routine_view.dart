@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:k3_mobile/component/download.dart';
 import 'package:k3_mobile/component/empty_list.dart';
 import 'package:k3_mobile/component/utils.dart';
 import 'package:k3_mobile/const/app_appbar.dart';
@@ -171,6 +172,32 @@ class InspectionRoutineView extends GetView<InspectionRoutineController> {
                   null,
                   rightColor: Utils.getDocStatusColor(item?.docStatus ?? ''),
                 ),
+                if (item?.linkPdf != null) const SizedBox(height: 3),
+                if (item?.linkPdf != null)
+                  GestureDetector(
+                    onTap: () async {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      if (item?.linkPdf != null) {
+                        Get.toNamed(AppRoute.INSPECTION_PDF, arguments: item);
+                      }
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Image.asset(
+                          Assets.iconsIcDownloadGuide,
+                          width: 24,
+                          height: 24,
+                        ),
+                        Text(
+                          ' Lihat Pdf',
+                          style: AppTextStyle.bodyS.copyWith(
+                            color: AppColor.highlightDarkest,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
           ),

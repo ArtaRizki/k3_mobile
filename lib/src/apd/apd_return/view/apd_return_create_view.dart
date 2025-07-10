@@ -736,6 +736,73 @@ class ApdReturnCreateView extends GetView<ApdReturnCreateController> {
     );
   }
 
+  void _showShippingDataDialog() {
+    controller.shippingNumberC.value.clear();
+    controller.expeditionNameC.value.clear();
+    AppDialog.showBasicDialog(
+      title: 'Data Pengiriman',
+      content: _shippingDataDialog(),
+      btn: _sendShippingDataBtn(),
+    );
+  }
+
+  Widget _shippingDataDialog() {
+    return GetBuilder<ApdReturnCreateController>(
+      builder: (controller) {
+        return SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppTextField.basicTextField(
+                hintText: 'Nomor Resi',
+                label: 'Nomor Resi',
+                controller: controller.shippingNumberC.value,
+              ),
+              SizedBox(height: 24),
+              AppTextField.basicTextField(
+                hintText: 'Nama Ekspedisi',
+                label: 'Nama Ekspedisi',
+                controller: controller.expeditionNameC.value,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _sendShippingDataBtn({bool isEdit = false, int? index}) {
+    return GetBuilder<ApdReturnCreateController>(
+      builder: (controller) {
+        final enable = controller.validateShippingData();
+        return AppButton.basicButton(
+          enable: enable,
+          onTap: () async {
+            FocusManager.instance.primaryFocus?.unfocus();
+            if (enable) {
+              if (isEdit)
+                await controller.editSendApdReturn();
+              else
+                await controller.sendApdReturn();
+            }
+          },
+          width: double.infinity,
+          color: AppColor.highlightDarkest,
+          height: 50,
+          radius: 12,
+          padding: EdgeInsets.fromLTRB(16, 14, 16, 0),
+          child: Text(
+            'Ajukan',
+            textAlign: TextAlign.center,
+            style: AppTextStyle.actionL.copyWith(
+              color: AppColor.neutralLightLightest,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildSubmitButton() {
     return Expanded(
       child: GetBuilder<ApdReturnCreateController>(
@@ -749,12 +816,7 @@ class ApdReturnCreateView extends GetView<ApdReturnCreateController> {
             enable: enable,
             loading: loading,
             onTap: () async {
-              if (enableOnTap) {
-                if (controller.isEditMode.value)
-                  await controller.editSendApdReturn();
-                else
-                  await controller.sendApdReturn();
-              }
+              if (enableOnTap) _showShippingDataDialog();
             },
             color: AppColor.highlightDarkest,
             height: 55,

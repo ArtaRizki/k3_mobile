@@ -43,8 +43,10 @@ class NotificationListView extends StatelessWidget {
             return AppCard.listCard(
               onTap: () async {
                 controller.navigateDetailNotification(item);
-                if (item?.isRead == false || item?.isRead == null)
-                  controller.readNotification(item?.id ?? '');
+                if (item?.isRead == false || item?.isRead == null) {
+                  await controller.readNotification(item?.id ?? '');
+                  controller.getData();
+                }
               },
               color: AppColor.neutralLightLightest,
               child: Row(

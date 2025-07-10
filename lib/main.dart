@@ -12,16 +12,16 @@ void main() async {
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
       // systemNavigationBarColor: AppColor.highlightDarkest,
-      // statusBarColor: AppColor.highlightDarkest,
+      statusBarColor: Colors.white,
       systemNavigationBarIconBrightness: Brightness.light,
-      statusBarIconBrightness: Brightness.light,
+      statusBarIconBrightness: Brightness.dark,
     ),
   );
   await WidgetsFlutterBinding.ensureInitialized();
 
   // Request permissions based on Android version
   await requestPermissionsBasedOnAndroidVersion();
-  
+
   runApp(const MyApp());
 }
 
@@ -52,16 +52,16 @@ Future<void> requestPermissionsBasedOnAndroidVersion() async {
 Future<void> _requestAndroid13Permissions() async {
   // For Android 13+, request granular media permissions
   final permissions = [
-    Permission.photos,           // For images
-    Permission.videos,          // For videos  
-    Permission.audio,           // For audio files
-    Permission.notification,    // For notifications
+    Permission.photos, // For images
+    Permission.videos, // For videos
+    Permission.audio, // For audio files
+    Permission.notification, // For notifications
   ];
-  
+
   for (final permission in permissions) {
     await requestPermission(permission);
   }
-  
+
   // Only request MANAGE_EXTERNAL_STORAGE if absolutely necessary for your app
   // Most apps should avoid this permission on Android 13+
   // await requestPermission(Permission.manageExternalStorage);
@@ -75,7 +75,7 @@ Future<void> _requestAndroid11Permissions() async {
     Permission.photos,
     Permission.notification,
   ];
-  
+
   for (final permission in permissions) {
     await requestPermission(permission);
   }
@@ -88,7 +88,7 @@ Future<void> _requestLegacyPermissions() async {
     Permission.photos,
     Permission.notification,
   ];
-  
+
   for (final permission in permissions) {
     await requestPermission(permission);
   }
@@ -97,14 +97,14 @@ Future<void> _requestLegacyPermissions() async {
 Future<bool> requestPermission(Permission permission) async {
   try {
     PermissionStatus status = await permission.request();
-    
+
     // Log permission status for debugging
     print('Permission ${permission.toString()}: ${status.toString()}');
-    
+
     return [
-      PermissionStatus.granted, 
+      PermissionStatus.granted,
       PermissionStatus.limited,
-      PermissionStatus.provisional
+      PermissionStatus.provisional,
     ].contains(status);
   } catch (e) {
     print('Error requesting permission ${permission.toString()}: $e');
@@ -118,7 +118,7 @@ Future<bool> isPermissionGranted(Permission permission) async {
   return [
     PermissionStatus.granted,
     PermissionStatus.limited,
-    PermissionStatus.provisional
+    PermissionStatus.provisional,
   ].contains(status);
 }
 

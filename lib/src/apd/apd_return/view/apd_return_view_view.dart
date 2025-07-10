@@ -1,13 +1,15 @@
-
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:k3_mobile/component/utils.dart';
 import 'package:k3_mobile/const/app_appbar.dart';
+import 'package:k3_mobile/const/app_button.dart';
 import 'package:k3_mobile/const/app_card.dart';
 import 'package:k3_mobile/const/app_color.dart';
+import 'package:k3_mobile/const/app_dialog.dart';
 import 'package:k3_mobile/const/app_page.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
+import 'package:k3_mobile/const/app_textfield.dart';
 import 'package:k3_mobile/src/apd/apd_return/controller/apd_return_view_controller.dart';
 
 class ApdReturnViewView extends GetView<ApdReturnViewController> {
@@ -130,58 +132,58 @@ class ApdReturnViewView extends GetView<ApdReturnViewController> {
                     ),
                   ],
                   SizedBox(height: 12),
-                  Text(
-                    'Tanda tangan',
-                    style: AppTextStyle.actionL.copyWith(
-                      color: AppColor.neutralDarkDarkest,
-                    ),
-                  ),
-                  SizedBox(height: 6),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: AppColor.neutralLightDarkest),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    height: 158,
-                    child: Stack(
-                      children: [
-                        InkWell(
-                          onTap: () async {
-                            final latitude = data?.latitude ?? '';
-                            final longitude = data?.longitude ?? '';
-                            final dateTime = data?.docDate ?? '';
-                            await Get.toNamed(
-                              AppRoute.IMAGE_PREVIEW,
-                              arguments: [
-                                '${longitude},${latitude}',
-                                dateTime,
-                                data?.ttdFile ?? '',
-                              ],
-                            );
-                          },
-                          child: Center(
-                            child: Image.network(
-                              data?.ttdFile ?? '',
-                              height: 138,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 125,
-                          left: 0,
-                          right: 0,
-                          child: Text(
-                            data?.ttdName ?? '',
-                            textAlign: TextAlign.center,
-                            style: AppTextStyle.bodyS.copyWith(
-                              color: AppColor.neutralDarkLight,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  // Text(
+                  //   'Tanda tangan',
+                  //   style: AppTextStyle.actionL.copyWith(
+                  //     color: AppColor.neutralDarkDarkest,
+                  //   ),
+                  // ),
+                  // SizedBox(height: 6),
+                  // Container(
+                  //   decoration: BoxDecoration(
+                  //     color: Colors.white,
+                  //     border: Border.all(color: AppColor.neutralLightDarkest),
+                  //     borderRadius: BorderRadius.circular(12),
+                  //   ),
+                  //   height: 158,
+                  //   child: Stack(
+                  //     children: [
+                  //       InkWell(
+                  //         onTap: () async {
+                  //           final latitude = data?.latitude ?? '';
+                  //           final longitude = data?.longitude ?? '';
+                  //           final dateTime = data?.docDate ?? '';
+                  //           await Get.toNamed(
+                  //             AppRoute.IMAGE_PREVIEW,
+                  //             arguments: [
+                  //               '${longitude},${latitude}',
+                  //               dateTime,
+                  //               data?.ttdFile ?? '',
+                  //             ],
+                  //           );
+                  //         },
+                  //         child: Center(
+                  //           child: Image.network(
+                  //             data?.ttdFile ?? '',
+                  //             height: 138,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //       Positioned(
+                  //         top: 125,
+                  //         left: 0,
+                  //         right: 0,
+                  //         child: Text(
+                  //           data?.ttdName ?? '',
+                  //           textAlign: TextAlign.center,
+                  //           style: AppTextStyle.bodyS.copyWith(
+                  //             color: AppColor.neutralDarkLight,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                   SizedBox(height: 24),
                 ],
               ),
@@ -192,14 +194,78 @@ class ApdReturnViewView extends GetView<ApdReturnViewController> {
     });
   }
 
+  Future<void> _showShippingDataDialog() async {
+    controller.shippingNumberC.value.clear();
+    controller.expeditionNameC.value.clear();
+    await AppDialog.showBasicDialog(
+      title: 'Data Pengiriman',
+      content: _shippingDataDialog(),
+      btn: _sendShippingDataBtn(),
+    );
+    // Get.back();
+  }
+
+  Widget _shippingDataDialog() {
+    return GetBuilder<ApdReturnViewController>(
+      builder: (controller) {
+        return SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppTextField.basicTextField(
+                hintText: 'Nomor Resi',
+                label: 'Nomor Resi',
+                controller: controller.shippingNumberC.value,
+                onChanged: (p0) => controller.update(),
+              ),
+              SizedBox(height: 24),
+              AppTextField.basicTextField(
+                hintText: 'Nama Ekspedisi',
+                label: 'Nama Ekspedisi',
+                controller: controller.expeditionNameC.value,
+                onChanged: (p0) => controller.update(),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _sendShippingDataBtn({bool isEdit = false, int? index}) {
+    return GetBuilder<ApdReturnViewController>(
+      builder: (controller) {
+        final enable = controller.validateShippingData();
+        return AppButton.basicButton(
+          enable: enable,
+          onTap: () async {
+            FocusManager.instance.primaryFocus?.unfocus();
+            if (enable) await controller.setApdStatus('0');
+          },
+          width: double.infinity,
+          color: AppColor.highlightDarkest,
+          height: 50,
+          radius: 12,
+          padding: EdgeInsets.fromLTRB(16, 14, 16, 0),
+          child: Text(
+            'Ajukan',
+            textAlign: TextAlign.center,
+            style: AppTextStyle.actionL.copyWith(
+              color: AppColor.neutralLightLightest,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   List<Widget> _buildActionButtons() {
     final status = controller.viewData.value.data?.docStatus ?? '';
     return [
       if (status == '2')
         _buildActionButton('Ajukan', AppColor.warningDark, () async {
           // ajukan
-          await controller.setApdStatus('0');
-          Get.back();
+          _showShippingDataDialog();
         }),
       if (status == '2' || status == '3')
         _buildActionButton('Edit', AppColor.highlightDarkest, () async {

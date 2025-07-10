@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:k3_mobile/const/app_button.dart';
 import 'package:k3_mobile/const/app_color.dart';
+import 'package:k3_mobile/const/app_page.dart';
 import 'package:k3_mobile/const/app_text_style.dart';
 import 'package:k3_mobile/const/app_textfield.dart';
 import 'package:k3_mobile/generated/assets.dart';
@@ -34,9 +35,9 @@ class LoginView extends GetView<LoginController> {
 
   Widget _buildLoginCard() {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 40),
+      margin: const EdgeInsets.symmetric(vertical: 20),
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 30),
+      padding: const EdgeInsets.symmetric(horizontal: 25),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -51,16 +52,13 @@ class LoginView extends GetView<LoginController> {
   }
 
   Widget _buildLogo() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      child: Image.asset(Assets.imagesImgMkp2, width: 78, height: 32),
-    );
+    return Image.asset(Assets.imagesImgMkp2, width: 125, height: 56);
   }
 
   Widget _buildTitle() {
     return Text(
-      'MSafety',
-      style: AppTextStyle.h1.copyWith(color: AppColor.neutralDarkLight),
+      'Silahkan Masuk',
+      style: AppTextStyle.h2.copyWith(color: AppColor.neutralDarkLight),
     );
   }
 
@@ -70,12 +68,12 @@ class LoginView extends GetView<LoginController> {
       final isLoading = controller.loading.value;
 
       return Padding(
-        padding: const EdgeInsets.only(top: 24),
+        padding: const EdgeInsets.only(top: 12),
         child: Column(
           children: [
             AppTextField.loginTextField(
               controller: controller.nidC,
-              hintText: 'Nama pengguna',
+              hintText: 'NID',
               onChanged: (_) {
                 controller.checkLoginBtnStatus();
               },
@@ -91,8 +89,51 @@ class LoginView extends GetView<LoginController> {
               },
               suffixIcon: _buildPasswordToggleIcon(pwVisible),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 18),
+            InkWell(
+              onTap: () async {
+                Get.toNamed(AppRoute.OTP);
+              },
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  'Lupa kata sandi',
+                  textAlign: TextAlign.right,
+                  style: AppTextStyle.bodyS.copyWith(
+                    fontWeight: FontWeight.normal,
+                    color: AppColor.highlightDarkest,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
             _buildLoginButton(isLoading),
+            const SizedBox(height: 24),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Belum terdaftar? ',
+                  style: AppTextStyle.bodyS.copyWith(
+                    fontWeight: FontWeight.normal,
+                    color: AppColor.neutralDarkLight,
+                  ),
+                ),
+                InkWell(
+                  onTap: () async {
+                    Get.toNamed(AppRoute.REGISTER);
+                  },
+                  child: Text(
+                    'Registrasi',
+                    style: AppTextStyle.bodyS.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: AppColor.highlightDarkest,
+                    ),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 30),
             _buildCopyright(),
           ],

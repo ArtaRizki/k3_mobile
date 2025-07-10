@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -17,6 +18,11 @@ class ImagePreviewController extends GetxController {
   var loading = false.obs;
   Uri path = Uri();
   ImageProvider? img;
+  
+  // Add these variables to handle different image types
+  var isMemoryImage = false.obs;
+  Uint8List? imageBytes;
+  
   var addressData = AddressModel().obs;
   var currentPosition = (null as LatLng?).obs;
 
@@ -32,10 +38,27 @@ class ImagePreviewController extends GetxController {
     }
 
     String argument = Get.arguments[2] as String;
-    if (isFilePath(argument)) {
+    
+    // Check for base64 image first
+    if (isBase64Image(argument)) {
+      try {
+        String cleanBase64 = argument.contains(',') 
+            ? argument.split(',').last 
+            : argument;
+        imageBytes = base64Decode(cleanBase64);
+        img = MemoryImage(imageBytes!);
+        isMemoryImage.value = true;
+      } catch (e) {
+        Utils.showToast("Error: Invalid base64 image!");
+        Get.back();
+        return;
+      }
+    } else if (isFilePath(argument)) {
       img = FileImage(File(argument));
+      isMemoryImage.value = false;
     } else if (isUrl(argument)) {
       img = NetworkImage(argument);
+      isMemoryImage.value = false;
     } else {
       Utils.showToast("Error: Invalid image path!");
       Get.back();
@@ -63,13 +86,14 @@ class ImagePreviewController extends GetxController {
 
     // Store the current date and time
     if (Get.arguments[1] != null) {
-      final datee = DateFormat('dd/MM/yyyy HH:mm').parse(Get.arguments[1]);
+      final datee = DateFormat('dd/MM/yyyy HM:mm').parse(Get.arguments[1]);
       currentDateTime.value = DateFormat(
         'dd/MM/yyyy HH.mm',
       ).format(datee); // Or format it as needed
     }
 
-    if (!isFile() && !isUrl(path.toString())) {
+    // Skip file/URL validation for memory images
+    if (!isMemoryImage.value && !isFile() && !isUrl(path.toString())) {
       // Utils.showToast("Error: Image does not exist!");
       // Get.back();
       Utils.dismissLoading();
@@ -79,6 +103,33 @@ class ImagePreviewController extends GetxController {
 
     Utils.dismissLoading();
     loading.value = false;
+  }
+
+  // Add method to check if string is base64 image
+  bool isBase64Image(String str) {
+    if (str.isEmpty) return false;
+    
+    // Check for data URL format
+    if (str.startsWith('data:image/')) {
+      return true;
+    }
+    
+    // Check if it's a valid base64 string
+    try {
+      // Remove any whitespace
+      String cleanStr = str.replaceAll(RegExp(r'\s+'), '');
+      
+      // Check if it's a valid base64 string
+      if (cleanStr.length % 4 != 0) return false;
+      
+      // Try to decode
+      base64Decode(cleanStr);
+      
+      // Additional check: base64 images are usually quite long
+      return cleanStr.length > 100;
+    } catch (e) {
+      return false;
+    }
   }
 
   bool isFilePath(String path) {
@@ -91,6 +142,52 @@ class ImagePreviewController extends GetxController {
 
   bool isFile() {
     return path.isScheme('file');
+  }
+
+  // Add method to get the appropriate widget for display
+  Widget getImageWidget({
+    double? width,
+    double? height,
+    BoxFit fit = BoxFit.cover,
+  }) {
+    if (isMemoryImage.value && imageBytes != null) {
+      return Image.memory(
+        imageBytes!,
+        width: width,
+        height: height,
+        fit: fit,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            width: width,
+            height: height,
+            color: Colors.grey[300],
+            child: const Icon(Icons.error, color: Colors.red),
+          );
+        },
+      );
+    } else if (img != null) {
+      return Image(
+        image: img!,
+        width: width,
+        height: height,
+        fit: fit,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            width: width,
+            height: height,
+            color: Colors.grey[300],
+            child: const Icon(Icons.error, color: Colors.red),
+          );
+        },
+      );
+    } else {
+      return Container(
+        width: width,
+        height: height,
+        color: Colors.grey[300],
+        child: const Icon(Icons.image, color: Colors.grey),
+      );
+    }
   }
 
   /// Shows GPS enable dialog to user

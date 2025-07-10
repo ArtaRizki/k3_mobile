@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:developer';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:k3_mobile/component/http_request_client.dart';
 import 'package:k3_mobile/component/utils.dart';
@@ -16,6 +18,15 @@ class ApdReturnViewController extends GetxController {
   var loading = false.obs;
   var viewData = ApdReturnViewModel().obs;
   var indexData = 0.obs;
+  String? _currentId;
+
+  var shippingNumberC = TextEditingController().obs,
+      expeditionNameC = TextEditingController().obs;
+
+  bool validateShippingData() {
+    return shippingNumberC.value.text.isNotEmpty &&
+        expeditionNameC.value.text.isNotEmpty;
+  }
 
   @override
   void onInit() async {
@@ -38,6 +49,8 @@ class ApdReturnViewController extends GetxController {
 
   Future<void> getData() async {
     if (!loading.value) {
+      log("ID : ${Get.arguments}");
+      _currentId = Get.arguments;
       loading(true);
       final response = await req.post(
         '/get-data-pengembalian-barang-by-id',
@@ -56,13 +69,27 @@ class ApdReturnViewController extends GetxController {
 
   Future<void> setApdStatus(String status) async {
     if (!loading.value) {
+      log("ID : ${_currentId}");
       loading(true);
+      var body = {
+          'id': '$_currentId',
+          'status': status,
+          'nomor_resi': shippingNumberC.value.text,
+          'nama_ekspedisi': expeditionNameC.value.text,
+        };
+        if (status == '0') {
+          body.addAll({
+          'nomor_resi': shippingNumberC.value.text,
+          'nama_ekspedisi': expeditionNameC.value.text,});
+        }
       final response = await req.post(
         '/set-status-pengembalian',
-        body: {'id': '${Get.arguments}', 'status': status},
+        body: body,
         // isJsonEncode: true,
       );
       if (response.statusCode == 204) {
+        Get.back();
+        getData();
         final msg = 'Data berhasil ${status == '99' ? 'dihapus' : 'disimpan'}';
         await Utils.showSuccess(msg: msg);
         loading(false);

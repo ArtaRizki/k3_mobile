@@ -761,7 +761,7 @@ class ApdReceptionCreateView extends GetView<ApdReceptionCreateController> {
             radius: 12,
             padding: EdgeInsets.fromLTRB(16, loading ? 0 : 18, 16, 0),
             child: Text(
-              'Ajukan',
+              'Selesai',
               textAlign: TextAlign.center,
               style: AppTextStyle.actionL.copyWith(
                 color: AppColor.neutralLightLightest,

@@ -4,16 +4,19 @@
 class InspectionModelData {
   /*
 {
-  "id": "01jx6rjvymd7nd644z342aqc1j",
-  "created_at": "08/06/2025",
+  "id": "01jzs7cnva0fggbhn6ejhxv41g",
+  "created_at": "10/07/2025",
   "code": "001/F.INS-NM/K3L-MKP/X/2025",
   "type": "0",
   "kategori_name": "Near Miss",
   "doc_status": "0",
-  "lokasi": "serlokk",
-  "resiko": "resikooo boss",
-  "petugas": "Admin K3",
-  "doc_date": "04/10/2025 21:00"
+  "lokasi": "lokasibos",
+  "resiko": "Resikobos",
+  "petugas": "Super Admin K3",
+  "longitude": "",
+  "latitude": "null",
+  "doc_date": "07/10/2025 10:51",
+  "link_pdf": "https://mkp-k3l.erdata.id/get-pdf-inspeksi/01jzs7cnva0fggbhn6ejhxv41g"
 } 
 */
 
@@ -26,7 +29,10 @@ class InspectionModelData {
   String? lokasi;
   String? resiko;
   String? petugas;
+  String? longitude;
+  String? latitude;
   String? docDate;
+  String? linkPdf;
 
   InspectionModelData({
     this.id,
@@ -38,7 +44,10 @@ class InspectionModelData {
     this.lokasi,
     this.resiko,
     this.petugas,
+    this.longitude,
+    this.latitude,
     this.docDate,
+    this.linkPdf,
   });
   InspectionModelData.fromJson(Map<String, dynamic> json) {
     id = json['id']?.toString();
@@ -50,7 +59,10 @@ class InspectionModelData {
     lokasi = json['lokasi']?.toString();
     resiko = json['resiko']?.toString();
     petugas = json['petugas']?.toString();
+    longitude = json['longitude']?.toString();
+    latitude = json['latitude']?.toString();
     docDate = json['doc_date']?.toString();
+    linkPdf = json['link_pdf']?.toString();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -63,7 +75,10 @@ class InspectionModelData {
     data['lokasi'] = lokasi;
     data['resiko'] = resiko;
     data['petugas'] = petugas;
+    data['longitude'] = longitude;
+    data['latitude'] = latitude;
     data['doc_date'] = docDate;
+    data['link_pdf'] = linkPdf;
     return data;
   }
 }
@@ -73,16 +88,19 @@ class InspectionModel {
 {
   "data": [
     {
-      "id": "01jx6rjvymd7nd644z342aqc1j",
-      "created_at": "08/06/2025",
+      "id": "01jzs7cnva0fggbhn6ejhxv41g",
+      "created_at": "10/07/2025",
       "code": "001/F.INS-NM/K3L-MKP/X/2025",
       "type": "0",
       "kategori_name": "Near Miss",
       "doc_status": "0",
-      "lokasi": "serlokk",
-      "resiko": "resikooo boss",
-      "petugas": "Admin K3",
-      "doc_date": "04/10/2025 21:00"
+      "lokasi": "lokasibos",
+      "resiko": "Resikobos",
+      "petugas": "Super Admin K3",
+      "longitude": "",
+      "latitude": "null",
+      "doc_date": "07/10/2025 10:51",
+      "link_pdf": "https://mkp-k3l.erdata.id/get-pdf-inspeksi/01jzs7cnva0fggbhn6ejhxv41g"
     }
   ],
   "message": "Data berhasil diambil",

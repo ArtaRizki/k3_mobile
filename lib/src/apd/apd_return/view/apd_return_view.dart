@@ -154,7 +154,7 @@ class ApdReturnView extends GetView<ApdReturnController> {
                               Expanded(
                                 flex: 5,
                                 child: Text(
-                                  item?.requestCode ?? '',
+                                  item?.code ?? '',
                                   style: AppTextStyle.h4.copyWith(
                                     color: AppColor.neutralDarkDarkest,
                                   ),
@@ -211,14 +211,34 @@ class ApdReturnView extends GetView<ApdReturnController> {
                             ),
                           ),
                           SizedBox(height: 3),
-                          Text(
-                            (item?.pengeluaranCode ?? '') +
-                                '     ' +
-                                (item?.docDate ?? ''),
-                            textAlign: TextAlign.left,
-                            style: AppTextStyle.bodyS.copyWith(
-                              color: AppColor.neutralDarkLightest,
-                            ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 6,
+                                child: Text(
+                                  item?.requestCode ?? '',
+                                  style: AppTextStyle.bodyS.copyWith(
+                                    color: AppColor.neutralDarkLightest,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 16),
+                              Expanded(
+                                flex: 4,
+                                child: Text(
+                                  DateFormat('dd/MM/yyyy').format(
+                                    DateFormat(
+                                      'dd/MM/yyyy',
+                                    ).parse(item?.requestDate ?? ''),
+                                  ),
+                                  textAlign: TextAlign.right,
+                                  style: AppTextStyle.bodyS.copyWith(
+                                    color: AppColor.neutralDarkLightest,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),

@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:k3_mobile/component/utils.dart';
@@ -35,6 +38,7 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
                   ..._buildHeader(),
                   ..._buildRequestList(),
                   _buildTimeline(),
+                  // _buildQrCode(),
                 ],
               ),
             ),
@@ -273,6 +277,26 @@ class ApdRequestViewView extends GetView<ApdRequestViewController> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildQrCode() {
+    if (controller.viewData.value.data?.ttd?.isEmpty ?? false)
+      return SizedBox();
+    final qrCode = controller.viewData.value.data?.ttd?.first?.qrCode ?? '';
+    if (qrCode == '') return SizedBox();
+    Uint8List bytes = base64Decode(qrCode.split(',').last);
+    return InkWell(
+      onTap: () async {
+        await Get.toNamed(
+          AppRoute.IMAGE_PREVIEW,
+          arguments: [null, null, qrCode],
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 40),
+        child: Center(child: Image.memory(bytes, height: 138)),
       ),
     );
   }

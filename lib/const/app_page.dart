@@ -19,11 +19,15 @@ import 'package:k3_mobile/src/apd/apd_return/binding/apd_return_view_binding.dar
 import 'package:k3_mobile/src/apd/apd_return/view/apd_return_create_view.dart';
 import 'package:k3_mobile/src/apd/apd_return/view/apd_return_view.dart';
 import 'package:k3_mobile/src/apd/apd_return/view/apd_return_view_view.dart';
+import 'package:k3_mobile/src/change_password/binding/change_password_binding.dart';
+import 'package:k3_mobile/src/change_password/view/change_password_view.dart';
 import 'package:k3_mobile/src/guide/binding/guide_binding.dart';
 import 'package:k3_mobile/src/guide/view/guide_preview_view.dart';
 import 'package:k3_mobile/src/guide/view/guide_view.dart';
 import 'package:k3_mobile/src/home/binding/home_binding.dart';
 import 'package:k3_mobile/src/home/view/home_view.dart';
+import 'package:k3_mobile/src/inspection/inspection_pdf/inspection_pdf_binding.dart';
+import 'package:k3_mobile/src/inspection/inspection_pdf/inspection_pdf_view.dart';
 import 'package:k3_mobile/src/inspection/inspection_project/binding/inspection_project_binding.dart';
 import 'package:k3_mobile/src/inspection/inspection_project/binding/inspection_project_create_binding.dart';
 import 'package:k3_mobile/src/inspection/inspection_project/view/inspection_project_create_view.dart';
@@ -38,8 +42,12 @@ import 'package:k3_mobile/src/login/binding/login_binding.dart';
 import 'package:k3_mobile/src/login/view/login_view.dart';
 import 'package:k3_mobile/src/notification/binding/notification_binding.dart';
 import 'package:k3_mobile/src/notification/view/notification_view.dart';
+import 'package:k3_mobile/src/otp/binding/otp_binding.dart';
+import 'package:k3_mobile/src/otp/view/otp_view.dart';
 import 'package:k3_mobile/src/profile/binding/profile_binding.dart';
 import 'package:k3_mobile/src/profile/view/profile_view.dart';
+import 'package:k3_mobile/src/register/binding/register_binding.dart';
+import 'package:k3_mobile/src/register/view/register_view.dart';
 import 'package:k3_mobile/src/splash/binding/splash_binding.dart';
 import 'package:k3_mobile/src/splash/view/splash_view.dart';
 
@@ -155,6 +163,26 @@ class AppPage {
       name: _Path.IMAGE_PREVIEW,
       page: () => ImagePreviewView(),
       binding: ImagePreviewBinding(),
+    ),
+    GetPage(
+      name: _Path.CHANGE_PASSWORD,
+      page: () => ChangePasswordView(),
+      binding: ChangePasswordBinding(),
+    ),
+    GetPage(
+      name: _Path.REGISTER,
+      page: () => RegisterView(),
+      binding: RegisterBinding(),
+    ),
+    GetPage(
+      name: _Path.INSPECTION_PDF,
+      page: () => InspectionPdfView(),
+      binding: InspectionPdfBinding(),
+    ),
+    GetPage(
+      name: _Path.OTP,
+      page: () => OtpView(),
+      binding: OtpBinding(),
     ),
   ];
 }

@@ -53,7 +53,9 @@ class ApdReturnCreateController extends GetxController {
       apdReqNumberC = TextEditingController().obs,
       expNumberC = TextEditingController().obs,
       vendorC = TextEditingController().obs,
-      noteC = TextEditingController().obs;
+      noteC = TextEditingController().obs,
+      shippingNumberC = TextEditingController().obs,
+      expeditionNameC = TextEditingController().obs;
   var images = <File>[].obs;
   var signature = Rxn<File>();
   var dateTime = Rx<DateTime?>(null);
@@ -98,6 +100,11 @@ class ApdReturnCreateController extends GetxController {
     isValidated.value = await validate();
     d.log("IS VALIDATED : ${isValidated.value}");
     update();
+  }
+
+  bool validateShippingData() {
+    return shippingNumberC.value.text.isNotEmpty &&
+        expeditionNameC.value.text.isNotEmpty;
   }
 
   addPicture() async {
@@ -603,6 +610,8 @@ class ApdReturnCreateController extends GetxController {
       action: null,
       latitude: '${currentPosition.value.latitude}',
       longitude: '${currentPosition.value.longitude}',
+      nomorResi: shippingNumberC.value.text,
+      namaEkspedisi: expeditionNameC.value.text,
     );
     final response = await req.post(
       '/save-data-pengembalian-barang',
@@ -668,6 +677,8 @@ class ApdReturnCreateController extends GetxController {
       action: null,
       latitude: '${currentPosition.value.latitude}',
       longitude: '${currentPosition.value.longitude}',
+      nomorResi: shippingNumberC.value.text,
+      namaEkspedisi: expeditionNameC.value.text,
     );
     final response = await req.post(
       '/save-data-pengembalian-barang',

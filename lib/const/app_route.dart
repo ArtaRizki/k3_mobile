@@ -24,6 +24,10 @@ abstract class AppRoute {
   static const APD_RETURN_CREATE = _Path.APD_RETURN_CREATE;
   static const APD_RETURN_VIEW = _Path.APD_RETURN_VIEW;
   static const IMAGE_PREVIEW = _Path.IMAGE_PREVIEW;
+  static const CHANGE_PASSWORD = _Path.CHANGE_PASSWORD;
+  static const REGISTER = _Path.REGISTER;
+  static const INSPECTION_PDF = _Path.INSPECTION_PDF;
+  static const OTP = _Path.OTP;
 }
 
 abstract class _Path {
@@ -50,4 +54,8 @@ abstract class _Path {
   static const APD_RETURN_CREATE = '/apdReturnCreate';
   static const APD_RETURN_VIEW = '/apdReturnView';
   static const IMAGE_PREVIEW = '/imagePreview';
+  static const CHANGE_PASSWORD = '/changePassword';
+  static const REGISTER = '/register';
+  static const INSPECTION_PDF = '/inspection_pdf';
+  static const OTP = '/otp';
 }

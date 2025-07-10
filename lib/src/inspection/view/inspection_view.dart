@@ -14,7 +14,7 @@ class InspectionView extends GetView {
   @override
   Widget build(BuildContext context) {
     final roleName =
-        Get.find<MainHomeController>().loginModel.value?.data?.roleName;
+        (Get.find<MainHomeController>().loginModel.value?.data?.roleName ?? '');
     return Scaffold(
       backgroundColor: AppColor.neutralLightLightest,
       appBar: AppAppbar.basicAppbar(title: 'Inspeksi', noBack: true),
@@ -24,13 +24,13 @@ class InspectionView extends GetView {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (roleName != 'Pelaksana Non MKP')
+              if (roleName != 'Pelaksana Non Mkp')
                 _buildCard(
                   title: 'Inspeksi Rutin',
                   iconPath: Assets.iconsIcCardRoutineInspection,
                   onTap: () => Get.toNamed(AppRoute.INSPECTION_ROUTINE),
                 ),
-              if (roleName != 'Pelaksana Non MKP') const SizedBox(height: 24),
+              if (roleName != 'Pelaksana Non Mkp') const SizedBox(height: 24),
               _buildCard(
                 title: 'Inspeksi Proyek',
                 iconPath: Assets.iconsIcCardProjectInspection,

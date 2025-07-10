@@ -52,6 +52,7 @@ class LoginController extends GetxController {
         update();
         Get.toNamed(AppRoute.MAIN_HOME);
       } else {
+        loading(false);
         final msg = jsonDecode(response.body)['message'];
         AppSnackbar.showSnackBar(Get.context!, msg, true);
       }
